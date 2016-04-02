@@ -20,8 +20,30 @@ import java.util.logging.Logger;
  * @author Ashraf
  */
 public class ReportingEMail extends SendGrid.Email{
-    private static String attachementFolder = System.getProperty("user.home");
-    public static String apiKey = "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";
+    private static String attachementFolder = System.getProperty("user.home")
+            +"\\" + "Profiling Results";
+    private static String apiKey = "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";
+
+    /**
+     * @return the attachementFolder
+     */
+    public static String getAttachementFolder() {
+        return attachementFolder;
+    }
+
+    /**
+     * @param aAttachementFolder the attachementFolder to set
+     */
+    public static void setAttachementFolder(String aAttachementFolder) {
+        attachementFolder = aAttachementFolder;
+    }
+
+    /**
+     * @return the apiKey
+     */
+    public static String getApiKey() {
+        return apiKey;
+    }
 
 
     public ReportingEMail(String from, String to, String subject, String content) {
@@ -41,7 +63,7 @@ public class ReportingEMail extends SendGrid.Email{
         
         try {
             this.addAttachment(attachementName,
-                    new File(attachementFolder +"\\"+ attachementPath));
+                    new File(getAttachementFolder() +"\\"+ attachementPath));
         } catch (IOException ex) {
             Logger.getLogger(ReportingEMail.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -58,7 +80,7 @@ public class ReportingEMail extends SendGrid.Email{
         
         try {
             this.addAttachment(attachementName,
-                    new File(attachementFolder +"\\"+ attachementName));
+                    new File(getAttachementFolder() + attachementName));
         } catch (IOException ex) {
             Logger.getLogger(ReportingEMail.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -67,7 +89,7 @@ public class ReportingEMail extends SendGrid.Email{
     
     public void send(){
         
-        SendGrid sendgrid = new SendGrid(apiKey);
+        SendGrid sendgrid = new SendGrid(getApiKey());
 
         try {
               SendGrid.Response response = sendgrid.send(this);
@@ -77,4 +99,6 @@ public class ReportingEMail extends SendGrid.Email{
               System.err.println(e);
             }
     }
+    
+    
 }

@@ -122,8 +122,8 @@ public class TableReport {
             Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
         }
             
-            Mail.ReportingEMail mail = new ReportingEMail(fileName);
-            mail.send();
+//            Mail.ReportingEMail mail = new ReportingEMail(fileName);
+//            mail.send();
 //            
     }
 
