@@ -46,7 +46,8 @@ public class TableReport {
     }
 
     private void build(TableInfo tab) {
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(Calendar.getInstance().getTime());
         String fileName = tab.getName() + " " 
                 + timeStamp + ".pdf";
         String saveTo = System.getProperty("user.home")+"\\Profiling Results\\"+
@@ -95,9 +96,11 @@ public class TableReport {
                     .setColumnTitleStyle(columnTitleStyle)
                     .setSubtotalStyle(boldStyle)
                     .highlightDetailEvenRows()
+//                    .detailRowHighlighters(
+//                    condition1)
                     .columns(//add columns
-                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn)
-                    .groupBy(itemGroup)
+                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
+                    //.groupBy(itemGroup)
                     .subtotalsAtSummary(
                             sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
                     .subtotalsAtFirstGroupFooter(
@@ -106,8 +109,8 @@ public class TableReport {
                     .title(//shows report title
                             cmp.horizontalList()
                                     .add(
-                                            cmp.image(getClass().getResource("../Images/bbi.jpg")).setFixedDimension(80, 80),
-                                            cmp.text("BBI Profiling results").setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.LEFT),
+                                            cmp.image(getClass().getResource("bbi.png")).setFixedDimension(160, 120),
+                                            cmp.text("BBI Profiling results").setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.JUSTIFIED),
                                             cmp.text(tab.getName()).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.RIGHT))
                                     .newRow()
                                     .add(cmp.filler().setStyle(stl.style().setTopBorder(stl.pen2Point())).setFixedHeight(10)))
