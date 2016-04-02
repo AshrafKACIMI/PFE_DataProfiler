@@ -14,6 +14,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,8 +46,9 @@ public class TableReport {
     }
 
     private void build(TableInfo tab) {
-        
-        String fileName = "test" + count + ".pdf";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
+        String fileName = tab.getName() + " " 
+                + timeStamp + ".pdf";
         String saveTo = System.getProperty("user.home")+"\\Profiling Results\\"+
                 fileName;
         FileOutputStream fos = null;
@@ -124,6 +128,12 @@ public class TableReport {
             
 //            Mail.ReportingEMail mail = new ReportingEMail(fileName);
 //            mail.send();
+        
+//            final String fileLocation = "\\test1.pdf";
+//            System.out.println(fileLocation);
+//            ReportingEMail instance = new ReportingEMail(fileLocation);
+//            instance.send();
+        
 //            
     }
 

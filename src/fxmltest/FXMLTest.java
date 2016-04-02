@@ -6,6 +6,7 @@
 
 package fxmltest;
 
+import Mail.ReportingEMail;
 import com.jfoenix.controls.JFXDecorator;
 import fxmltest.computing.BasicStatisticsProfiler;
 import javafx.application.Application;
@@ -23,6 +24,8 @@ public class FXMLTest extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
+
+        
         root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         //Scene scene = new Scene(root);
 
