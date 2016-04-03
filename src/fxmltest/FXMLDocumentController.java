@@ -14,6 +14,7 @@ import fxmltest.computing.BasicStatisticsService;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
+import fxmltest.computing.ProfilingScheduler;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
 import java.io.IOException;
@@ -71,6 +72,7 @@ public class FXMLDocumentController implements Initializable {
     private static final ObservableList<ColumnProfilingStatsRow> data
             = FXCollections.observableArrayList();
     private int selectedCol = 1;
+    private static ProfilingScheduler scheduler = new ProfilingScheduler();
 
     @FXML
     private TreeView tableTreeView;
@@ -404,12 +406,46 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private void setThreshold(ActionEvent event){
+        // When the context menu "set threshold" is pressed
         if (tableNumber >= 0){
             StackPane root = (StackPane) FXMLTest.getRoot();
             StackPane content = new ThresholdFormGrid(tables.get(tableNumber));
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
         }
+    }
+    
+    @FXML
+    private void scheduleMenuAction(ActionEvent event){
+        // When the context menu add to schedule is pressed
+        if (tableNumber>= 0){
+            TableInfo table = tables.get(tableNumber);
+
+            // We create a new Service that handles the profiling thread
+            final BasicStatisticsService calculateService = 
+                        new BasicStatisticsService(table);
+            
+            //We      
+            calculateService.stateProperty().addListener((ObservableValue<? extends Worker.State> observableValue, Worker.State oldValue, Worker.State newValue) -> {
+            switch (newValue) {
+                case FAILED:
+                case CANCELLED:
+                case SUCCEEDED:
+                    loadTable();
+                    new TableReport(table);
+                    completenessProgress.setProgress(getOverallCompleteness());
+                break;
+            }
+        });
+            scheduler.addTask(calculateService);
+        } else{
+            System.out.println(tableNumber);
+        }
+    }
+    
+    @FXML
+    private void startScheduler(ActionEvent event){
+        scheduler.start();
     }
     
 
@@ -471,6 +507,8 @@ public class FXMLDocumentController implements Initializable {
     public static void setSqlAreaText(String text){
         sqlArea.setText(text);
     }
+    
+    
    
     
 }

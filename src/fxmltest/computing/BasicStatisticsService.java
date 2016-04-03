@@ -17,8 +17,7 @@ import javafx.concurrent.Worker;
  *
  * @author Ashraf
  */
-public class BasicStatisticsService extends Service<Void>{
-    private TableInfo table;
+public class BasicStatisticsService extends ProfilingService{
     
     public BasicStatisticsService(TableInfo table){
         super();
@@ -28,9 +27,7 @@ public class BasicStatisticsService extends Service<Void>{
     
     @Override
     protected Task<Void> createTask() {
-        
         return new Task<Void>() {
-
             @Override
             protected Void call() throws Exception {
                 BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(table);
