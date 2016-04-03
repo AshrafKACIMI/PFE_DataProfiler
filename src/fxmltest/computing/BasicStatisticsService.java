@@ -30,7 +30,7 @@ public class BasicStatisticsService extends ProfilingService{
         return new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(table);
+                BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(getTable());
                 FXMLDocumentController.setProfiler(profiler);
                 System.out.println("Menu clicked");
                 String sql = profiler.profileTableQuery();

@@ -7,6 +7,9 @@
 package fxmltest.computing;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javafx.concurrent.Task;
 
 /**
  *
@@ -20,9 +23,17 @@ public class ProfilingScheduler {
     }
     
     public void start(){
+        ExecutorService es = Executors.newSingleThreadExecutor();
+        ArrayList<Task<Void>> taskList = new ArrayList<Task<Void>>();
+        
         for (ProfilingService task: this.tasks){
+            task.setExecutor(es);
             task.start();
+            //taskList.add(task.getTask());
         }
+        
+        taskList.forEach(es::execute);
+        es.shutdown();
     }
     
     public void addTask(ProfilingService task){

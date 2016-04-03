@@ -432,7 +432,7 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
-                    new TableReport(table);
+                    new TableReport(calculateService.getTable());
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
             }

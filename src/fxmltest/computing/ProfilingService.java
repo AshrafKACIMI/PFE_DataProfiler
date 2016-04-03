@@ -16,10 +16,27 @@ import javafx.concurrent.Task;
  */
 public abstract class ProfilingService extends Service<Void> {
     protected TableInfo table;
+    protected Task<Void> task;
 
     protected ProfilingService() {
         super();
     }
+
+    /**
+     * @return the task
+     */
+    public Task<Void> getTask() {
+        return task;
+    }
+
+    /**
+     * @return the table
+     */
+    public TableInfo getTable() {
+        return table;
+    }
+    
+    
     
     
     
