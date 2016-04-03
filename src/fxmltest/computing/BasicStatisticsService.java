@@ -40,4 +40,9 @@ public class BasicStatisticsService extends ProfilingService{
             }
         };
     }
+    
+    @Override
+    public String toString(){
+        return "Basic Statistics : " + table.getName();
+    }
 }

@@ -20,8 +20,6 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TreeView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
@@ -32,18 +30,52 @@
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxmltest.FXMLDocumentController">
    <children>
-      <JFXTabPane style="-fx-skin: #5264AE;" tabClosingPolicy="UNAVAILABLE">
+      <JFXTabPane prefWidth="769.0" style="-fx-skin: #5264AE;" tabClosingPolicy="UNAVAILABLE">
          <tabs>
             <Tab style="-fx-background-color: #5264AE;" text="Dashboard">
                <content>
-                  <VBox fx:id="dashboardVbox" />
+                  <VBox fx:id="dashboardVbox" prefWidth="913.0" />
                </content>
             </Tab>
             <Tab style="-fx-background-color: #5264AE;" text="Analysis View">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <VBox prefHeight="765.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <!-- Header -->
+<!--                        <BorderPane>
+
+                            <top>
+                                <VBox spacing="20">
+                                        <JFXToolbar>
+                                                    <leftItems>
+                                                            <JFXRippler maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
+                                                                    <StackPane fx:id="titleBurgerContainer">
+                                                                            <JFXHamburger fx:id="titleBurger">
+                                                                                    <HamburgerBackArrowBasicTransition />
+                                                                            </JFXHamburger>
+                                                                    </StackPane>
+                                                            </JFXRippler>
+                                                            <Label>Material Design</Label>
+                                                    </leftItems>
+                                                    <rightItems>
+                                                            <JFXRippler fx:id="optionsRippler" maskType="CIRCLE"
+                                                                    style="-fx-ripple-color:WHITE;">
+                                                                    <StackPane fx:id="optionsBurger">
+                                                                            <JFXHamburger styleClass="jfx-options-burger">
+                                                                            </JFXHamburger>
+                                                                    </StackPane>
+                                                            </JFXRippler>
+                                                    </rightItems>
+                                            </JFXToolbar>
+                                    </VBox>
+                            </top>
+
+                             Content Area 
+                            
+                        </BorderPane>-->
+
+                        
+                         <VBox prefHeight="765.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
                               <MenuBar VBox.vgrow="NEVER">
                                  <menus>
@@ -88,14 +120,6 @@
                                  <items>
                                     <AnchorPane>
                                        <children>
-                                          <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" minWidth="60.0" prefWidth="-1.0" style="&#10;" text="Master" textAlignment="CENTER" wrapText="false">
-                                             <font>
-                                                <Font size="18.0" fx:id="x1" />
-                                             </font>
-                                             <textFill>
-                                                <Color blue="0.624" green="0.624" red="0.624" fx:id="x2" />
-                                             </textFill>
-                                          </Label>
                                           <SplitPane dividerPositions="0.5, 0.5" layoutX="25.0" layoutY="86.0" orientation="VERTICAL" prefHeight="551.0" prefWidth="410.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                              <items>
                                                 <StackPane prefHeight="150.0" prefWidth="200.0">
@@ -113,14 +137,8 @@
                                                       </TreeView>
                                                    </children>
                                                 </StackPane>
-                                                <AnchorPane prefHeight="200.0" prefWidth="200.0">
-                                                   <children>
-                                                      <ImageView fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true">
-                                                         <image>
-                                                            <Image url="@../Images/bbi.jpg" />
-                                                         </image>
-                                                      </ImageView>
-                                                   </children>
+                                                <AnchorPane fx:id="anchor" prefHeight="200.0" prefWidth="200.0">
+
                                                 </AnchorPane>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="114.0" prefWidth="220.0">
                                                    <children>
@@ -131,7 +149,7 @@
                                           </SplitPane>
                                        </children>
                                     </AnchorPane>
-                                    <SplitPane dividerPositions="0.5" orientation="VERTICAL">
+                                    <SplitPane dividerPositions="0.6" orientation="VERTICAL">
                                       <items>
                                         <AnchorPane minHeight="0.0">
                                              <children>
@@ -142,7 +160,7 @@
                                                             <VBox alignment="TOP_CENTER" minWidth="800.0" prefHeight="351.0" prefWidth="953.0">
                                                                <children>
                                                                   <Label fx:id="resultTableLabel" alignment="CENTER" contentDisplay="CENTER" text="Results" />
-                                                                  <TableView fx:id="tableView" minWidth="800.0" prefHeight="582.0" prefWidth="953.0">
+                                                                  <TableView fx:id="tableView" minWidth="800.0" prefHeight="425.0" prefWidth="893.0">
                                                                     <columns>
                                                                       <TableColumn fx:id="columnCol" prefWidth="256.0" text="Column" />
                                                                         <TableColumn fx:id="countCol" prefWidth="75.0" text="Count" />
