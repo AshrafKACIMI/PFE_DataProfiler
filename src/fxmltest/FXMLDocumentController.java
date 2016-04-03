@@ -10,9 +10,11 @@ import Reporting.TableReport;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXSpinner;
 import fxmltest.computing.BasicStatisticsProfiler;
+import fxmltest.computing.BasicStatisticsService;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
+import fxmltest.computing.ProfilingScheduler;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
 import java.io.IOException;
@@ -35,14 +37,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
@@ -50,12 +49,13 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.ContextMenuEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.stage.Stage;
-import javafx.util.Callback;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
 import testhierarchie.Graphics.ThresholdFormGrid;
 
@@ -64,18 +64,20 @@ import testhierarchie.Graphics.ThresholdFormGrid;
  * @author Ashraf
  */
 public class FXMLDocumentController implements Initializable {
-    
+
+        
     private Label label;
     private ArrayList<TableInfo> tables;
     private int tableNumber;
     private static final ObservableList<ColumnProfilingStatsRow> data
             = FXCollections.observableArrayList();
     private int selectedCol = 1;
+    private static ProfilingScheduler scheduler = new ProfilingScheduler();
 
     @FXML
     private TreeView tableTreeView;
     @FXML
-    private TextArea sqlArea;
+    private static TextArea sqlArea;
     @FXML
     private Color x2;
     @FXML
@@ -165,7 +167,8 @@ public class FXMLDocumentController implements Initializable {
         controller = this;
         initializeTableTreeView();
         initializeTable();
-        this.sqlArea.setWrapText(true);
+        sqlArea = new TextArea();
+        sqlArea.setWrapText(true);
         completenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(completenessProgress);
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
@@ -207,6 +210,10 @@ public class FXMLDocumentController implements Initializable {
         });
         
      
+    }
+    
+    private void initializeKeyboardShortcuts(){
+        menuItemProfile.setAccelerator(new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN));
     }
     
     private void initializeTable(){
@@ -296,21 +303,21 @@ public class FXMLDocumentController implements Initializable {
     
     private void loadChart(){
         int selected = this.tableView.getSelectionModel().getSelectedIndex();
-        
+
         ObservableList<PieChart.Data> pieChartData;
         String columnName;
         int nullCount = getData().get(this.selectedCol).getNbNull();
         int count = getData().get(this.selectedCol).getNbLines();
-        
-         pieChartData =
-                FXCollections.observableArrayList(
-                new PieChart.Data("Null", (float) (nullCount)/count),
-                new PieChart.Data("Not null", (float) (count-nullCount)/count ));
-         System.out.print("Null: ");
-         System.out.println(((float) nullCount)/count);
-         System.out.print("Not Null: ");
-         System.out.println((float) (count - nullCount)/count);
-         //System.out.println("Not Null = "+ (count - nullCount)/count);
+
+        pieChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Null", (float) (nullCount)/count),
+               new PieChart.Data("Not null", (float) (count-nullCount)/count ));
+        System.out.print("Null: ");
+        System.out.println(((float) nullCount)/count);
+        System.out.print("Not Null: ");
+        System.out.println((float) (count - nullCount)/count);
+        //System.out.println("Not Null = "+ (count - nullCount)/count);
          
         
         this.resultsChart.setData(pieChartData);
@@ -362,43 +369,26 @@ public class FXMLDocumentController implements Initializable {
             startSpinner();
             TableInfo table = tables.get(tableNumber);
 
-                final Service<Void> calculateService = new Service<Void>() {
-
-                @Override
-                protected Task<Void> createTask() {
-                    return new Task<Void>() {
-
-                        @Override
-                        protected Void call() throws Exception {
-                            BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(table);
-                            FXMLDocumentController.profiler = profiler;
-                            System.out.println("Menu clicked");
-                            String sql = profiler.profileTableQuery();
-                            sqlArea.setText(sql);
-                            System.out.println(sql);
-                            return null;
-                            
-                        }
-                    };
-                }
-            };
+            // We create a new Service that handles the profiling thread
+            final Service<Void> calculateService = 
+                        new BasicStatisticsService(table);
+            
+            //We      
             calculateService.stateProperty().addListener((ObservableValue<? extends Worker.State> observableValue, Worker.State oldValue, Worker.State newValue) -> {
             switch (newValue) {
                 case FAILED:
                 case CANCELLED:
                 case SUCCEEDED:
-                loadTable();
-                new TableReport(table);
+                    loadTable();
+                    new TableReport(table);
 
-                completenessProgress.setProgress(getOverallCompleteness());
-                    break;
+                    completenessProgress.setProgress(getOverallCompleteness());
+                break;
             }
         });
+
         calculateService.start();
-            
-            
-            
-            System.out.println(profiler);
+        
         } else{
             System.out.println(tableNumber);
         }
@@ -416,12 +406,46 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private void setThreshold(ActionEvent event){
+        // When the context menu "set threshold" is pressed
         if (tableNumber >= 0){
             StackPane root = (StackPane) FXMLTest.getRoot();
             StackPane content = new ThresholdFormGrid(tables.get(tableNumber));
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
         }
+    }
+    
+    @FXML
+    private void scheduleMenuAction(ActionEvent event){
+        // When the context menu add to schedule is pressed
+        if (tableNumber>= 0){
+            TableInfo table = tables.get(tableNumber);
+
+            // We create a new Service that handles the profiling thread
+            final BasicStatisticsService calculateService = 
+                        new BasicStatisticsService(table);
+            
+            //We      
+            calculateService.stateProperty().addListener((ObservableValue<? extends Worker.State> observableValue, Worker.State oldValue, Worker.State newValue) -> {
+            switch (newValue) {
+                case FAILED:
+                case CANCELLED:
+                case SUCCEEDED:
+                    loadTable();
+                    new TableReport(calculateService.getTable());
+                    completenessProgress.setProgress(getOverallCompleteness());
+                break;
+            }
+        });
+            scheduler.addTask(calculateService);
+        } else{
+            System.out.println(tableNumber);
+        }
+    }
+    
+    @FXML
+    private void startScheduler(ActionEvent event){
+        scheduler.start();
     }
     
 
@@ -476,8 +500,15 @@ public class FXMLDocumentController implements Initializable {
      * @return the mainStage
      */
 
-
-
+    public static void setProfiler(BasicStatisticsProfiler profiler) {
+            FXMLDocumentController.profiler = profiler;
+        }
     
+    public static void setSqlAreaText(String text){
+        sqlArea.setText(text);
+    }
+    
+    
+   
     
 }

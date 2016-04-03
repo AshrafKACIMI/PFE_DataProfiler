@@ -14,6 +14,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -43,8 +46,10 @@ public class TableReport {
     }
 
     private void build(TableInfo tab) {
-        
-        String fileName = "test" + count + ".pdf";
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(Calendar.getInstance().getTime());
+        String fileName = tab.getName() + " " 
+                + timeStamp + ".pdf";
         String saveTo = System.getProperty("user.home")+"\\Profiling Results\\"+
                 fileName;
         FileOutputStream fos = null;
@@ -91,9 +96,11 @@ public class TableReport {
                     .setColumnTitleStyle(columnTitleStyle)
                     .setSubtotalStyle(boldStyle)
                     .highlightDetailEvenRows()
+//                    .detailRowHighlighters(
+//                    condition1)
                     .columns(//add columns
-                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn)
-                    .groupBy(itemGroup)
+                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
+                    //.groupBy(itemGroup)
                     .subtotalsAtSummary(
                             sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
                     .subtotalsAtFirstGroupFooter(
@@ -102,8 +109,8 @@ public class TableReport {
                     .title(//shows report title
                             cmp.horizontalList()
                                     .add(
-                                            cmp.image(getClass().getResource("../Images/bbi.jpg")).setFixedDimension(80, 80),
-                                            cmp.text("BBI Profiling results").setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.LEFT),
+                                            cmp.image(getClass().getResource("bbi.png")).setFixedDimension(160, 120),
+                                            cmp.text("BBI Profiling results").setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.JUSTIFIED),
                                             cmp.text(tab.getName()).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.RIGHT))
                                     .newRow()
                                     .add(cmp.filler().setStyle(stl.style().setTopBorder(stl.pen2Point())).setFixedHeight(10)))
@@ -124,6 +131,12 @@ public class TableReport {
             
 //            Mail.ReportingEMail mail = new ReportingEMail(fileName);
 //            mail.send();
+        
+//            final String fileLocation = "\\test1.pdf";
+//            System.out.println(fileLocation);
+//            ReportingEMail instance = new ReportingEMail(fileLocation);
+//            instance.send();
+        
 //            
     }
 

@@ -54,7 +54,7 @@
                                           <Menu mnemonicParsing="false" text="Open Recent" />
                                           <SeparatorMenuItem mnemonicParsing="false" />
                                           <MenuItem fx:id="sendMailMenu" mnemonicParsing="false" onAction="#handleSendMailMenu" text="Send mail" />
-                                          <MenuItem mnemonicParsing="false" text="Save" />
+                                          <MenuItem fx:id="startScheduler" mnemonicParsing="false" onAction="#startScheduler" text="Start Scheduler" />
                                           <MenuItem mnemonicParsing="false" text="Save As…" />
                                           <MenuItem mnemonicParsing="false" text="Revert" />
                                           <SeparatorMenuItem mnemonicParsing="false" />
@@ -106,6 +106,7 @@
                                                               <items>
                                                                 <MenuItem fx:id="menuItemProfile" mnemonicParsing="false" onAction="#onMenuClick" text="Profile" />
                                                                   <MenuItem fx:id="thresholdMenu" mnemonicParsing="false" onAction="#setThreshold" text="Set threshold" />
+                                                                  <MenuItem fx:id="scheduleMenu" mnemonicParsing="false" onAction="#scheduleMenuAction" text="Add to schedule" />
                                                               </items>
                                                             </ContextMenu>
                                                          </contextMenu>
