@@ -6,6 +6,11 @@
 
 package fxmltest;
 
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXTextField;
+import de.jensd.fx.fontawesome.AwesomeIcon;
+import de.jensd.fx.fontawesome.Icon;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
 import java.io.IOException;
@@ -20,10 +25,8 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import testhierarchie.Graphics.RegexFieldValidator;
 
 /**
  * FXML Controller class
@@ -36,26 +39,32 @@ public class LoginController implements Initializable {
     private ArrayList<TableInfo> tables;
     
     @FXML
-    private TextField serverInput;
+    private JFXTextField serverInput;
     @FXML
-    private TextField userInput;
+    private JFXTextField userInput;
     @FXML
-    private TextField portInput;
+    private JFXTextField portInput;
     @FXML
-    private TextField SIDInput;
+    private JFXTextField SIDInput;
     @FXML
-    private Button loginButton;
+    private JFXButton loginButton;
     @FXML
-    private Button cancelButton;
+    private JFXButton cancelButton;
     @FXML
-    private PasswordField passwordInput;
+    private JFXPasswordField passwordInput;
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-      //TODO  
+        RegexFieldValidator validator = new RegexFieldValidator(RegexFieldValidator.IPADDRESS_PATTERN);
+        validator.setMessage("Password Can't be empty");
+        validator.setIcon(new Icon(AwesomeIcon.WARNING,"1em",";","error"));
+        serverInput.getValidators().add(validator);
+        serverInput.focusedProperty().addListener((o,oldVal,newVal)->{
+                if(!newVal) serverInput.validate();
+        });
     }    
 
     @FXML

@@ -39,6 +39,10 @@ public class ProfilingScheduler {
     public void addTask(ProfilingService task){
         this.getTasks().add(task);
     }
+    
+    public void removeTask(int i){
+        this.getTasks().remove(i);
+    }
 
     /**
      * @return the tasks

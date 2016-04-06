@@ -42,8 +42,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BarChart;
+import javafx.scene.Cursor;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
@@ -62,6 +63,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
 import testhierarchie.Graphics.ScheduleTasksDisplay;
 import testhierarchie.Graphics.ThresholdFormGrid;
@@ -96,7 +99,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private PieChart resultsChart;
     @FXML
-    private BarChart<?, ?> resultsHisto;
+    private StackedBarChart<?, ?> resultsHisto;
     @FXML
     private Color x4;
     @FXML
@@ -129,10 +132,12 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<?, ?> violMax;
     @FXML
     private VBox dashboardVbox;
+    @FXML 
+    private WebView webView;
+    
     private ProgressIndicatorGraph completenessProgress;
-    
-    
-    
+    private ScheduleTasksDisplay schedulerTaskDisplay;
+    private ObservableList<StackedBarChart.Series> barChartData;
     
     @FXML
     private TableView tableView;
@@ -172,6 +177,8 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
         Icon value = new Icon("TABLET");
         //value.setStyle(";");
@@ -185,8 +192,8 @@ public class FXMLDocumentController implements Initializable {
         badge.setPrefSize(50, 50);
         badge.setOnMouseClicked((e) -> {
             StackPane root = (StackPane) FXMLTest.getRoot();
-            StackPane content = new ScheduleTasksDisplay(scheduler);
-            JFXPopup popup = new JFXPopup(root, content);
+            this.schedulerTaskDisplay = new ScheduleTasksDisplay(scheduler);
+            JFXPopup popup = new JFXPopup(root, schedulerTaskDisplay);
             popup.setSource(badge);
             popup.show(PopupVPosition.TOP, PopupHPosition.LEFT);
         });
@@ -199,7 +206,6 @@ public class FXMLDocumentController implements Initializable {
         dashboardVbox.getChildren().add(completenessProgress);
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
-        
     }
 
     
@@ -302,6 +308,8 @@ public class FXMLDocumentController implements Initializable {
 //            };
 //        });
     }
+    
+//
     
     private void loadTable(){
         getData().clear();
@@ -406,14 +414,15 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
-                    new TableReport(table);
-
+                    //new TableReport(table);
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
             }
         });
 
         calculateService.start();
+        startSpinner();
+
         
         } else{
             System.out.println(tableNumber);
@@ -496,10 +505,12 @@ public class FXMLDocumentController implements Initializable {
     
     public void startSpinner(){
         this.spinner.setVisible(true);
+        FXMLTest.getRoot().getScene().setCursor(Cursor.WAIT);
     }
     
     public void stopSpinner(){
         this.spinner.setVisible(false);
+        //FXMLTest.getRoot().getScene().setCursor(Cursor.DEFAULT);
     }
 
     /**
@@ -541,6 +552,11 @@ public class FXMLDocumentController implements Initializable {
     
     public static ProfilingScheduler getScheduler(){
         return scheduler;
+    }
+    
+    @FXML
+    private void deleteFromScheduler(){
+        this.schedulerTaskDisplay.removeSelectedTask();
     }
     
     
