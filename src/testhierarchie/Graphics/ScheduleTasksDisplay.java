@@ -56,24 +56,24 @@ public class ScheduleTasksDisplay extends StackPane{
     }
     
     public void removeSelectedTask(){
-        this.listView.removeTask(this.listView.getSelecteIndex());
+        this.listView.removeTask(this.listView.getSelectedIndex());
     }
     
     public void removeSelectedTasks(){
         final ObservableList<Integer> selectedIndexes = listView.getSelectionModel().getSelectedIndices();
                 
-                if ( selectedIndexes != null ){
-                    System.out.println("DELETE KEY PRESSED");
-                    //Delete or whatever you like:
-                    for (int i = 0; i < selectedIndexes.size(); i++){
-                        System.out.println("row to delete: " + i);
-                        int index = selectedIndexes.get(i);
-                        if (selectedIndexes.contains(i+1))
-                            i--;
-                        listView.removeTask(index);
-                        
-                    }
-                }
+        if ( selectedIndexes != null ){
+            System.out.println("DELETE KEY PRESSED");
+            //Delete or whatever you like:
+            for (int i = 0; i < selectedIndexes.size(); i++){
+                System.out.println("row to delete: " + i);
+                int index = selectedIndexes.get(i);
+                if (selectedIndexes.contains(i+1))
+                    i--;
+                listView.removeTask(index);
+
+            }
+        }
     }    
             
     private class ScheduleTasksListView extends JFXListView<Label>{
@@ -134,7 +134,7 @@ public class ScheduleTasksDisplay extends StackPane{
             FXMLDocumentController.getScheduler().removeTask(i);
         }
         
-        public int getSelecteIndex(){
+        public int getSelectedIndex(){
             return getSelectionModel().getSelectedIndex();
         }
 

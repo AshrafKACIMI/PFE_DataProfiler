@@ -38,21 +38,23 @@ public class RegexFieldValidator extends RequiredFieldValidator{
 			evalTextInputField();
 	}
 	
-	private void evalTextInputField(){
-		TextInputControl textField = (TextInputControl) srcControl.get();
-                if (regex.equals(IPADDRESS_PATTERN) && textField.getText().equals("localhost"))
-                    hasErrors.set(false);
+    private void evalTextInputField(){
+        TextInputControl textField = (TextInputControl) srcControl.get();
+        
+        if (regex.equals(IPADDRESS_PATTERN) && textField.getText().equals("localhost"))
+            hasErrors.set(false);
 
-                else if (textField.getText() == null || textField.getText().equals("")){
-                    hasErrors.set(true);
-                    setMessage("This field can't be empty");
-                }
-		else if (!textField.getText().matches(regex)){
-                    hasErrors.set(true);
-                    setMessage("Invalid value");
-                }
-                else{
-                    hasErrors.set(false);
-                }
-	}
+        else if (textField.getText() == null || textField.getText().equals("")){
+            hasErrors.set(true);
+            setMessage("This field can't be empty");
+        }
+        else if (!textField.getText().matches(regex)){
+            hasErrors.set(true);
+            setMessage("Invalid value");
+        }
+        else{
+            hasErrors.set(false);
+        }
+    }
+    
 }

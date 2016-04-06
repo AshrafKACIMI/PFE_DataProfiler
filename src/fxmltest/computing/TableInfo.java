@@ -1,11 +1,18 @@
 package fxmltest.computing;
 
 import java.util.ArrayList;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
 
 /**
  *
  * @author Ashraf
  */
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlRootElement(name = "Table")
 public class TableInfo {
     private String schema;
     private String name;
@@ -63,6 +70,7 @@ public class TableInfo {
     /**
      * @return the columns
      */
+    
     public ArrayList<ColumnInfo> getColumns() {
         return columns;
     }
@@ -90,5 +98,9 @@ public class TableInfo {
         return null; // ewwww !
     }
     
+    
+    public TableInfo(){
+        
+    }
     
 }

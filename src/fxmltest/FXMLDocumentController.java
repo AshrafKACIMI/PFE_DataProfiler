@@ -6,13 +6,18 @@
 
 package fxmltest;
 
+import Mail.EmailOptions;
+import Mail.MailListView;
 import Reporting.TableReport;
 import com.jfoenix.controls.JFXBadge;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
 import com.jfoenix.controls.JFXPopup.PopupVPosition;
 import com.jfoenix.controls.JFXSpinner;
+import com.jfoenix.controls.JFXTextField;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
 import fxmltest.computing.BasicStatisticsProfiler;
 import fxmltest.computing.BasicStatisticsService;
@@ -22,6 +27,7 @@ import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.ProfilingScheduler;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -59,13 +65,18 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
+import testhierarchie.Graphics.RegexFieldValidator;
 import testhierarchie.Graphics.ScheduleTasksDisplay;
 import testhierarchie.Graphics.ThresholdFormGrid;
 
@@ -74,7 +85,8 @@ import testhierarchie.Graphics.ThresholdFormGrid;
  * @author Ashraf
  */
 public class FXMLDocumentController implements Initializable {
-
+    private static final String FILE_NAME = "jaxb-emp.xml";
+    
     private static JFXBadge badge;    
     private Label label;
     private ArrayList<TableInfo> tables;
@@ -134,6 +146,12 @@ public class FXMLDocumentController implements Initializable {
     private VBox dashboardVbox;
     @FXML 
     private WebView webView;
+    @FXML
+    private HBox notificationsBox;
+    @FXML
+    private JFXTextField addMailField;
+    @FXML
+    private JFXButton addMailButton;
     
     private ProgressIndicatorGraph completenessProgress;
     private ScheduleTasksDisplay schedulerTaskDisplay;
@@ -146,6 +164,11 @@ public class FXMLDocumentController implements Initializable {
     private static BasicStatisticsProfiler profiler;
     @FXML
     private MenuItem sendMailMenu;
+    
+    private static MailListView mailListView;
+    
+    @FXML
+    private AnchorPane mailListContainer;
     private static FXMLDocumentController controller;
     
     public static FXMLDocumentController getController(){
@@ -177,11 +200,11 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        initializeMailTab();
         WebEngine webEngine = webView.getEngine();
         webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
-        Icon value = new Icon("TABLET");
-        //value.setStyle(";");
+        Icon value = new Icon("STAR");
         sqlArea = new TextArea();
         value.setId("icon");
         badge = new JFXBadge(value);
@@ -197,7 +220,7 @@ public class FXMLDocumentController implements Initializable {
             popup.setSource(badge);
             popup.show(PopupVPosition.TOP, PopupHPosition.LEFT);
         });
-        anchor.getChildren().add(badge);
+        notificationsBox.getChildren().add(badge);
         controller = this;
         initializeTableTreeView();
         initializeTable();
@@ -206,6 +229,23 @@ public class FXMLDocumentController implements Initializable {
         dashboardVbox.getChildren().add(completenessProgress);
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
+    }
+    
+    private void initializeMailTab(){
+        
+        RegexFieldValidator validator = new RegexFieldValidator(RegexFieldValidator.EMAIL_PATTERN);
+        validator.setIcon(new Icon(AwesomeIcon.WARNING,"1em",";","error"));
+        addMailField.getValidators().add(validator);
+        addMailField.focusedProperty().addListener((o,oldVal,newVal)->{
+                if(!newVal) addMailField.validate();
+        });
+        
+        mailListView = new MailListView(new ArrayList<String>());
+        getMailListView().addMail("kacimi.achraf@gmail.com");
+        getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
+        mailListContainer.getChildren().add(getMailListView());
+
+        //mailListContainer.getChildren();
     }
 
     
@@ -414,6 +454,7 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
+                    jaxbObjectToXML(table);
                     //new TableReport(table);
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
@@ -488,6 +529,37 @@ public class FXMLDocumentController implements Initializable {
         scheduler.start();
     }
     
+    @FXML
+    private void addMailAction(ActionEvent event){
+        
+        if (!addMailField.getValidators().get(0).getHasErrors()){
+            getMailListView().addMail(addMailField.getText());
+        
+        for (String s: EmailOptions.getMails()){
+            System.out.println("mail : " + s);
+        }
+        
+        String cct = "";
+        for (String s: mailListView.getMailList()){
+            System.out.println("mail 2: " + s);
+            cct+= s;
+        }
+        sqlArea.setText(cct);
+        }
+    }
+    
+    @FXML
+    private void deleteMailAction(ActionEvent event){
+        getMailListView().removeSelectedMails();
+    }
+    
+    @FXML
+    private void clearMailAction(ActionEvent event){
+        getMailListView().clear();
+    }
+    
+    
+    
 
     /**
      * @return the tableTreeView
@@ -558,8 +630,30 @@ public class FXMLDocumentController implements Initializable {
     private void deleteFromScheduler(){
         this.schedulerTaskDisplay.removeSelectedTask();
     }
+
+    /**
+     * @return the mailListView
+     */
+    public static MailListView getMailListView() {
+        return mailListView;
+    }
     
-    
-   
+    private static void jaxbObjectToXML(TableInfo table) {
+ 
+        try {
+            JAXBContext context = JAXBContext.newInstance(TableInfo.class);
+            Marshaller m = context.createMarshaller();
+            //for pretty-print XML in JAXB
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+ 
+            // Write to System.out for debugging
+            // m.marshal(emp, System.out);
+ 
+            // Write to File
+            m.marshal(table, new File(FILE_NAME));
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
     
 }

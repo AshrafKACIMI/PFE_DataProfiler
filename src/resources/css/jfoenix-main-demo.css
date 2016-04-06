@@ -63,10 +63,10 @@
     	-fx-button-type:RAISED;
 }
 
-.label{
+/*.label{
     -fx-text-align: center;
     -fx-font-weight: bolder;
-}
+}*/
 
 #jfx-dialog-layout {
 	-fx-padding: 24.0px 24.0px 16.0px 24.0px;
@@ -158,15 +158,15 @@
 	-fx-background-radius:4px;
 }
 
-.icons-badge .badge-pane {
+#icons-badge .badge-pane {
 	-fx-background-color:#ff4081;
-	-fx-background-radius: 23;	
-	-fx-pref-width: 23;
-	-fx-pref-height: 23;	
+	-fx-background-radius: 15;	
+	-fx-pref-width: 15;
+	-fx-pref-height: 15;	
 	-fx-alignment: center;
 }
 
-.icons-badge Label{
+#icons-badge Label{
 	-fx-font-weight: BOLD;
 	-fx-font-size: 14.0px;
 	-fx-text-fill: WHITE;

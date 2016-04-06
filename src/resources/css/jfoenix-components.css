@@ -84,7 +84,7 @@
 }
 
 /* Icons Demo */
-.icon{
+#icon{
 	-fx-text-fill: #FE774D;
 	-fx-padding: 10;
 	-fx-cursor: hand;
