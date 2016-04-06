@@ -26,7 +26,7 @@ public class ProfilingScheduler {
         ExecutorService es = Executors.newSingleThreadExecutor();
         ArrayList<Task<Void>> taskList = new ArrayList<Task<Void>>();
         
-        for (ProfilingService task: this.tasks){
+        for (ProfilingService task: this.getTasks()){
             task.setExecutor(es);
             task.start();
             //taskList.add(task.getTask());
@@ -37,7 +37,18 @@ public class ProfilingScheduler {
     }
     
     public void addTask(ProfilingService task){
-        this.tasks.add(task);
+        this.getTasks().add(task);
+    }
+    
+    public void removeTask(int i){
+        this.getTasks().remove(i);
+    }
+
+    /**
+     * @return the tasks
+     */
+    public ArrayList<ProfilingService> getTasks() {
+        return tasks;
     }
         
 }

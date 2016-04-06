@@ -24,6 +24,13 @@ public class HistogramComputing {
         this.min = min;
         this.max = max;
         this.pas = (max - min) / nb_histo;
+        
+        String query = 
+                "SELECT ROUND(numeric_value, -2)    AS bucket,\n" +
+                "       COUNT(*)                    AS COUNT,\n" +
+                "       RPAD('', LN(COUNT(*)), '*') AS bar\n" +
+                "FROM   my_table\n" +
+                "GROUP  BY bucket";
     }
     
 //    

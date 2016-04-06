@@ -42,6 +42,8 @@ public class FXMLTest extends Application {
         stage.setTitle("Cool Profiler");
 
         stage.show();
+        
+        FXMLDocumentController controller;
     }
 
     /**

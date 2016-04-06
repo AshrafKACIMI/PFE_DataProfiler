@@ -7,8 +7,13 @@
 package fxmltest;
 
 import Reporting.TableReport;
+import com.jfoenix.controls.JFXBadge;
 import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXPopup;
+import com.jfoenix.controls.JFXPopup.PopupHPosition;
+import com.jfoenix.controls.JFXPopup.PopupVPosition;
 import com.jfoenix.controls.JFXSpinner;
+import de.jensd.fx.fontawesome.Icon;
 import fxmltest.computing.BasicStatisticsProfiler;
 import fxmltest.computing.BasicStatisticsService;
 import fxmltest.computing.ColumnInfo;
@@ -28,7 +33,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import static javafx.concurrent.Worker.State.CANCELLED;
 import static javafx.concurrent.Worker.State.FAILED;
@@ -37,8 +41,10 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.BarChart;
+import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
@@ -52,11 +58,15 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
+import testhierarchie.Graphics.ScheduleTasksDisplay;
 import testhierarchie.Graphics.ThresholdFormGrid;
 
 /**
@@ -65,7 +75,7 @@ import testhierarchie.Graphics.ThresholdFormGrid;
  */
 public class FXMLDocumentController implements Initializable {
 
-        
+    private static JFXBadge badge;    
     private Label label;
     private ArrayList<TableInfo> tables;
     private int tableNumber;
@@ -77,6 +87,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private TreeView tableTreeView;
     @FXML
+    private AnchorPane anchor;
+    @FXML
     private static TextArea sqlArea;
     @FXML
     private Color x2;
@@ -87,7 +99,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private PieChart resultsChart;
     @FXML
-    private BarChart<?, ?> resultsHisto;
+    private StackedBarChart<?, ?> resultsHisto;
     @FXML
     private Color x4;
     @FXML
@@ -120,10 +132,12 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<?, ?> violMax;
     @FXML
     private VBox dashboardVbox;
+    @FXML 
+    private WebView webView;
+    
     private ProgressIndicatorGraph completenessProgress;
-    
-    
-    
+    private ScheduleTasksDisplay schedulerTaskDisplay;
+    private ObservableList<StackedBarChart.Series> barChartData;
     
     @FXML
     private TableView tableView;
@@ -163,17 +177,35 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        WebEngine webEngine = webView.getEngine();
+        webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
+        Icon value = new Icon("TABLET");
+        //value.setStyle(";");
+        sqlArea = new TextArea();
+        value.setId("icon");
+        badge = new JFXBadge(value);
+        badge.setPosition(Pos.TOP_RIGHT);
+        badge.setText("0");
+        badge.setId("icons-badge");
+        sqlArea.setText(badge.getStyle());
+        badge.setPrefSize(50, 50);
+        badge.setOnMouseClicked((e) -> {
+            StackPane root = (StackPane) FXMLTest.getRoot();
+            this.schedulerTaskDisplay = new ScheduleTasksDisplay(scheduler);
+            JFXPopup popup = new JFXPopup(root, schedulerTaskDisplay);
+            popup.setSource(badge);
+            popup.show(PopupVPosition.TOP, PopupHPosition.LEFT);
+        });
+        anchor.getChildren().add(badge);
         controller = this;
         initializeTableTreeView();
         initializeTable();
-        sqlArea = new TextArea();
         sqlArea.setWrapText(true);
         completenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(completenessProgress);
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
-        
     }
 
     
@@ -276,6 +308,8 @@ public class FXMLDocumentController implements Initializable {
 //            };
 //        });
     }
+    
+//
     
     private void loadTable(){
         getData().clear();
@@ -380,14 +414,15 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
-                    new TableReport(table);
-
+                    //new TableReport(table);
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
             }
         });
 
         calculateService.start();
+        startSpinner();
+
         
         } else{
             System.out.println(tableNumber);
@@ -434,10 +469,15 @@ public class FXMLDocumentController implements Initializable {
                     loadTable();
                     new TableReport(calculateService.getTable());
                     completenessProgress.setProgress(getOverallCompleteness());
+                    badge.setText(String.valueOf( 
+                            Integer.parseInt(badge.getText()) - 1));
                 break;
             }
         });
             scheduler.addTask(calculateService);
+            int val = Integer.parseInt(badge.getText());
+            badge.setText(String.valueOf(val + 1 ));
+
         } else{
             System.out.println(tableNumber);
         }
@@ -465,10 +505,12 @@ public class FXMLDocumentController implements Initializable {
     
     public void startSpinner(){
         this.spinner.setVisible(true);
+        FXMLTest.getRoot().getScene().setCursor(Cursor.WAIT);
     }
     
     public void stopSpinner(){
         this.spinner.setVisible(false);
+        //FXMLTest.getRoot().getScene().setCursor(Cursor.DEFAULT);
     }
 
     /**
@@ -506,6 +548,15 @@ public class FXMLDocumentController implements Initializable {
     
     public static void setSqlAreaText(String text){
         sqlArea.setText(text);
+    }
+    
+    public static ProfilingScheduler getScheduler(){
+        return scheduler;
+    }
+    
+    @FXML
+    private void deleteFromScheduler(){
+        this.schedulerTaskDisplay.removeSelectedTask();
     }
     
     
