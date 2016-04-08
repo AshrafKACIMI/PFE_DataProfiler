@@ -377,16 +377,16 @@
 *******************************************************************************/
 
 .jfx-progress-bar{
-	-fx-pref-width: 500.0;
+	-fx-pref-width: 200.0;
 }
 
 .jfx-progress-bar > .track {
-	-fx-min-width: 500.0;
+	-fx-min-width: 200.0;
 }
 
 .custom-jfx-progress-bar .track {
 	-fx-stroke: #C8C8C8;
-	-fx-stroke-width: 5.0;
+	-fx-stroke-width: 15.0;
 }
 
 .custom-jfx-progress-bar .bar {

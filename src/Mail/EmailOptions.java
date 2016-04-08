@@ -16,6 +16,7 @@ import java.lang.String;
  */
 public class EmailOptions {
     static private boolean on;
+    static private boolean report = true;
     static private ArrayList<String> mailingList = 
             FXMLDocumentController.getMailListView().getMailList();
 
@@ -35,6 +36,20 @@ public class EmailOptions {
     
     public static String[] getMails(){
         return mailingList.toArray(new String[0]);
+    }
+
+    /**
+     * @return the report
+     */
+    public static boolean isReport() {
+        return report;
+    }
+
+    /**
+     * @param aReport the report to set
+     */
+    public static void setReport(boolean aReport) {
+        report = aReport;
     }
     
     

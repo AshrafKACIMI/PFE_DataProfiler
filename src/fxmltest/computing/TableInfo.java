@@ -98,6 +98,20 @@ public class TableInfo {
         return null; // ewwww !
     }
     
+    public int getOverallCompleteness(){
+        double sumNbNull = 0;
+        double sumNbLines = 0;
+        
+        
+        for (ColumnInfo col: this.columns){
+            sumNbNull += col.getStats().getNbNull();
+            sumNbLines += col.getStats().getNbLines();
+            System.out.println(sumNbLines + " | "+ sumNbNull);
+        }
+        
+        return (int) (100 - 100 * (sumNbNull / sumNbLines));
+    }
+    
     
     public TableInfo(){
         

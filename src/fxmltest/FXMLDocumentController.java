@@ -15,8 +15,10 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
 import com.jfoenix.controls.JFXPopup.PopupVPosition;
+import com.jfoenix.controls.JFXProgressBar;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
 import fxmltest.computing.BasicStatisticsProfiler;
@@ -89,7 +91,7 @@ public class FXMLDocumentController implements Initializable {
     
     private static JFXBadge badge;    
     private Label label;
-    private ArrayList<TableInfo> tables;
+    private static ArrayList<TableInfo> tables;
     private int tableNumber;
     private static final ObservableList<ColumnProfilingStatsRow> data
             = FXCollections.observableArrayList();
@@ -165,6 +167,17 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private MenuItem sendMailMenu;
     
+    @FXML
+    JFXProgressBar distinctProgress;
+    @FXML
+    JFXProgressBar notNullProgress;
+    
+    @FXML
+    JFXToggleButton mailToggle;
+    @FXML
+    JFXToggleButton reportToggle;
+    
+    
     private static MailListView mailListView;
     
     @FXML
@@ -200,6 +213,8 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.notNullProgress.setProgress(0.0000001);
+        this.distinctProgress.setProgress(.0);
         initializeMailTab();
         WebEngine webEngine = webView.getEngine();
         webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
@@ -233,6 +248,32 @@ public class FXMLDocumentController implements Initializable {
     
     private void initializeMailTab(){
         
+        mailToggle.setSelected(true);
+        reportToggle.setSelected(true);
+        
+        mailToggle.selectedProperty().addListener(new ChangeListener<Boolean>(){
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                EmailOptions.setOn(newValue);
+            }
+        });
+        
+        reportToggle.selectedProperty().addListener(new ChangeListener<Boolean>(){
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                //EmailOptions.setOn(newValue);
+                EmailOptions.setReport(newValue);
+                if (!newValue){
+                    mailToggle.setSelected(false);
+                    mailToggle.setDisable(true);
+                } else {
+                    mailToggle.setDisable(false);
+                }
+                
+            }
+        });
+        //mailToggle.isSelected()
+        
         RegexFieldValidator validator = new RegexFieldValidator(RegexFieldValidator.EMAIL_PATTERN);
         validator.setIcon(new Icon(AwesomeIcon.WARNING,"1em",";","error"));
         addMailField.getValidators().add(validator);
@@ -244,7 +285,6 @@ public class FXMLDocumentController implements Initializable {
         getMailListView().addMail("kacimi.achraf@gmail.com");
         getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
         mailListContainer.getChildren().add(getMailListView());
-
         //mailListContainer.getChildren();
     }
 
@@ -396,6 +436,20 @@ public class FXMLDocumentController implements Initializable {
         
         this.resultsChart.setData(pieChartData);
         this.resultsChart.setTitle(getData().get(this.selectedCol).getColumnName());
+            distinctProgress.setProgress(
+                    getData().get(this.selectedCol).getNbDistinct()
+                    / getData().get(this.selectedCol).getNbLines()
+            );
+  
+            notNullProgress.setProgress(100.0 - 
+                    getData().get(this.selectedCol).getNbNull()
+                    / getData().get(this.selectedCol).getNbLines());
+
+        
+        
+                    
+        
+        
         
     }
     
@@ -455,7 +509,8 @@ public class FXMLDocumentController implements Initializable {
                 case SUCCEEDED:
                     loadTable();
                     jaxbObjectToXML(table);
-                    //new TableReport(table);
+                    if (EmailOptions.isReport())
+                        new TableReport(table);
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
             }

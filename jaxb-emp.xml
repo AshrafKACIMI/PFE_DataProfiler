@@ -1,51 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Table>
-    <name>DEPARTMENTS</name>
-    <columns>
-        <name>MANAGER_ID</name>
-        <type>NUMBER</type>
-        <stats>
-            <columnName>MANAGER_ID</columnName>
-            <max>11</max>
-            <min>3</min>
-            <nbDistinct>3</nbDistinct>
-            <nbLines>27</nbLines>
-            <nbNull>16</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>DEPARTMENT_NAME</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>DEPARTMENT_NAME</columnName>
-            <max>27</max>
-            <min>2</min>
-            <nbDistinct>20</nbDistinct>
-            <nbLines>27</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
+    <name>LOCATIONS</name>
     <columns>
         <name>LOCATION_ID</name>
         <type>NUMBER</type>
         <stats>
             <columnName>LOCATION_ID</columnName>
-            <max>7</max>
+            <max>23</max>
             <min>4</min>
             <nbDistinct>4</nbDistinct>
-            <nbLines>27</nbLines>
+            <nbLines>23</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -56,14 +20,14 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>DEPARTMENT_ID</name>
-        <type>NUMBER</type>
+        <name>STREET_ADDRESS</name>
+        <type>VARCHAR2</type>
         <stats>
-            <columnName>DEPARTMENT_ID</columnName>
-            <max>27</max>
-            <min>2</min>
-            <nbDistinct>3</nbDistinct>
-            <nbLines>27</nbLines>
+            <columnName>STREET_ADDRESS</columnName>
+            <max>23</max>
+            <min>14</min>
+            <nbDistinct>40</nbDistinct>
+            <nbLines>23</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -72,5 +36,77 @@
         </stats>
         <isUnique>false</isUnique>
         <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>COUNTRY_ID</name>
+        <type>CHAR</type>
+        <stats>
+            <columnName>COUNTRY_ID</columnName>
+            <max>14</max>
+            <min>2</min>
+            <nbDistinct>2</nbDistinct>
+            <nbLines>23</nbLines>
+            <nbNull>0</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>CITY</name>
+        <type>VARCHAR2</type>
+        <stats>
+            <columnName>CITY</columnName>
+            <max>23</max>
+            <min>4</min>
+            <nbDistinct>19</nbDistinct>
+            <nbLines>23</nbLines>
+            <nbNull>0</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>true</isUnique>
+        <isNotNull>true</isNotNull>
+    </columns>
+    <columns>
+        <name>STATE_PROVINCE</name>
+        <type>VARCHAR2</type>
+        <stats>
+            <columnName>STATE_PROVINCE</columnName>
+            <max>17</max>
+            <min>2</min>
+            <nbDistinct>17</nbDistinct>
+            <nbLines>23</nbLines>
+            <nbNull>6</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>true</isUnique>
+        <isNotNull>true</isNotNull>
+    </columns>
+    <columns>
+        <name>POSTAL_CODE</name>
+        <type>VARCHAR2</type>
+        <stats>
+            <columnName>POSTAL_CODE</columnName>
+            <max>22</max>
+            <min>4</min>
+            <nbDistinct>11</nbDistinct>
+            <nbLines>23</nbLines>
+            <nbNull>1</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>true</isUnique>
+        <isNotNull>true</isNotNull>
     </columns>
 </Table>
