@@ -19,8 +19,7 @@ import testhierarchie.Graphics.Login;
  * @author Ashraf
  */
 public class BasicStatisticsProfiler {
-    //private String tableName;
-    //private TableProfilingStats results;
+
     public static String alternativeNull = "'-99'";
     private TableInfo table;
     

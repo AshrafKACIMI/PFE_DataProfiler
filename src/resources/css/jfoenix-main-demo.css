@@ -12,6 +12,9 @@
 	-fx-font-weight: NORMAL;
 	-fx-text-fill: #444;
 }
+
+
+
 .title-label{
 	-fx-font-size: 16.0px;
 	-fx-padding	: 14.0px;
@@ -151,6 +154,22 @@
 
 .icons-rippler:hover{
 	-fx-cursor: hand;
+}
+
+#tab-panee *.tab-header-background {
+    -fx-background-color: #5264AE;
+}
+
+#tab-panee .tab-header-area .tab-header-background {
+    -fx-background-color: #5264AE;
+}
+
+.tab-panee *.tab-header-background {
+    -fx-background-color: #5264AE;
+}
+
+.tab-panee .tab-header-area .tab-header-background {
+    -fx-background-color: #5264AE;
 }
 
 .animated-burgers .jfx-hamburger StackPane{

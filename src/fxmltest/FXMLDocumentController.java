@@ -77,9 +77,11 @@ import javafx.scene.web.WebView;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import testhierarchie.Graphics.ColumnComboBox;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
 import testhierarchie.Graphics.RegexFieldValidator;
 import testhierarchie.Graphics.ScheduleTasksDisplay;
+import testhierarchie.Graphics.TableComboBox;
 import testhierarchie.Graphics.ThresholdFormGrid;
 
 /**
@@ -90,6 +92,27 @@ public class FXMLDocumentController implements Initializable {
     private static final String FILE_NAME = "jaxb-emp.xml";
     
     private static JFXBadge badge;    
+
+    /**
+     * @return the tables
+     */
+    public static ArrayList<TableInfo> getTables() {
+        return tables;
+    }
+
+    /**
+     * @return the parentColumns
+     */
+    public static ColumnComboBox getParentColumns() {
+        return parentColumns;
+    }
+
+    /**
+     * @return the childColumns
+     */
+    public static ColumnComboBox getChildColumns() {
+        return childColumns;
+    }
     private Label label;
     private static ArrayList<TableInfo> tables;
     private int tableNumber;
@@ -177,11 +200,25 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     JFXToggleButton reportToggle;
     
+    @FXML 
+    private VBox mailVBox;
+    @FXML
+    private VBox childTableBox;
+    @FXML
+    private VBox parentTableBox;
+    @FXML
+    private VBox childColumnBox;
+    @FXML
+    private VBox parentColumnBox;
+    
+    
     
     private static MailListView mailListView;
+    private static ColumnComboBox parentColumns;
+    private static ColumnComboBox childColumns;
     
-    @FXML
-    private AnchorPane mailListContainer;
+    
+    
     private static FXMLDocumentController controller;
     
     public static FXMLDocumentController getController(){
@@ -242,6 +279,8 @@ public class FXMLDocumentController implements Initializable {
         sqlArea.setWrapText(true);
         completenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(completenessProgress);
+        initializeRefTab();
+
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
     }
@@ -284,10 +323,35 @@ public class FXMLDocumentController implements Initializable {
         mailListView = new MailListView(new ArrayList<String>());
         getMailListView().addMail("kacimi.achraf@gmail.com");
         getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
-        mailListContainer.getChildren().add(getMailListView());
+        getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
+//        mailListContainer.setPrefSize(220, 400);
+//        mailListContainer.setMinSize(220, 400);
+//        mailListContainer.setMaxSize(220, 400);
         //mailListContainer.getChildren();
+        mailVBox.getChildren().add(2, mailListView);
+        
     }
 
+    public void initializeRefTab(){
+        
+        parentTableBox.getChildren().add(new TableComboBox(getTables(), 0));
+        childTableBox.getChildren().add(new TableComboBox(getTables(), 1));
+        
+//        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(0)));
+//        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(1)));
+        
+        parentColumns = new ColumnComboBox();
+        childColumns = new ColumnComboBox();
+        parentColumnBox.getChildren().add(parentColumns);
+        childColumnBox.getChildren().add(childColumns);
+    
+        System.out.println(getTables().size());
+        System.out.println(getTables().get(0).getName());
+        System.out.println(getTables().get(1).getName());
+        
+        
+        
+    }
     
     public void initializeTableTreeView (){
         
@@ -396,7 +460,7 @@ public class FXMLDocumentController implements Initializable {
         //data.addAll(this.profiler.profilingResult());
         
         for (ColumnProfilingStats d: this.profiler.profilingResult()){
-            ColumnInfo c = tables.get(tableNumber).getColumnByName(d.getColumnName());
+            ColumnInfo c = getTables().get(tableNumber).getColumnByName(d.getColumnName());
             getData().add(c.getStats());
         }
         
@@ -455,8 +519,8 @@ public class FXMLDocumentController implements Initializable {
     
     
     private int getTableNumber(String tableName){
-        for (int i = 0; i < tables.size(); i++)
-            if (tables.get(i).getName().equals(tableName))
+        for (int i = 0; i < getTables().size(); i++)
+            if (getTables().get(i).getName().equals(tableName))
                     return i;
         return -1;
     }
@@ -495,7 +559,7 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(event.getSource().toString());
         if (tableNumber>= 0){
             startSpinner();
-            TableInfo table = tables.get(tableNumber);
+            TableInfo table = getTables().get(tableNumber);
 
             // We create a new Service that handles the profiling thread
             final Service<Void> calculateService = 
@@ -540,7 +604,7 @@ public class FXMLDocumentController implements Initializable {
         // When the context menu "set threshold" is pressed
         if (tableNumber >= 0){
             StackPane root = (StackPane) FXMLTest.getRoot();
-            StackPane content = new ThresholdFormGrid(tables.get(tableNumber));
+            StackPane content = new ThresholdFormGrid(getTables().get(tableNumber));
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
         }
@@ -550,7 +614,7 @@ public class FXMLDocumentController implements Initializable {
     private void scheduleMenuAction(ActionEvent event){
         // When the context menu add to schedule is pressed
         if (tableNumber>= 0){
-            TableInfo table = tables.get(tableNumber);
+            TableInfo table = getTables().get(tableNumber);
 
             // We create a new Service that handles the profiling thread
             final BasicStatisticsService calculateService = 
@@ -651,7 +715,7 @@ public class FXMLDocumentController implements Initializable {
     public float getOverallCompleteness(){
         float totalNotNull = 0;
         float totalLines = 0;
-        for (TableInfo table: this.tables){
+        for (TableInfo table: this.getTables()){
             for (ColumnInfo columnInfo: table.getColumns()){
                 ColumnProfilingStatsRow stat = columnInfo.getStats();    
                 totalNotNull += stat.getNbLines() - stat.getNbNull();

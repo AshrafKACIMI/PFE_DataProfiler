@@ -121,7 +121,7 @@ public class TableReport {
                     .detailRowHighlighters(
                     condition1)
                     .columns(//add columns
-                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn)
+                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
                     //.groupBy(itemGroup)
                     .subtotalsAtSummary(
                             sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
