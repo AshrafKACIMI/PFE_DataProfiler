@@ -1,12 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXHamburger?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import com.jfoenix.controls.JFXPopup?>
 <?import com.jfoenix.controls.JFXProgressBar?>
+<?import com.jfoenix.controls.JFXRippler?>
 <?import com.jfoenix.controls.JFXSpinner?>
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import com.jfoenix.controls.JFXTextArea?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXToggleButton?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import com.jfoenix.transitions.hamburger.HamburgerBackArrowBasicTransition?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.ContextMenu?>
@@ -23,6 +29,7 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -35,8 +42,41 @@
 <?import javafx.scene.web.WebView?>
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxmltest.FXMLDocumentController">
-   <children>
-      <JFXTabPane prefWidth="769.0" style="-fx-skin: #5264AE;" styleClass="tab-panee" tabClosingPolicy="UNAVAILABLE">
+    <BorderPane>
+
+		<top>
+			<VBox spacing="20">
+				<JFXToolbar>
+					<leftItems>
+						<JFXRippler maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
+							<StackPane fx:id="titleBurgerContainer">
+								<JFXHamburger fx:id="titleBurger">
+									<HamburgerBackArrowBasicTransition />
+								</JFXHamburger>
+							</StackPane>
+						</JFXRippler>
+						<Label>Cool Profiler</Label>
+					</leftItems>
+					<rightItems>
+						<JFXRippler fx:id="optionsRippler" maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
+							<StackPane fx:id="optionsBurger">
+								<JFXHamburger styleClass="jfx-options-burger">
+								</JFXHamburger>
+							</StackPane>
+						</JFXRippler>
+					</rightItems>
+               <right>
+                  <HBox fx:id="notificationBox" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+               </right>
+               <center>
+                  <HBox fx:id="controlBox" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+               </center>
+				</JFXToolbar>
+			</VBox>
+		</top>
+    <center>
+
+    <JFXTabPane prefWidth="769.0" style="-fx-skin: #0D47A1;" styleClass="tab-panee" tabClosingPolicy="UNAVAILABLE">
          <tabs>
             <Tab text="Referential Integrity">
               <content>
@@ -72,19 +112,20 @@
                                     </VBox>
                                  </children>
                               </HBox>
-                              <JFXTextArea fx:id="refArea" />
+                                 <JFXButton fx:id="integrityButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#integrityAction" ripplerFill="#792929" text="Referential Integrity" />
+                              <JFXTextArea fx:id="refArea" maxWidth="631.0" prefWidth="631.0" />
                            </children>
                         </VBox>
                      </children>
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab style="-fx-background-color: #5264AE;" text="Dashboard">
+            <Tab style="-fx-background-color: #1D628B;" text="Dashboard">
                <content>
                   <VBox fx:id="dashboardVbox" prefWidth="913.0" />
                </content>
             </Tab>
-            <Tab style="-fx-background-color: #5264AE;" text="Analysis View">
+            <Tab style="-fx-background-color: #1D628B;" text="Analysis View">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -167,7 +208,7 @@
                                  <items>
                                     <AnchorPane>
                                        <children>
-                                          <SplitPane dividerPositions="0.5, 0.5" layoutX="25.0" layoutY="86.0" orientation="VERTICAL" prefHeight="551.0" prefWidth="410.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <SplitPane dividerPositions="0.6225" layoutX="25.0" layoutY="86.0" orientation="VERTICAL" prefHeight="551.0" prefWidth="410.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                              <items>
                                                 <StackPane prefHeight="150.0" prefWidth="200.0">
                                                    <children>
@@ -184,9 +225,6 @@
                                                       </TreeView>
                                                    </children>
                                                 </StackPane>
-                                                <AnchorPane fx:id="anchor" prefHeight="200.0" prefWidth="200.0">
-
-                                                </AnchorPane>
                                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="114.0" prefWidth="220.0">
                                                    <children>
                                                       <TextArea fx:id="sqlArea" layoutY="32.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
@@ -196,7 +234,7 @@
                                           </SplitPane>
                                        </children>
                                     </AnchorPane>
-                                    <SplitPane dividerPositions="0.6" orientation="VERTICAL">
+                                    <SplitPane dividerPositions="0.6225" orientation="VERTICAL">
                                       <items>
                                         <AnchorPane minHeight="0.0">
                                              <children>
@@ -276,7 +314,7 @@
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab style="-fx-background-color: #5264AE;" text="Real Dashboard">
+            <Tab style="-fx-background-color: #1D628B;" text="Real Dashboard">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -284,7 +322,7 @@
                      </children></AnchorPane>
               </content>
             </Tab>
-            <Tab style="-fx-background-color: #5264AE;" text="Email Options">
+            <Tab style="-fx-background-color: #1D628B;" text="Email Options">
               <content>
                 <AnchorPane>
                      <children>
@@ -328,5 +366,18 @@
             </Tab>
          </tabs>
       </JFXTabPane>
-   </children>
+    </center>
+    </BorderPane>  
+    <JFXPopup fx:id="toolbarPopup" styleClass="tool-bar-popup">
+		<JFXListView styleClass="option-list-view">
+			<Label>
+				Contact Us
+				
+			</Label>
+			<Label fx:id="exit">
+				Exit
+				
+			</Label>
+		</JFXListView>
+	</JFXPopup>
 </StackPane>

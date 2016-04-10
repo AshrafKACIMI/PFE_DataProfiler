@@ -12,7 +12,6 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Clock;
 import java.util.ArrayList;
-import testhierarchie.Graphics.Login;
 
 /**
  *

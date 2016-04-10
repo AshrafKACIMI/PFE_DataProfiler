@@ -1,51 +1,69 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Table>
-    <name>EMP_DETAILS_VIEW</name>
+    <name>EMPLOYEES</name>
     <columns>
-        <name>COUNTRY_NAME</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>COUNTRY_NAME</columnName>
-            <max>4</max>
-            <min>6</min>
-            <nbDistinct>24</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>REGION_NAME</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>REGION_NAME</columnName>
-            <max>2</max>
-            <min>6</min>
-            <nbDistinct>8</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>EMPLOYEE_ID</name>
+        <name>DEPARTMENT_ID</name>
         <type>NUMBER</type>
         <stats>
-            <columnName>EMPLOYEE_ID</columnName>
-            <max>106</max>
+            <columnName>DEPARTMENT_ID</columnName>
+            <max>11</max>
+            <min>2</min>
+            <nbDistinct>3</nbDistinct>
+            <nbLines>107</nbLines>
+            <nbNull>1</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>MANAGER_ID</name>
+        <type>NUMBER</type>
+        <stats>
+            <columnName>MANAGER_ID</columnName>
+            <max>18</max>
             <min>3</min>
             <nbDistinct>3</nbDistinct>
-            <nbLines>106</nbLines>
+            <nbLines>107</nbLines>
+            <nbNull>1</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>COMMISSION_PCT</name>
+        <type>NUMBER</type>
+        <stats>
+            <columnName>COMMISSION_PCT</columnName>
+            <max>7</max>
+            <min>2</min>
+            <nbDistinct>3</nbDistinct>
+            <nbLines>107</nbLines>
+            <nbNull>72</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>SALARY</name>
+        <type>NUMBER</type>
+        <stats>
+            <columnName>SALARY</columnName>
+            <max>58</max>
+            <min>4</min>
+            <nbDistinct>5</nbDistinct>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -63,7 +81,7 @@
             <max>19</max>
             <min>5</min>
             <nbDistinct>10</nbDistinct>
-            <nbLines>106</nbLines>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -74,32 +92,14 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>MANAGER_ID</name>
+        <name>EMPLOYEE_ID</name>
         <type>NUMBER</type>
         <stats>
-            <columnName>MANAGER_ID</columnName>
-            <max>18</max>
+            <columnName>EMPLOYEE_ID</columnName>
+            <max>107</max>
             <min>3</min>
             <nbDistinct>3</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>1</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>DEPARTMENT_ID</name>
-        <type>NUMBER</type>
-        <stats>
-            <columnName>DEPARTMENT_ID</columnName>
-            <max>11</max>
-            <min>2</min>
-            <nbDistinct>3</nbDistinct>
-            <nbLines>106</nbLines>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -110,50 +110,32 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>LOCATION_ID</name>
-        <type>NUMBER</type>
-        <stats>
-            <columnName>LOCATION_ID</columnName>
-            <max>7</max>
-            <min>4</min>
-            <nbDistinct>4</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>COUNTRY_ID</name>
-        <type>CHAR</type>
-        <stats>
-            <columnName>COUNTRY_ID</columnName>
-            <max>4</max>
-            <min>2</min>
-            <nbDistinct>2</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>FIRST_NAME</name>
+        <name>PHONE_NUMBER</name>
         <type>VARCHAR2</type>
         <stats>
-            <columnName>FIRST_NAME</columnName>
-            <max>90</max>
-            <min>2</min>
-            <nbDistinct>11</nbDistinct>
-            <nbLines>106</nbLines>
+            <columnName>PHONE_NUMBER</columnName>
+            <max>107</max>
+            <min>12</min>
+            <nbDistinct>18</nbDistinct>
+            <nbLines>107</nbLines>
+            <nbNull>0</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>EMAIL</name>
+        <type>VARCHAR2</type>
+        <stats>
+            <columnName>EMAIL</columnName>
+            <max>107</max>
+            <min>4</min>
+            <nbDistinct>8</nbDistinct>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -171,7 +153,7 @@
             <max>102</max>
             <min>3</min>
             <nbDistinct>11</nbDistinct>
-            <nbLines>106</nbLines>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -182,50 +164,14 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>SALARY</name>
-        <type>NUMBER</type>
+        <name>FIRST_NAME</name>
+        <type>VARCHAR2</type>
         <stats>
-            <columnName>SALARY</columnName>
-            <max>58</max>
-            <min>4</min>
-            <nbDistinct>5</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>COMMISSION_PCT</name>
-        <type>NUMBER</type>
-        <stats>
-            <columnName>COMMISSION_PCT</columnName>
-            <max>7</max>
+            <columnName>FIRST_NAME</columnName>
+            <max>91</max>
             <min>2</min>
-            <nbDistinct>3</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>72</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>DEPARTMENT_NAME</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>DEPARTMENT_NAME</columnName>
-            <max>11</max>
-            <min>2</min>
-            <nbDistinct>16</nbDistinct>
-            <nbLines>106</nbLines>
+            <nbDistinct>11</nbDistinct>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -236,51 +182,15 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>JOB_TITLE</name>
-        <type>VARCHAR2</type>
+        <name>HIRE_DATE</name>
+        <type>DATE</type>
         <stats>
-            <columnName>JOB_TITLE</columnName>
-            <max>19</max>
-            <min>9</min>
-            <nbDistinct>31</nbDistinct>
-            <nbLines>106</nbLines>
+            <columnName>HIRE_DATE</columnName>
+            <max>98</max>
+            <min>8</min>
+            <nbDistinct>8</nbDistinct>
+            <nbLines>107</nbLines>
             <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>CITY</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>CITY</columnName>
-            <max>7</max>
-            <min>6</min>
-            <nbDistinct>19</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>0</nbNull>
-            <violMaxFlag>0</violMaxFlag>
-            <violMinFlag>0</violMinFlag>
-            <violDistinctFlag>0</violDistinctFlag>
-            <violNotNullFlag>0</violNotNullFlag>
-        </stats>
-        <isUnique>false</isUnique>
-        <isNotNull>false</isNotNull>
-    </columns>
-    <columns>
-        <name>STATE_PROVINCE</name>
-        <type>VARCHAR2</type>
-        <stats>
-            <columnName>STATE_PROVINCE</columnName>
-            <max>6</max>
-            <min>5</min>
-            <nbDistinct>10</nbDistinct>
-            <nbLines>106</nbLines>
-            <nbNull>1</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
             <violDistinctFlag>0</violDistinctFlag>

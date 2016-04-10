@@ -5,6 +5,7 @@
  */
 
 package fxmltest;
+import Mail.ReportingEMail;
 import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
 import java.io.File;
@@ -25,27 +26,26 @@ public class MailTest {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        SendGrid sendgrid = new SendGrid(apiKey);
-
-            SendGrid.Email email = new SendGrid.Email();
-            email.addTo("kacimi.achraf@gmail.com");
-            email.setFrom("no-reply-profiler@BBI.com");
-            email.setSubject("Profiling results");
-            email.setText("My first email with SendGrid Java!");
-        try {
-            email.addAttachment("test.pdf", new File(System.getProperty("user.home")+"\\"+"intro.pdf"));
-            
-        } catch (IOException ex) {
-            Logger.getLogger(MailTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
         
-            try {
-              SendGrid.Response response = sendgrid.send(email);
-              System.out.println(response.getMessage());
-            }
-            catch (SendGridException e) {
-              System.err.println(e);
-            }
+                Mail.ReportingEMail mail = new ReportingEMail(args[0]);
+                mail.send();
+        
+//        
+//        SendGrid sendgrid = new SendGrid(apiKey);
+//
+//            SendGrid.Email email = new SendGrid.Email();
+//            email.addTo("kacimi.achraf@gmail.com");
+//            email.setFrom("no-reply-profiler@BBI.com");
+//            email.setSubject("Profiling results");
+//            email.setText("My first email with SendGrid Java!");
+//        try {
+//            email.addAttachment("test.pdf", new File(System.getProperty("user.home")+"\\"+"intro.pdf"));
+//            
+//        } catch (IOException ex) {
+//            Logger.getLogger(MailTest.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+        
+            
     }
     
 }

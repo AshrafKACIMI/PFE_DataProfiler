@@ -16,7 +16,9 @@ import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
 import com.jfoenix.controls.JFXPopup.PopupVPosition;
 import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXSpinner;
+import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.jensd.fx.fontawesome.AwesomeIcon;
@@ -27,6 +29,7 @@ import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.ProfilingScheduler;
+import fxmltest.computing.ReferentialIntegrityEngine;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
 import java.io.File;
@@ -46,6 +49,7 @@ import static javafx.concurrent.Worker.State.CANCELLED;
 import static javafx.concurrent.Worker.State.FAILED;
 import static javafx.concurrent.Worker.State.SUCCEEDED;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -66,6 +70,7 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -83,6 +88,7 @@ import testhierarchie.Graphics.RegexFieldValidator;
 import testhierarchie.Graphics.ScheduleTasksDisplay;
 import testhierarchie.Graphics.TableComboBox;
 import testhierarchie.Graphics.ThresholdFormGrid;
+import testhierarchie.Graphics.ToolbarIcon;
 
 /**
  *
@@ -200,6 +206,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     JFXToggleButton reportToggle;
     
+    @FXML HBox notificationBox;
+    
     @FXML 
     private VBox mailVBox;
     @FXML
@@ -211,11 +219,22 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private VBox parentColumnBox;
     
+    @FXML
+    private JFXTextArea refArea;
+    
+    @FXML
+    private HBox controlBox;
+    
     
     
     private static MailListView mailListView;
+    private static TableComboBox parentTables;
+    private static TableComboBox childTables;
     private static ColumnComboBox parentColumns;
     private static ColumnComboBox childColumns;
+    private static JFXPopup loginPopup;
+    
+    
     
     
     
@@ -256,7 +275,7 @@ public class FXMLDocumentController implements Initializable {
         WebEngine webEngine = webView.getEngine();
         webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
-        Icon value = new Icon("STAR");
+        Icon value = new Icon(AwesomeIcon.PIE_CHART, "30px", "-fx-text-fill: #E0E4CC;", "icon");
         sqlArea = new TextArea();
         value.setId("icon");
         badge = new JFXBadge(value);
@@ -268,11 +287,32 @@ public class FXMLDocumentController implements Initializable {
         badge.setOnMouseClicked((e) -> {
             StackPane root = (StackPane) FXMLTest.getRoot();
             this.schedulerTaskDisplay = new ScheduleTasksDisplay(scheduler);
-            JFXPopup popup = new JFXPopup(root, schedulerTaskDisplay);
-            popup.setSource(badge);
-            popup.show(PopupVPosition.TOP, PopupHPosition.LEFT);
+            loginPopup = new JFXPopup(root, schedulerTaskDisplay);
+            loginPopup.setSource(badge);
+            loginPopup.show(PopupVPosition.TOP, PopupHPosition.RIGHT);
         });
-        notificationsBox.getChildren().add(badge);
+        notificationBox.getChildren().add(new ToolbarIcon(badge));
+
+        
+        ToolbarIcon schedulerStart = new ToolbarIcon(AwesomeIcon.PLAY);
+        ToolbarIcon newConnection = new ToolbarIcon((AwesomeIcon.PLUG));
+        newConnection.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                createLoginPopUp();
+            }
+        });
+        
+        schedulerStart.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                scheduler.start();
+            }
+            
+        });
+        controlBox.getChildren().addAll(newConnection, schedulerStart);
         controller = this;
         initializeTableTreeView();
         initializeTable();
@@ -334,8 +374,12 @@ public class FXMLDocumentController implements Initializable {
 
     public void initializeRefTab(){
         
-        parentTableBox.getChildren().add(new TableComboBox(getTables(), 0));
-        childTableBox.getChildren().add(new TableComboBox(getTables(), 1));
+        
+        parentTables = new TableComboBox(getTables(), 0);
+        childTables = new TableComboBox(getTables(), 1);
+        
+        parentTableBox.getChildren().add(parentTables);
+        childTableBox.getChildren().add(childTables);
         
 //        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(0)));
 //        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(1)));
@@ -528,11 +572,6 @@ public class FXMLDocumentController implements Initializable {
     private void createLoginPopUp(){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-            //Scene scene = new Scene(root);
-//            Stage stage = new Stage();
-//            stage.setScene(scene);
-//            stage.setTitle("New connexion");
-//            stage.show();
             StackPane root = (StackPane) FXMLTest.getRoot();
             StackPane content;
             content = (StackPane) FXMLLoader.load(getClass().getResource("login.fxml"));
@@ -749,6 +788,20 @@ public class FXMLDocumentController implements Initializable {
     private void deleteFromScheduler(){
         this.schedulerTaskDisplay.removeSelectedTask();
     }
+    
+    @FXML
+    private void integrityAction(){
+        //refArea.
+        String parentTable = parentTables.getValue().getText();
+        String childTable = childTables.getValue().getText();
+        String parentColumn = parentColumns.getSelectedColumn();
+        String childColumn = childColumns.getSelectedColumn();
+        ReferentialIntegrityEngine engine = 
+                new ReferentialIntegrityEngine(parentTable, parentColumn, childTable, childColumn);
+        String value = engine.referentialIntegritySampleQuery();
+        refArea.setText(value 
+                + "\n" + engine.checkReferentialIntegrity());
+    }
 
     /**
      * @return the mailListView
@@ -773,6 +826,10 @@ public class FXMLDocumentController implements Initializable {
         } catch (JAXBException e) {
             e.printStackTrace();
         }
+    }
+    
+    public static void closeLoginPopup(){
+        loginPopup.close();
     }
     
 }

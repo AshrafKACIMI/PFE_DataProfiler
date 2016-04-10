@@ -5,6 +5,8 @@
  */
 package Reporting;
 
+import Mail.ReportingEMail;
+import fxmltest.MailTest;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.TableInfo;
@@ -16,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
 import static net.sf.dynamicreports.report.builder.DynamicReports.*;
 import static net.sf.dynamicreports.report.builder.chart.Charts.meterChart;
@@ -152,14 +155,16 @@ public class TableReport {
             Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
         }
             
-//            Mail.ReportingEMail mail = new ReportingEMail(fileName);
-//            mail.send();
         
-//            final String fileLocation = "\\test1.pdf";
-//            System.out.println(fileLocation);
-//            ReportingEMail instance = new ReportingEMail(fileLocation);
-//            instance.send();
+            Platform.runLater(() -> {
+//                Mail.ReportingEMail mail = new ReportingEMail(fileName);
+//                mail.send();
+                String args[] = new String[3];
+                args[0] = fileName;
+                MailTest.main(args);
+            });
         
+            
 //            
     }
 
