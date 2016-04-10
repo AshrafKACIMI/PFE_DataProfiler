@@ -24,6 +24,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
 import testhierarchie.Graphics.RegexFieldValidator;
@@ -85,6 +86,7 @@ public class LoginController implements Initializable {
                 TablesFactory.setUserName(userInput.getText());
                 TablesFactory.setPassword(passwordInput.getText());
                 controller.initializeTableTreeView();
+                FXMLDocumentController.closeLoginPopup();
         });
               
     }

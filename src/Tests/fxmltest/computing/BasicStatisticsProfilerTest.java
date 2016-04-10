@@ -74,20 +74,6 @@ public class BasicStatisticsProfilerTest {
 //        fail("The test case is a prototype.");
 //    }
 
-    /**
-     * Test of profileColumnQuery2 method, of class BasicStatisticsProfiler.
-     */
-    @Test
-    public void testProfileColumnQuery2() {
-        System.out.println("profileColumnQuery2");
-        String tab = "tab";
-        String col = "col";
-        String expResult = "";
-        String result = BasicStatisticsProfiler.profileColumnQuery2(tab, col);
-        //assertEquals(expResult, result);
-        System.out.println(result);
-        // TODO review the generated test code and remove the default call to fail.
-        //fail("The test case is a prototype.");
-    }
+
     
 }

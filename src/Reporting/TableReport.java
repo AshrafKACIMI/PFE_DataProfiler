@@ -6,30 +6,30 @@
 package Reporting;
 
 import Mail.ReportingEMail;
+import fxmltest.MailTest;
 import fxmltest.computing.ColumnInfo;
+import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.TableInfo;
-import fxmltest.computing.TablesFactory;
 import java.awt.Color;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 
-import net.sf.dynamicreports.examples.Templates;
 import static net.sf.dynamicreports.report.builder.DynamicReports.*;
-import net.sf.dynamicreports.report.builder.chart.Bar3DChartBuilder;
-import net.sf.dynamicreports.report.builder.column.PercentageColumnBuilder;
+import static net.sf.dynamicreports.report.builder.chart.Charts.meterChart;
+import net.sf.dynamicreports.report.builder.chart.MeterChartBuilder;
+import net.sf.dynamicreports.report.builder.chart.ThermometerChartBuilder;
 import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
-import net.sf.dynamicreports.report.builder.datatype.BigDecimalType;
 import net.sf.dynamicreports.report.builder.group.ColumnGroupBuilder;
 import net.sf.dynamicreports.report.builder.style.ConditionalStyleBuilder;
 import net.sf.dynamicreports.report.builder.style.StyleBuilder;
 import net.sf.dynamicreports.report.constant.HorizontalAlignment;
+import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
 import net.sf.dynamicreports.report.constant.VerticalAlignment;
 import net.sf.dynamicreports.report.datasource.DRDataSource;
 import net.sf.dynamicreports.report.exception.DRException;
@@ -39,7 +39,6 @@ import net.sf.jasperreports.engine.JRDataSource;
  * @author Ashraf
  */
 public class TableReport {
-    private static int count = 1;
 
     public TableReport(TableInfo tab) {
         build(tab);
@@ -73,8 +72,10 @@ public class TableReport {
         TextColumnBuilder<Integer> nbNotNullColumn = col.column("Nb not Null", "nbNotNull", type.integerType());
         TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType());
         TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType());
+        minColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
         TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType());
-        TextColumnBuilder<Integer> problematicColumn = col.column("Problematic", "problematic", type.integerType());
+        maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
+        TextColumnBuilder<Integer> problematicColumn = col.column("Problematic", "problem", type.integerType());
         
         
         ConditionalStyleBuilder condition1 = stl.conditionalStyle(cnd.greater(problematicColumn, 0))
@@ -90,14 +91,38 @@ public class TableReport {
         itemGroup.setPrintSubtotalsWhenExpression(exp.printWhenGroupHasMoreThanOneRow(itemGroup));
         
         
+        ThermometerChartBuilder completeness = cht.thermometerChart()
+	         .setValue(tab.getOverallCompleteness());
+        
+        MeterChartIndicator cht2 = new MeterChartIndicator(tab.getOverallCompleteness(), 50);
+        MeterChartBuilder cht1 =  cht.meterChart()
+                .setValue(tab.getOverallCompleteness())
+                .setDataRangeHighExpression(100)
+                .setTickInterval(10d)
+                .setTickColor(Color.BLACK)
+                .setNeedleColor(Color.BLACK)
+                .setValueColor(Color.BLACK)
+                .setMeterBackgroundColor(Color.LIGHT_GRAY)
+                .intervals(
+                        cht.meterInterval()
+                                .setLabel("Good")
+                                .setBackgroundColor(new Color(150, 255, 150))
+                                .setDataRangeLowExpression(30)
+                                .setDataRangeHighExpression(100),
+                        cht.meterInterval()
+                                .setLabel("Critical")
+                                .setBackgroundColor(new Color(255, 150, 150))
+                                .setDataRangeLowExpression(0)
+                                .setDataRangeHighExpression(30)
+                );
         
         try {
             report()//create new report design
                     .setColumnTitleStyle(columnTitleStyle)
                     .setSubtotalStyle(boldStyle)
                     .highlightDetailEvenRows()
-//                    .detailRowHighlighters(
-//                    condition1)
+                    .detailRowHighlighters(
+                    condition1)
                     .columns(//add columns
                             itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
                     //.groupBy(itemGroup)
@@ -105,6 +130,7 @@ public class TableReport {
                             sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
                     .subtotalsAtFirstGroupFooter(
                             sbt.sum(nbNotNullColumn), sbt.sum(nbLinesColumn))
+                    .summary(cmp.horizontalList(completeness, cht1))
 
                     .title(//shows report title
                             cmp.horizontalList()
@@ -129,14 +155,16 @@ public class TableReport {
             Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
         }
             
-//            Mail.ReportingEMail mail = new ReportingEMail(fileName);
-//            mail.send();
         
-//            final String fileLocation = "\\test1.pdf";
-//            System.out.println(fileLocation);
-//            ReportingEMail instance = new ReportingEMail(fileLocation);
-//            instance.send();
+            Platform.runLater(() -> {
+//                Mail.ReportingEMail mail = new ReportingEMail(fileName);
+//                mail.send();
+                String args[] = new String[3];
+                args[0] = fileName;
+                MailTest.main(args);
+            });
         
+            
 //            
     }
 
@@ -151,17 +179,19 @@ public class TableReport {
         }
         */
         
-        DRDataSource dataSource = new DRDataSource("column", "nbNull", "nbNotNull", "nbRows", "min", "max", "problem");
+        DRDataSource dataSource = new DRDataSource("column", "nbNull", "nbNotNull", "nbRows", "min", "max", "problem", "completeRation");
         //String columnName, int nbNull, int nbDistinct, int nbLines, String min, String max
         for (ColumnInfo ci: tab.getColumns()){
+            ColumnProfilingStatsRow stats = ci.getStats();
             dataSource.add(
-                    ci.getStats().getColumnName(),
-                    ci.getStats().getNbNull(),
-                    ci.getStats().getNbDistinct(),
-                    ci.getStats().getNbLines(),
-                    ci.getStats().getMin(),
-                    ci.getStats().getMax(),
-                    ci.getStats().getViolNotNullFlag()
+                    stats.getColumnName(),
+                    stats.getNbNull(),
+                    stats.getNbDistinct(),
+                    stats.getNbLines(),
+                    stats.getMin(),
+                    stats.getMax(),
+                    stats.getViolNotNullFlag(),
+                    stats.getNbNull()/stats.getNbLines() * 100
                     );            
         }
         

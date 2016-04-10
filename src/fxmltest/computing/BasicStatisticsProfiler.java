@@ -12,15 +12,13 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.Clock;
 import java.util.ArrayList;
-import testhierarchie.Graphics.Login;
 
 /**
  *
  * @author Ashraf
  */
 public class BasicStatisticsProfiler {
-    //private String tableName;
-    //private TableProfilingStats results;
+
     public static String alternativeNull = "'-99'";
     private TableInfo table;
     
@@ -30,10 +28,7 @@ public class BasicStatisticsProfiler {
         this.table = tableInfo;
     }
     
-    public int profileColumn(String columnName){
-        return 0;
-    }
-    
+       
     public static String profileColumnQuery(TableInfo table, ColumnInfo column){
         String query = "";
         String tableName = table.getName();
@@ -60,18 +55,6 @@ public class BasicStatisticsProfiler {
         return query;        
     }
 
-    
-    public static String profileColumnQuery2(String tab, String col){
-        String query = "";
-        query += "SELECT " + col;
-        query += "SELECT CAST(CASE WHEN "+ col + " is null or CAST ("+col+" AS char)="+ alternativeNull+") then 1 else 0 end) count_null, ";
-        query += "cast(max(length( " + col + " )) as text),";
-        query += "cast(min(length( " + col + " )) as text),";
-        query += "count(DISTINCT(" + col + ")) nb_distinct ";
-        query += "FROM "+ TablesFactory.getUserName() + "." + tab;
-        return query;
-    }
-    
     public ArrayList<ColumnProfilingStatsRow> profilingResult(){
         
         ArrayList<ColumnProfilingStatsRow> results = new ArrayList<ColumnProfilingStatsRow>();

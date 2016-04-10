@@ -6,13 +6,22 @@
 
 package fxmltest;
 
+import Mail.EmailOptions;
+import Mail.MailListView;
 import Reporting.TableReport;
 import com.jfoenix.controls.JFXBadge;
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
 import com.jfoenix.controls.JFXPopup.PopupVPosition;
+import com.jfoenix.controls.JFXProgressBar;
+import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXSpinner;
+import com.jfoenix.controls.JFXTextArea;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.JFXToggleButton;
+import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
 import fxmltest.computing.BasicStatisticsProfiler;
 import fxmltest.computing.BasicStatisticsService;
@@ -20,8 +29,10 @@ import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.ProfilingScheduler;
+import fxmltest.computing.ReferentialIntegrityEngine;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,6 +49,7 @@ import static javafx.concurrent.Worker.State.CANCELLED;
 import static javafx.concurrent.Worker.State.FAILED;
 import static javafx.concurrent.Worker.State.SUCCEEDED;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -58,26 +70,57 @@ import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import testhierarchie.Graphics.ColumnComboBox;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
+import testhierarchie.Graphics.RegexFieldValidator;
 import testhierarchie.Graphics.ScheduleTasksDisplay;
+import testhierarchie.Graphics.TableComboBox;
 import testhierarchie.Graphics.ThresholdFormGrid;
+import testhierarchie.Graphics.ToolbarIcon;
 
 /**
  *
  * @author Ashraf
  */
 public class FXMLDocumentController implements Initializable {
-
+    private static final String FILE_NAME = "jaxb-emp.xml";
+    
     private static JFXBadge badge;    
+
+    /**
+     * @return the tables
+     */
+    public static ArrayList<TableInfo> getTables() {
+        return tables;
+    }
+
+    /**
+     * @return the parentColumns
+     */
+    public static ColumnComboBox getParentColumns() {
+        return parentColumns;
+    }
+
+    /**
+     * @return the childColumns
+     */
+    public static ColumnComboBox getChildColumns() {
+        return childColumns;
+    }
     private Label label;
-    private ArrayList<TableInfo> tables;
+    private static ArrayList<TableInfo> tables;
     private int tableNumber;
     private static final ObservableList<ColumnProfilingStatsRow> data
             = FXCollections.observableArrayList();
@@ -134,6 +177,12 @@ public class FXMLDocumentController implements Initializable {
     private VBox dashboardVbox;
     @FXML 
     private WebView webView;
+    @FXML
+    private HBox notificationsBox;
+    @FXML
+    private JFXTextField addMailField;
+    @FXML
+    private JFXButton addMailButton;
     
     private ProgressIndicatorGraph completenessProgress;
     private ScheduleTasksDisplay schedulerTaskDisplay;
@@ -146,6 +195,49 @@ public class FXMLDocumentController implements Initializable {
     private static BasicStatisticsProfiler profiler;
     @FXML
     private MenuItem sendMailMenu;
+    
+    @FXML
+    JFXProgressBar distinctProgress;
+    @FXML
+    JFXProgressBar notNullProgress;
+    
+    @FXML
+    JFXToggleButton mailToggle;
+    @FXML
+    JFXToggleButton reportToggle;
+    
+    @FXML HBox notificationBox;
+    
+    @FXML 
+    private VBox mailVBox;
+    @FXML
+    private VBox childTableBox;
+    @FXML
+    private VBox parentTableBox;
+    @FXML
+    private VBox childColumnBox;
+    @FXML
+    private VBox parentColumnBox;
+    
+    @FXML
+    private JFXTextArea refArea;
+    
+    @FXML
+    private HBox controlBox;
+    
+    
+    
+    private static MailListView mailListView;
+    private static TableComboBox parentTables;
+    private static TableComboBox childTables;
+    private static ColumnComboBox parentColumns;
+    private static ColumnComboBox childColumns;
+    private static JFXPopup loginPopup;
+    
+    
+    
+    
+    
     private static FXMLDocumentController controller;
     
     public static FXMLDocumentController getController(){
@@ -177,11 +269,13 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        this.notNullProgress.setProgress(0.0000001);
+        this.distinctProgress.setProgress(.0);
+        initializeMailTab();
         WebEngine webEngine = webView.getEngine();
         webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
-        Icon value = new Icon("TABLET");
-        //value.setStyle(";");
+        Icon value = new Icon(AwesomeIcon.PIE_CHART, "30px", "-fx-text-fill: #E0E4CC;", "icon");
         sqlArea = new TextArea();
         value.setId("icon");
         badge = new JFXBadge(value);
@@ -193,21 +287,115 @@ public class FXMLDocumentController implements Initializable {
         badge.setOnMouseClicked((e) -> {
             StackPane root = (StackPane) FXMLTest.getRoot();
             this.schedulerTaskDisplay = new ScheduleTasksDisplay(scheduler);
-            JFXPopup popup = new JFXPopup(root, schedulerTaskDisplay);
-            popup.setSource(badge);
-            popup.show(PopupVPosition.TOP, PopupHPosition.LEFT);
+            loginPopup = new JFXPopup(root, schedulerTaskDisplay);
+            loginPopup.setSource(badge);
+            loginPopup.show(PopupVPosition.TOP, PopupHPosition.RIGHT);
         });
-        anchor.getChildren().add(badge);
+        notificationBox.getChildren().add(new ToolbarIcon(badge));
+
+        
+        ToolbarIcon schedulerStart = new ToolbarIcon(AwesomeIcon.PLAY);
+        ToolbarIcon newConnection = new ToolbarIcon((AwesomeIcon.PLUG));
+        newConnection.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                createLoginPopUp();
+            }
+        });
+        
+        schedulerStart.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                scheduler.start();
+            }
+            
+        });
+        controlBox.getChildren().addAll(newConnection, schedulerStart);
         controller = this;
         initializeTableTreeView();
         initializeTable();
         sqlArea.setWrapText(true);
         completenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(completenessProgress);
+        initializeRefTab();
+
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
     }
+    
+    private void initializeMailTab(){
+        
+        mailToggle.setSelected(true);
+        reportToggle.setSelected(true);
+        
+        mailToggle.selectedProperty().addListener(new ChangeListener<Boolean>(){
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                EmailOptions.setOn(newValue);
+            }
+        });
+        
+        reportToggle.selectedProperty().addListener(new ChangeListener<Boolean>(){
+            @Override
+            public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+                //EmailOptions.setOn(newValue);
+                EmailOptions.setReport(newValue);
+                if (!newValue){
+                    mailToggle.setSelected(false);
+                    mailToggle.setDisable(true);
+                } else {
+                    mailToggle.setDisable(false);
+                }
+                
+            }
+        });
+        //mailToggle.isSelected()
+        
+        RegexFieldValidator validator = new RegexFieldValidator(RegexFieldValidator.EMAIL_PATTERN);
+        validator.setIcon(new Icon(AwesomeIcon.WARNING,"1em",";","error"));
+        addMailField.getValidators().add(validator);
+        addMailField.focusedProperty().addListener((o,oldVal,newVal)->{
+                if(!newVal) addMailField.validate();
+        });
+        
+        mailListView = new MailListView(new ArrayList<String>());
+        getMailListView().addMail("kacimi.achraf@gmail.com");
+        getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
+        getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
+//        mailListContainer.setPrefSize(220, 400);
+//        mailListContainer.setMinSize(220, 400);
+//        mailListContainer.setMaxSize(220, 400);
+        //mailListContainer.getChildren();
+        mailVBox.getChildren().add(2, mailListView);
+        
+    }
 
+    public void initializeRefTab(){
+        
+        
+        parentTables = new TableComboBox(getTables(), 0);
+        childTables = new TableComboBox(getTables(), 1);
+        
+        parentTableBox.getChildren().add(parentTables);
+        childTableBox.getChildren().add(childTables);
+        
+//        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(0)));
+//        parentColumnBox.getChildren().add(new ColumnComboBox(tables.get(1)));
+        
+        parentColumns = new ColumnComboBox();
+        childColumns = new ColumnComboBox();
+        parentColumnBox.getChildren().add(parentColumns);
+        childColumnBox.getChildren().add(childColumns);
+    
+        System.out.println(getTables().size());
+        System.out.println(getTables().get(0).getName());
+        System.out.println(getTables().get(1).getName());
+        
+        
+        
+    }
     
     public void initializeTableTreeView (){
         
@@ -316,7 +504,7 @@ public class FXMLDocumentController implements Initializable {
         //data.addAll(this.profiler.profilingResult());
         
         for (ColumnProfilingStats d: this.profiler.profilingResult()){
-            ColumnInfo c = tables.get(tableNumber).getColumnByName(d.getColumnName());
+            ColumnInfo c = getTables().get(tableNumber).getColumnByName(d.getColumnName());
             getData().add(c.getStats());
         }
         
@@ -356,13 +544,27 @@ public class FXMLDocumentController implements Initializable {
         
         this.resultsChart.setData(pieChartData);
         this.resultsChart.setTitle(getData().get(this.selectedCol).getColumnName());
+            distinctProgress.setProgress(
+                    getData().get(this.selectedCol).getNbDistinct()
+                    / getData().get(this.selectedCol).getNbLines()
+            );
+  
+            notNullProgress.setProgress(100.0 - 
+                    getData().get(this.selectedCol).getNbNull()
+                    / getData().get(this.selectedCol).getNbLines());
+
+        
+        
+                    
+        
+        
         
     }
     
     
     private int getTableNumber(String tableName){
-        for (int i = 0; i < tables.size(); i++)
-            if (tables.get(i).getName().equals(tableName))
+        for (int i = 0; i < getTables().size(); i++)
+            if (getTables().get(i).getName().equals(tableName))
                     return i;
         return -1;
     }
@@ -370,11 +572,6 @@ public class FXMLDocumentController implements Initializable {
     private void createLoginPopUp(){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-            //Scene scene = new Scene(root);
-//            Stage stage = new Stage();
-//            stage.setScene(scene);
-//            stage.setTitle("New connexion");
-//            stage.show();
             StackPane root = (StackPane) FXMLTest.getRoot();
             StackPane content;
             content = (StackPane) FXMLLoader.load(getClass().getResource("login.fxml"));
@@ -401,7 +598,7 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(event.getSource().toString());
         if (tableNumber>= 0){
             startSpinner();
-            TableInfo table = tables.get(tableNumber);
+            TableInfo table = getTables().get(tableNumber);
 
             // We create a new Service that handles the profiling thread
             final Service<Void> calculateService = 
@@ -414,7 +611,9 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
-                    //new TableReport(table);
+                    jaxbObjectToXML(table);
+                    if (EmailOptions.isReport())
+                        new TableReport(table);
                     completenessProgress.setProgress(getOverallCompleteness());
                 break;
             }
@@ -444,7 +643,7 @@ public class FXMLDocumentController implements Initializable {
         // When the context menu "set threshold" is pressed
         if (tableNumber >= 0){
             StackPane root = (StackPane) FXMLTest.getRoot();
-            StackPane content = new ThresholdFormGrid(tables.get(tableNumber));
+            StackPane content = new ThresholdFormGrid(getTables().get(tableNumber));
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
         }
@@ -454,7 +653,7 @@ public class FXMLDocumentController implements Initializable {
     private void scheduleMenuAction(ActionEvent event){
         // When the context menu add to schedule is pressed
         if (tableNumber>= 0){
-            TableInfo table = tables.get(tableNumber);
+            TableInfo table = getTables().get(tableNumber);
 
             // We create a new Service that handles the profiling thread
             final BasicStatisticsService calculateService = 
@@ -487,6 +686,37 @@ public class FXMLDocumentController implements Initializable {
     private void startScheduler(ActionEvent event){
         scheduler.start();
     }
+    
+    @FXML
+    private void addMailAction(ActionEvent event){
+        
+        if (!addMailField.getValidators().get(0).getHasErrors()){
+            getMailListView().addMail(addMailField.getText());
+        
+        for (String s: EmailOptions.getMails()){
+            System.out.println("mail : " + s);
+        }
+        
+        String cct = "";
+        for (String s: mailListView.getMailList()){
+            System.out.println("mail 2: " + s);
+            cct+= s;
+        }
+        sqlArea.setText(cct);
+        }
+    }
+    
+    @FXML
+    private void deleteMailAction(ActionEvent event){
+        getMailListView().removeSelectedMails();
+    }
+    
+    @FXML
+    private void clearMailAction(ActionEvent event){
+        getMailListView().clear();
+    }
+    
+    
     
 
     /**
@@ -524,7 +754,7 @@ public class FXMLDocumentController implements Initializable {
     public float getOverallCompleteness(){
         float totalNotNull = 0;
         float totalLines = 0;
-        for (TableInfo table: this.tables){
+        for (TableInfo table: this.getTables()){
             for (ColumnInfo columnInfo: table.getColumns()){
                 ColumnProfilingStatsRow stat = columnInfo.getStats();    
                 totalNotNull += stat.getNbLines() - stat.getNbNull();
@@ -559,7 +789,47 @@ public class FXMLDocumentController implements Initializable {
         this.schedulerTaskDisplay.removeSelectedTask();
     }
     
+    @FXML
+    private void integrityAction(){
+        //refArea.
+        String parentTable = parentTables.getValue().getText();
+        String childTable = childTables.getValue().getText();
+        String parentColumn = parentColumns.getSelectedColumn();
+        String childColumn = childColumns.getSelectedColumn();
+        ReferentialIntegrityEngine engine = 
+                new ReferentialIntegrityEngine(parentTable, parentColumn, childTable, childColumn);
+        String value = engine.referentialIntegritySampleQuery();
+        refArea.setText(value 
+                + "\n" + engine.checkReferentialIntegrity());
+    }
+
+    /**
+     * @return the mailListView
+     */
+    public static MailListView getMailListView() {
+        return mailListView;
+    }
     
-   
+    private static void jaxbObjectToXML(TableInfo table) {
+ 
+        try {
+            JAXBContext context = JAXBContext.newInstance(TableInfo.class);
+            Marshaller m = context.createMarshaller();
+            //for pretty-print XML in JAXB
+            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+ 
+            // Write to System.out for debugging
+            // m.marshal(emp, System.out);
+ 
+            // Write to File
+            m.marshal(table, new File(FILE_NAME));
+        } catch (JAXBException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void closeLoginPopup(){
+        loginPopup.close();
+    }
     
 }

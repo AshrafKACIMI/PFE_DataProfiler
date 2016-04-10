@@ -6,10 +6,16 @@
 
 package fxmltest.computing;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+
 /**
  *
  * @author Ashraf
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ColumnProfilingStatsRow extends ColumnProfilingStats{
     private int violMaxFlag;
     private int violMinFlag;
@@ -101,6 +107,8 @@ public class ColumnProfilingStatsRow extends ColumnProfilingStats{
         this.violNotNullFlag = violNotNullFlag;
     }
     
-    
+    public ColumnProfilingStatsRow(){
+        
+    }
     
 }

@@ -111,7 +111,10 @@ public class ColumnProfilingStats {
     public void setMax(String max) {
         this.max = max;
     }
-
+    
+    public ColumnProfilingStats(){
+        
+    }
     
     
 }

@@ -6,10 +6,17 @@
 
 package fxmltest.computing;
 
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlValue;
+
 /**
  *
  * @author Ashraf
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 public class ColumnInfo {
     private String name;
     private String type;
@@ -97,6 +104,8 @@ public class ColumnInfo {
     /**
      * @return the name
      */
+    
+    
     public String getName() {
         return name;
     }
@@ -214,7 +223,9 @@ public class ColumnInfo {
         this.stats.setViolNotNullFlag(violNotNullFlag());
     }
     
-    
+    public ColumnInfo(){
+        
+    }
     
     
     
