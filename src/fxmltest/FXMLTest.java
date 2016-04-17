@@ -21,6 +21,14 @@ import javafx.stage.Stage;
  */
 public class FXMLTest extends Application {
     private static Parent root;
+    private static Stage mainStage;
+
+    /**
+     * @return the mainStage
+     */
+    public static Stage getMainStage() {
+        return mainStage;
+    }
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -28,7 +36,7 @@ public class FXMLTest extends Application {
         
         root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         //Scene scene = new Scene(root);
-
+        mainStage = stage;
         Scene scene;
         scene = new Scene(new JFXDecorator(stage, getRoot(), true, true, true));
 	stage.setWidth(1200);
@@ -59,5 +67,7 @@ public class FXMLTest extends Application {
     public static Parent getRoot() {
         return root;
     }
+    
+    
     
 }

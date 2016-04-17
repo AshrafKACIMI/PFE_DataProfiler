@@ -83,14 +83,8 @@ public class TableInfo {
     }
     
     public ColumnInfo getColumnByName(String colName){
-        System.out.println("colNamePar = "+colName);
         for (int i = 0; i < this.columns.size(); i++){
-            System.out.println("getColumnByName i = " + i);
-            
             ColumnInfo col = this.columns.get(i);
-            
-            System.out.println("getColumnByName colName = " + col.getName());
-            
             if (col.getName().equals(colName)){
                 return col;
             }

@@ -4,7 +4,6 @@
 <?import com.jfoenix.controls.JFXHamburger?>
 <?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXPopup?>
-<?import com.jfoenix.controls.JFXProgressBar?>
 <?import com.jfoenix.controls.JFXRippler?>
 <?import com.jfoenix.controls.JFXSpinner?>
 <?import com.jfoenix.controls.JFXTabPane?>
@@ -17,11 +16,8 @@
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.ContextMenu?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TableColumn?>
@@ -78,53 +74,6 @@
 
     <JFXTabPane prefWidth="769.0" style="-fx-skin: #0D47A1;" styleClass="tab-panee" tabClosingPolicy="UNAVAILABLE">
          <tabs>
-            <Tab text="Referential Integrity">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <VBox layoutX="200.0" layoutY="110.0" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="110.0">
-                           <children>
-                              <HBox prefHeight="100.0" prefWidth="200.0">
-                                 <children>
-                                    <VBox fx:id="parentTableBox" prefHeight="100.0" prefWidth="400.0">
-                                       <children>
-                                          <Label text="Parent Table" />
-                                       </children>
-                                    </VBox>
-                                    <VBox fx:id="childTableBox" prefHeight="200.0" prefWidth="400.0">
-                                       <children>
-                                          <Label text="Child Table" />
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </HBox>
-                              <HBox prefHeight="100.0" prefWidth="200.0">
-                                 <children>
-                                    <VBox fx:id="parentColumnBox" prefHeight="200.0" prefWidth="400.0">
-                                       <children>
-                                          <Label text="Parent Column" />
-                                       </children>
-                                    </VBox>
-                                    <VBox fx:id="childColumnBox" prefHeight="200.0" prefWidth="400.0">
-                                       <children>
-                                          <Label text="Child Column" />
-                                       </children>
-                                    </VBox>
-                                 </children>
-                              </HBox>
-                                 <JFXButton fx:id="integrityButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#integrityAction" ripplerFill="#792929" text="Referential Integrity" />
-                              <JFXTextArea fx:id="refArea" maxWidth="631.0" prefWidth="631.0" />
-                           </children>
-                        </VBox>
-                     </children>
-                  </AnchorPane>
-              </content>
-            </Tab>
-            <Tab style="-fx-background-color: #1D628B;" text="Dashboard">
-               <content>
-                  <VBox fx:id="dashboardVbox" prefWidth="913.0" />
-               </content>
-            </Tab>
             <Tab style="-fx-background-color: #1D628B;" text="Analysis View">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
@@ -165,7 +114,7 @@
                         
                          <VBox prefHeight="765.0" prefWidth="1280.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <MenuBar VBox.vgrow="NEVER">
+<!--                              <MenuBar VBox.vgrow="NEVER">
                                  <menus>
                                     <Menu mnemonicParsing="false" text="File">
                                        <items>
@@ -203,7 +152,7 @@
                                        </items>
                                     </Menu>
                                  </menus>
-                              </MenuBar>
+                              </MenuBar>-->
                               <SplitPane dividerPositions="0.25" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
                                  <items>
                                     <AnchorPane>
@@ -279,10 +228,21 @@
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                                    <children>
                                                       <HBox alignment="CENTER" layoutX="190.0" layoutY="86.0" prefHeight="251.0" prefWidth="579.0" spacing="30.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-                                                         <children>
-                                                            <JFXProgressBar fx:id="distinctProgress" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" progress="0.0" rotate="-90.0" styleClass="custom-jfx-progress-bar" />
-                                                            <JFXProgressBar fx:id="notNullProgress" maxHeight="200.0" maxWidth="200.0" minHeight="200.0" minWidth="200.0" prefHeight="200.0" prefWidth="200.0" progress="0.0" rotate="-90.0" styleClass="custom-jfx-progress-bar" />
-                                                         </children>
+                                                            <children>
+                                                               <VBox fx:id="completenessVBox">
+                                                                  <children>
+                                                                     <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="90.0" text="Completeness" />
+                                                                  </children>
+                                                               </VBox>
+                                                               <VBox fx:id="uniquenessVBox">
+                                                                  <children>
+                                                                     <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="90.0" text="Uniqueness" />
+                                                                  </children>
+                                                               </VBox>
+                                                            </children>
+                                                            <padding>
+                                                               <Insets top="50.0" />
+                                                            </padding>
                                                       </HBox>
                                                    </children></AnchorPane>
                                             </items>
@@ -314,21 +274,68 @@
                   </AnchorPane>
               </content>
             </Tab>
-            <Tab style="-fx-background-color: #1D628B;" text="Real Dashboard">
+            <Tab text="Referential Integrity">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <WebView fx:id="webView" prefHeight="685.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                     </children></AnchorPane>
+                        <VBox layoutX="200.0" layoutY="110.0" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="110.0">
+                           <children>
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox fx:id="parentTableBox" prefHeight="100.0" prefWidth="400.0">
+                                       <children>
+                                          <Label text="Parent Table" />
+                                       </children>
+                                    </VBox>
+                                    <VBox fx:id="childTableBox" prefHeight="200.0" prefWidth="400.0">
+                                       <children>
+                                          <Label text="Child Table" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                              <HBox prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox fx:id="parentColumnBox" prefHeight="200.0" prefWidth="400.0">
+                                       <children>
+                                          <Label text="Parent Column" />
+                                       </children>
+                                    </VBox>
+                                    <VBox fx:id="childColumnBox" prefHeight="200.0" prefWidth="400.0">
+                                       <children>
+                                          <Label text="Child Column" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                                 <VBox>
+                                    <children>
+                                       <JFXButton fx:id="integrityButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#integrityAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Check Referential Integrity" textFill="#fcf9f9">
+                                          <VBox.margin>
+                                             <Insets left="330.0" />
+                                          </VBox.margin>
+                                       </JFXButton>
+                                       <HBox>
+                                          <children>
+                                          <JFXTextArea fx:id="refArea" editable="false" maxWidth="631.0" prefWidth="631.0" wrapText="true" />
+                                             <Label fx:id="refResultLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="221.0" prefWidth="504.0" style="-fx-font-size: 40;" text="" />
+                                          </children>
+                                       </HBox>
+                                    </children>
+                                 </VBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
               </content>
             </Tab>
             <Tab style="-fx-background-color: #1D628B;" text="Email Options">
               <content>
                 <AnchorPane>
                      <children>
-                        <VBox fx:id="mailVBox" alignment="CENTER" layoutX="300.0" layoutY="100.0" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="250.0" AnchorPane.topAnchor="100.0">
+                        <VBox fx:id="mailVBox" alignment="CENTER" layoutX="300.0" layoutY="24.0" prefHeight="619.0" prefWidth="650.0" AnchorPane.bottomAnchor="12.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="250.0" AnchorPane.topAnchor="24.0">
                            <children>
-                              <GridPane alignment="CENTER" prefHeight="485.0" prefWidth="699.0">
+                              <GridPane alignment="CENTER" prefHeight="368.0" prefWidth="650.0">
                                 <columnConstraints>
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="495.33349609375" minWidth="10.0" prefWidth="368.0" />
                                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="565.333251953125" minWidth="10.0" prefWidth="282.0" />
@@ -336,15 +343,24 @@
                                 <rowConstraints>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                       <RowConstraints maxHeight="66.33331298828125" minHeight="10.0" prefHeight="19.666656494140625" vgrow="SOMETIMES" />
+                                       <RowConstraints maxHeight="134.33334350585938" minHeight="10.0" prefHeight="30.33331298828125" vgrow="SOMETIMES" />
+                                  <RowConstraints maxHeight="195.66668701171875" minHeight="10.0" prefHeight="195.66668701171875" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                  <children>
                                     <Label text="Sending Emails" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
                                     <JFXToggleButton fx:id="mailToggle" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                    <JFXTextField fx:id="addMailField" maxWidth="242.0" minWidth="242.0" prefHeight="31.0" prefWidth="242.0" promptText="Email address to add" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-                                    <JFXButton fx:id="addMailButton" buttonType="RAISED" onAction="#addMailAction" text="Add Email" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                    <JFXTextField fx:id="addMailField" maxWidth="242.0" minWidth="242.0" prefHeight="31.0" prefWidth="242.0" promptText="Email address to add" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                                          <padding>
+                                             <Insets right="10.0" />
+                                          </padding></JFXTextField>
+                                    <JFXButton fx:id="addMailButton" buttonType="RAISED" onAction="#addMailAction" style="-fx-background-color: #25373D;" text="Add Email" textFill="#fcf8f8" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                                     <Label text="Generate PDF reports" GridPane.halignment="CENTER" />
                                     <JFXToggleButton fx:id="reportToggle" GridPane.columnIndex="1" />
+                                       <JFXButton GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                       <Label alignment="CENTER" prefHeight="17.0" prefWidth="650.0" text="PDF reports saving folder" GridPane.columnSpan="2" GridPane.rowIndex="2" />
+                                       <Label fx:id="folderLabel" prefHeight="17.0" prefWidth="370.0" text="Label" GridPane.rowIndex="3" />
+                                       <JFXButton onAction="#selectFolder" prefHeight="40.0" prefWidth="105.0" ripplerFill="BLACK" style="-fx-background-color: #25373D;" text="Select folder" textFill="#fffafa" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                                  </children>
                               </GridPane>
                               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="651.0" text="Mail list">
@@ -362,6 +378,19 @@
                         </VBox>
                      </children>
                   </AnchorPane>
+              </content>
+            </Tab>
+            <Tab style="-fx-background-color: #1D628B;" text="Dashboard">
+               <content>
+                  <VBox fx:id="dashboardVbox" prefWidth="913.0" />
+               </content>
+            </Tab>
+            <Tab style="-fx-background-color: #1D628B;" text="Real Dashboard">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                     <children>
+                        <WebView fx:id="webView" prefHeight="685.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                     </children></AnchorPane>
               </content>
             </Tab>
          </tabs>

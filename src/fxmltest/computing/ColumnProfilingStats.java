@@ -74,7 +74,9 @@ public class ColumnProfilingStats {
      * @return the nbLines
      */
     public int getNbLines() {
-        return nbLines;
+        if (nbLines > 0)
+            return nbLines;
+        else return 9999; //à corriger !!!!!!!!!!
     }
 
     /**

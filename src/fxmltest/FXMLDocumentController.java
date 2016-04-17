@@ -79,9 +79,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.DirectoryChooser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import testhierarchie.Graphics.ColumnComboBox;
 import testhierarchie.Graphics.ProgressIndicatorGraph;
 import testhierarchie.Graphics.RegexFieldValidator;
@@ -184,7 +186,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private JFXButton addMailButton;
     
-    private ProgressIndicatorGraph completenessProgress;
+    private ProgressIndicatorGraph dashboardCompletenessProgress;
     private ScheduleTasksDisplay schedulerTaskDisplay;
     private ObservableList<StackedBarChart.Series> barChartData;
     
@@ -197,9 +199,14 @@ public class FXMLDocumentController implements Initializable {
     private MenuItem sendMailMenu;
     
     @FXML
-    JFXProgressBar distinctProgress;
+    private VBox completenessVBox;
     @FXML
-    JFXProgressBar notNullProgress;
+    private VBox uniquenessVBox;
+    
+    private ProgressIndicatorGraph completenessIndicator;
+    private ProgressIndicatorGraph uniquenessIndicator;
+    
+    
     
     @FXML
     JFXToggleButton mailToggle;
@@ -224,6 +231,12 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private HBox controlBox;
+    
+    @FXML
+    private Label folderLabel;
+    
+    @FXML
+    private Label refResultLabel;
     
     
     
@@ -269,12 +282,17 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        this.notNullProgress.setProgress(0.0000001);
-        this.distinctProgress.setProgress(.0);
+
         initializeMailTab();
         WebEngine webEngine = webView.getEngine();
         webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
+        
+        completenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
+        uniquenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
+        completenessVBox.getChildren().add(0, completenessIndicator);
+        uniquenessVBox.getChildren().add(0, uniquenessIndicator);
+        
         Icon value = new Icon(AwesomeIcon.PIE_CHART, "30px", "-fx-text-fill: #E0E4CC;", "icon");
         sqlArea = new TextArea();
         value.setId("icon");
@@ -317,9 +335,11 @@ public class FXMLDocumentController implements Initializable {
         initializeTableTreeView();
         initializeTable();
         sqlArea.setWrapText(true);
-        completenessProgress = new ProgressIndicatorGraph(0, 100, 100);
-        dashboardVbox.getChildren().add(completenessProgress);
+        dashboardCompletenessProgress = new ProgressIndicatorGraph(0, 100, 100);
+        dashboardVbox.getChildren().add(dashboardCompletenessProgress);
         initializeRefTab();
+        
+
 
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
@@ -329,7 +349,7 @@ public class FXMLDocumentController implements Initializable {
         
         mailToggle.setSelected(true);
         reportToggle.setSelected(true);
-        
+        //folderLabel.setText(EmailOptions.getFileDirectory());
         mailToggle.selectedProperty().addListener(new ChangeListener<Boolean>(){
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -428,6 +448,9 @@ public class FXMLDocumentController implements Initializable {
             }
             
         });
+        
+        tableTreeView.getRoot().expandedProperty().setValue(true);
+        
         
      
     }
@@ -528,36 +551,27 @@ public class FXMLDocumentController implements Initializable {
 
         ObservableList<PieChart.Data> pieChartData;
         String columnName;
-        int nullCount = getData().get(this.selectedCol).getNbNull();
-        int count = getData().get(this.selectedCol).getNbLines();
+        float nullCount = getData().get(this.selectedCol).getNbNull();
+        float count = getData().get(this.selectedCol).getNbLines();
+        float distinct = getData().get(this.selectedCol).getNbDistinct();
 
         pieChartData =
                FXCollections.observableArrayList(
                new PieChart.Data("Null", (float) (nullCount)/count),
                new PieChart.Data("Not null", (float) (count-nullCount)/count ));
+        completenessIndicator.setProgress((count - nullCount) / count);
+        uniquenessIndicator.setProgress(distinct / count);
+        
         System.out.print("Null: ");
         System.out.println(((float) nullCount)/count);
         System.out.print("Not Null: ");
         System.out.println((float) (count - nullCount)/count);
+        
         //System.out.println("Not Null = "+ (count - nullCount)/count);
          
         
         this.resultsChart.setData(pieChartData);
         this.resultsChart.setTitle(getData().get(this.selectedCol).getColumnName());
-            distinctProgress.setProgress(
-                    getData().get(this.selectedCol).getNbDistinct()
-                    / getData().get(this.selectedCol).getNbLines()
-            );
-  
-            notNullProgress.setProgress(100.0 - 
-                    getData().get(this.selectedCol).getNbNull()
-                    / getData().get(this.selectedCol).getNbLines());
-
-        
-        
-                    
-        
-        
         
     }
     
@@ -614,7 +628,8 @@ public class FXMLDocumentController implements Initializable {
                     jaxbObjectToXML(table);
                     if (EmailOptions.isReport())
                         new TableReport(table);
-                    completenessProgress.setProgress(getOverallCompleteness());
+                    dashboardCompletenessProgress.setProgress(getOverallCompleteness());
+                    resetCursor();
                 break;
             }
         });
@@ -665,9 +680,10 @@ public class FXMLDocumentController implements Initializable {
                 case FAILED:
                 case CANCELLED:
                 case SUCCEEDED:
-                    loadTable();
-                    new TableReport(calculateService.getTable());
-                    completenessProgress.setProgress(getOverallCompleteness());
+                    //loadTable();
+                    JasperReportBuilder report = new TableReport(calculateService.getTable()).getReport();
+                    scheduler.addReport(report);
+                    dashboardCompletenessProgress.setProgress(getOverallCompleteness());
                     badge.setText(String.valueOf( 
                             Integer.parseInt(badge.getText()) - 1));
                 break;
@@ -799,8 +815,24 @@ public class FXMLDocumentController implements Initializable {
         ReferentialIntegrityEngine engine = 
                 new ReferentialIntegrityEngine(parentTable, parentColumn, childTable, childColumn);
         String value = engine.referentialIntegritySampleQuery();
-        refArea.setText(value 
-                + "\n" + engine.checkReferentialIntegrity());
+        int result = engine.checkReferentialIntegrity();
+        refArea.setText(value);
+        refResultLabel.setText(Integer.toString(result));
+    }
+    
+    @FXML
+    private void selectFolder(){
+        DirectoryChooser chooser = new DirectoryChooser();
+        chooser.setTitle("JavaFX Projects");
+        File defaultDirectory = new File(EmailOptions.getFileDirectory());
+        chooser.setInitialDirectory(defaultDirectory);
+        File selectedDirectory = chooser.showDialog(FXMLTest.getMainStage());
+        if (selectedDirectory!=null){
+            String path = selectedDirectory.getAbsolutePath();
+            EmailOptions.setFileDirectory(path);
+            folderLabel.setText(path);
+        }
+            
     }
 
     /**
@@ -830,6 +862,10 @@ public class FXMLDocumentController implements Initializable {
     
     public static void closeLoginPopup(){
         loginPopup.close();
+    }
+    
+    private void resetCursor(){
+        FXMLTest.getRoot().getScene().setCursor(Cursor.DEFAULT);
     }
     
 }

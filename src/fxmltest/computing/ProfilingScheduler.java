@@ -6,10 +6,13 @@
 
 package fxmltest.computing;
 
+import Reporting.TableReport;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import javafx.concurrent.Task;
+import net.sf.dynamicreports.jasper.builder.JasperConcatenatedReportBuilder;
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 
 /**
  *
@@ -17,9 +20,12 @@ import javafx.concurrent.Task;
  */
 public class ProfilingScheduler {
     private ArrayList<ProfilingService> tasks;
+    private ArrayList<JasperReportBuilder> reports;
+    
     
     public ProfilingScheduler(){
         this.tasks = new ArrayList<ProfilingService>();
+        this.reports = new ArrayList<JasperReportBuilder>();
     }
     
     public void start(){
@@ -33,6 +39,10 @@ public class ProfilingScheduler {
         }
         
         taskList.forEach(es::execute);
+//        JasperConcatenatedReportBuilder concatReports = TableReport.getConcatenatedReports(reports);
+//        System.out.println("REPORT : " + concatReports.toString());
+        saveConcatenatedReports();
+        tasks.clear();
         es.shutdown();
     }
     
@@ -49,6 +59,21 @@ public class ProfilingScheduler {
      */
     public ArrayList<ProfilingService> getTasks() {
         return tasks;
+    }
+
+    /**
+     * @return the reports
+     */
+    public ArrayList<JasperReportBuilder> getReports() {
+        return reports;
+    }
+    
+    public void addReport(JasperReportBuilder report){
+        this.reports.add(report);
+    }
+    
+    public void saveConcatenatedReports(){
+        TableReport.saveConcatenatedReports(reports);
     }
         
 }

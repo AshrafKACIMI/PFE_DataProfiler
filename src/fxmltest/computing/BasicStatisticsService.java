@@ -32,10 +32,6 @@ public class BasicStatisticsService extends ProfilingService{
             protected Void call() throws Exception {
                 BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(getTable());
                 FXMLDocumentController.setProfiler(profiler);
-                System.out.println("Menu clicked");
-                String sql = profiler.profileTableQuery();
-                System.out.println(sql);
-                FXMLDocumentController.setSqlAreaText(sql);
                 return null;
             }
         };

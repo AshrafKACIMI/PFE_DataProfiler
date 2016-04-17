@@ -22,9 +22,9 @@ public class MailListView extends JFXListView<Label>{
     
     public MailListView(ArrayList<String> mailList){
         super();
-        setPrefSize(300, 250);
-        setMinSize(300, 250);
-        setMaxSize(300, 250);
+        setPrefSize(300, 150);
+        setMinSize(300, 150);
+        setMaxSize(300, 150);
         this.mailList = mailList;
         getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         for (String mail: mailList){
