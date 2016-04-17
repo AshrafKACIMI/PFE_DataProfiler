@@ -6,6 +6,7 @@
 
 package testhierarchie.Graphics;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListView;
 import fxmltest.FXMLDocumentController;
 import fxmltest.computing.ProfilingScheduler;
@@ -13,12 +14,13 @@ import fxmltest.computing.ProfilingService;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.control.Button;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 
 /**
  *
@@ -30,13 +32,16 @@ public class ScheduleTasksDisplay extends StackPane{
     public ScheduleTasksDisplay(ProfilingScheduler scheduler){
         super();
         this.listView = new ScheduleTasksListView(scheduler);
-        getChildren().add(listView);
+        VBox content = new VBox(10);
+        getChildren().add(content);
+        content.getChildren().add(listView);
         setId("jfx-dialog-layout");
         setMinSize(200, 400);
         setFocusTraversable(true);
-        Button btn = new Button("Delete");
-        getChildren().add(btn);
+        JFXButton btn = new JFXButton("Delete");
+        content.getChildren().add(btn);
         btn.setFocusTraversable(false);
+        btn.setAlignment(Pos.CENTER);
         btn.setOnAction(new EventHandler<ActionEvent>() {
 
             @Override

@@ -19,6 +19,8 @@ public class EmailOptions {
     static private boolean report = true;
     static private ArrayList<String> mailingList = 
             FXMLDocumentController.getMailListView().getMailList();
+    
+    static private String fileDirectory = System.getProperty("user.home")+"\\Profiling Results\\";
 
     /**
      * @return the on
@@ -51,6 +53,21 @@ public class EmailOptions {
     public static void setReport(boolean aReport) {
         report = aReport;
     }
+
+    /**
+     * @return the fileDirectory
+     */
+    public static String getFileDirectory() {
+        return fileDirectory;
+    }
+
+    /**
+     * @param aFileDirectory the fileDirectory to set
+     */
+    public static void setFileDirectory(String aFileDirectory) {
+        fileDirectory = aFileDirectory;
+    }
+    
     
     
 }

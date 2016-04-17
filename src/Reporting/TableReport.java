@@ -5,8 +5,7 @@
  */
 package Reporting;
 
-import Mail.ReportingEMail;
-import fxmltest.MailTest;
+import Mail.EmailOptions;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.TableInfo;
@@ -15,13 +14,16 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Platform;
+import net.sf.dynamicreports.jasper.base.export.JasperPdfExporter;
+import net.sf.dynamicreports.jasper.builder.JasperConcatenatedReportBuilder;
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.dynamicreports.jasper.builder.export.JasperPdfExporterBuilder;
 
 import static net.sf.dynamicreports.report.builder.DynamicReports.*;
-import static net.sf.dynamicreports.report.builder.chart.Charts.meterChart;
 import net.sf.dynamicreports.report.builder.chart.MeterChartBuilder;
 import net.sf.dynamicreports.report.builder.chart.ThermometerChartBuilder;
 import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
@@ -39,18 +41,19 @@ import net.sf.jasperreports.engine.JRDataSource;
  * @author Ashraf
  */
 public class TableReport {
+    private JasperReportBuilder report;
 
     public TableReport(TableInfo tab) {
-        build(tab);
+        JasperReportBuilder report = build(tab);
     }
 
-    private void build(TableInfo tab) {
+    private JasperReportBuilder build(TableInfo tab) {
+        String saveFolder = EmailOptions.getFileDirectory();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 .format(Calendar.getInstance().getTime());
         String fileName = tab.getName() + " " 
                 + timeStamp + ".pdf";
-        String saveTo = System.getProperty("user.home")+"\\Profiling Results\\"+
-                fileName;
+        String saveTo = saveFolder + fileName;
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(saveTo);
@@ -117,12 +120,12 @@ public class TableReport {
                 );
         
         try {
-            report()//create new report design
+            report = report()//create new report design
                     .setColumnTitleStyle(columnTitleStyle)
                     .setSubtotalStyle(boldStyle)
                     .highlightDetailEvenRows()
                     .detailRowHighlighters(
-                    condition1)
+                            condition1)
                     .columns(//add columns
                             itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
                     //.groupBy(itemGroup)
@@ -131,7 +134,7 @@ public class TableReport {
                     .subtotalsAtFirstGroupFooter(
                             sbt.sum(nbNotNullColumn), sbt.sum(nbLinesColumn))
                     .summary(cmp.horizontalList(completeness, cht1))
-
+                    
                     .title(//shows report title
                             cmp.horizontalList()
                                     .add(
@@ -143,28 +146,26 @@ public class TableReport {
                     .pageFooter(cmp.pageXofY().setStyle(boldCenteredStyle))//shows number of page at page footer
                     //.setDataSource(createDataSource(TablesFactory.getTables().get(0)))
                     .setDataSource(createDataSource(tab))
-                    //.show();
                     .toPdf(fos);
-
-            try {
-                fos.close();
-            } catch (IOException ex) {
-                Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
-            }
         } catch (DRException ex) {
+            Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        try {
+            fos.close();
+        } catch (IOException ex) {
             Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
         }
             
         
-            Platform.runLater(() -> {
-//                Mail.ReportingEMail mail = new ReportingEMail(fileName);
-//                mail.send();
-                String args[] = new String[3];
-                args[0] = fileName;
-                MailTest.main(args);
-            });
+//            Platform.runLater(() -> {
+////                Mail.ReportingEMail mail = new ReportingEMail(fileName);
+////                mail.send();
+////                String args[] = new String[3];
+////                args[0] = fileName;
+////                MailTest.main(args);
+//            });
         
-            
+            return getReport();
 //            
     }
 
@@ -199,4 +200,40 @@ public class TableReport {
         return dataSource;
     }
 
+    /**
+     * @return the report
+     */
+    public JasperReportBuilder getReport() {
+        return report;
+    }
+
+    
+    public static JasperConcatenatedReportBuilder getConcatenatedReports(ArrayList<JasperReportBuilder> reports){
+        JasperConcatenatedReportBuilder running = concatenatedReport();
+        //casting ArrayList to array as parameter
+        //running.concatenate(reports.toArray(new JasperReportBuilder[reports.size()]));
+        for (JasperReportBuilder report: reports){
+            running.concatenate(report);
+            System.out.println("Report : " + report);
+        }
+        return running;
+    }
+    
+    public static void saveConcatenatedReports(ArrayList<JasperReportBuilder> reports){
+        try {
+            JasperConcatenatedReportBuilder report = getConcatenatedReports(reports);
+            System.out.println("REPORT : " + report.toString());
+            FileOutputStream fos = null;
+            String saveTo = EmailOptions.getFileDirectory() + "testConcat.pdf";
+            try {
+                fos = new FileOutputStream(saveTo);
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            report.toPdf(fos);
+        } catch (DRException ex) {
+            Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
 }

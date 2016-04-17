@@ -53,8 +53,8 @@ public class ColumnInfo {
     
     
     public int violDistinctFlag(){
-        if (isIsUnique()){
-            if (this.stats.getNbLines() > this.stats.getNbDistinct())
+        if (isUnique){
+            if (this.stats.getNbLines() != this.stats.getNbDistinct())
                 return 1;
         }
         return 0;
