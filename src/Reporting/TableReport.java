@@ -6,6 +6,8 @@
 package Reporting;
 
 import Mail.EmailOptions;
+import Mail.ReportingEMail;
+import fxmltest.MailTest;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.TableInfo;
@@ -18,17 +20,15 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import net.sf.dynamicreports.jasper.base.export.JasperPdfExporter;
+import javafx.application.Platform;
 import net.sf.dynamicreports.jasper.builder.JasperConcatenatedReportBuilder;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import net.sf.dynamicreports.jasper.builder.export.JasperPdfExporterBuilder;
 
 import static net.sf.dynamicreports.report.builder.DynamicReports.*;
 import net.sf.dynamicreports.report.builder.chart.MeterChartBuilder;
 import net.sf.dynamicreports.report.builder.chart.ThermometerChartBuilder;
 import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
 import net.sf.dynamicreports.report.builder.group.ColumnGroupBuilder;
-import net.sf.dynamicreports.report.builder.style.ConditionalStyleBuilder;
 import net.sf.dynamicreports.report.builder.style.StyleBuilder;
 import net.sf.dynamicreports.report.constant.HorizontalAlignment;
 import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
@@ -78,12 +78,12 @@ public class TableReport {
         minColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
         TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType());
         maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
-        TextColumnBuilder<Integer> problematicColumn = col.column("Problematic", "problem", type.integerType());
+        //TextColumnBuilder<Integer> problematicColumn = col.column("Problematic", "problem", type.integerType());
         
         
-        ConditionalStyleBuilder condition1 = stl.conditionalStyle(cnd.greater(problematicColumn, 0))
-                                              .setBackgroundColor(new Color(210, 255, 210));
-            
+//        ConditionalStyleBuilder condition1 = stl.conditionalStyle(cnd.greater(problematicColumn, 0))
+//                                              .setBackgroundColor(new Color(210, 255, 210));
+//            
         
         TextColumnBuilder<Integer> rowNumberColumn = col.reportRowNumberColumn("No.")
                 //sets the fixed width of a column, width = 2 * character width
@@ -105,6 +105,32 @@ public class TableReport {
                 .setTickColor(Color.BLACK)
                 .setNeedleColor(Color.BLACK)
                 .setValueColor(Color.BLACK)
+                .setUnits("%")
+                .setMeterBackgroundColor(Color.LIGHT_GRAY)
+                .setTitle("Overall Completeness")
+
+                .intervals(
+                        cht.meterInterval()
+                                .setLabel("Good")
+                                .setBackgroundColor(new Color(150, 255, 150))
+                                .setDataRangeLowExpression(30)
+                                .setDataRangeHighExpression(100),
+                        cht.meterInterval()
+                                .setLabel("Critical")
+                                .setBackgroundColor(new Color(255, 150, 150))
+                                .setDataRangeLowExpression(0)
+                                .setDataRangeHighExpression(30)
+                );
+        
+        MeterChartBuilder cht3 =  cht.meterChart()
+                .setValue(tab.getOverallUniqueness())
+                .setDataRangeHighExpression(100)
+                .setTickInterval(10d)
+                .setTickColor(Color.BLACK)
+                .setNeedleColor(Color.BLACK)
+                .setValueColor(Color.BLACK)
+                .setUnits("%")
+                .setTitle("Overall Uniqueness")
                 .setMeterBackgroundColor(Color.LIGHT_GRAY)
                 .intervals(
                         cht.meterInterval()
@@ -124,22 +150,24 @@ public class TableReport {
                     .setColumnTitleStyle(columnTitleStyle)
                     .setSubtotalStyle(boldStyle)
                     .highlightDetailEvenRows()
-                    .detailRowHighlighters(
-                            condition1)
+//                    .detailRowHighlighters(
+//                            condition1)
                     .columns(//add columns
-                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn, problematicColumn)
+                            itemColumn, nbNullColumn, nbNotNullColumn, nbLinesColumn, minColumn, maxColumn
+                            //, problematicColumn
+                    )
                     //.groupBy(itemGroup)
                     .subtotalsAtSummary(
                             sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
                     .subtotalsAtFirstGroupFooter(
                             sbt.sum(nbNotNullColumn), sbt.sum(nbLinesColumn))
-                    .summary(cmp.horizontalList(completeness, cht1))
+                    .summary(cmp.horizontalList(cht1, cht3))
                     
                     .title(//shows report title
                             cmp.horizontalList()
                                     .add(
                                             cmp.image(getClass().getResource("bbi.png")).setFixedDimension(160, 120),
-                                            cmp.text("BBI Profiling results").setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.JUSTIFIED),
+                                            cmp.text("BBI Profiling results" + timeStamp).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.JUSTIFIED),
                                             cmp.text(tab.getName()).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.RIGHT))
                                     .newRow()
                                     .add(cmp.filler().setStyle(stl.style().setTopBorder(stl.pen2Point())).setFixedHeight(10)))
@@ -157,13 +185,13 @@ public class TableReport {
         }
             
         
-//            Platform.runLater(() -> {
-////                Mail.ReportingEMail mail = new ReportingEMail(fileName);
-////                mail.send();
-////                String args[] = new String[3];
-////                args[0] = fileName;
-////                MailTest.main(args);
-//            });
+            Platform.runLater(() -> {
+                Mail.ReportingEMail mail = new ReportingEMail(fileName);
+                mail.send();
+                String args[] = new String[3];
+                args[0] = fileName;
+                MailTest.main(args);
+            });
         
             return getReport();
 //            
@@ -191,8 +219,8 @@ public class TableReport {
                     stats.getNbLines(),
                     stats.getMin(),
                     stats.getMax(),
-                    stats.getViolNotNullFlag(),
-                    stats.getNbNull()/stats.getNbLines() * 100
+                    stats.getViolNotNullFlag()
+                    //, stats.getNbNull()/stats.getNbLines() * 100
                     );            
         }
         

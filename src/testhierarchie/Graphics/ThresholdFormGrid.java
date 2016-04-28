@@ -47,7 +47,26 @@ public class ThresholdFormGrid extends StackPane {
         ColumnConstraints notNullCol = new ColumnConstraints(100);
         
         test.getColumnConstraints().addAll(labelCol, minCol, maxCol, distinctCol, notNullCol);
+        
+        Label title = new Label("Specify Data Quality Rules");
+        title.setId("thresholdtitle");
+        GridPane header = new GridPane();
+        header.setId("thresholdheader");
+        header.getColumnConstraints().addAll(labelCol, new ColumnConstraints(260), distinctCol, notNullCol);
+        Label columnName = new Label("Column Name");
+        Label validity = new Label("Validity");
+        Label uniqueness = new Label("Uniqueness");
+        Label completeness = new Label("Completeness");
+        
+        header.add(columnName, 0, 0, 1, 1);
+        header.add(validity, 1, 0, 2, 1);
+        header.add(uniqueness, 2, 0, 1, 1);
+        header.add(completeness, 3, 0, 1, 1);
+        
+        
+        
         content = new VBox(20);
+        content.getChildren().addAll(title, header);
         for (ColumnInfo column : table.getColumns()){
             ColumnLine columnLine = new ColumnLine(column); 
             columns.add(columnLine);
@@ -65,7 +84,6 @@ public class ThresholdFormGrid extends StackPane {
         cancelButton = new JFXButton("Cancel");
         confirmButton.setId("jfx-dialog-button");
         cancelButton.setId("jfx-dialog-button");
-        content.getChildren().add(new Label("Input min and max values"));
         content.getChildren().add(test);
         content.getChildren().add(
                 new HBox(100, confirmButton, cancelButton)
@@ -85,9 +103,7 @@ public class ThresholdFormGrid extends StackPane {
             column.getColumnInfo().setIsNotNull(column.getIsNotNull());
             column.getColumnInfo().updateStatsRules();
         }
-        
-        
-        
+                
     }
     
     

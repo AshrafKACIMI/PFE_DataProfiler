@@ -20,14 +20,16 @@ import java.util.logging.Logger;
  * @author Ashraf
  */
 public class ReferentialIntegrityEngine {
+    private IConnector connector;
     private String parentTable;
     private String parentColumn;
     private String childTable;
     private String childColumn;
     private ArrayList<String> sample;
 
-    public ReferentialIntegrityEngine(String parentTable, String parentColumn, 
+    public ReferentialIntegrityEngine(IConnector connector, String parentTable, String parentColumn, 
             String childTable, String childColumn) {
+        this.connector = connector;
         this.parentTable = parentTable;
         this.parentColumn = parentColumn;
         this.childTable = childTable;
@@ -63,10 +65,10 @@ public class ReferentialIntegrityEngine {
     public int checkReferentialIntegrity(){
         int nbViol = -1;
         try {
-            String connectionURL = TablesFactory.getConnectionURL();
-            String userName = TablesFactory.getUserName();
-            String password = TablesFactory.getPassword();
-            String driverClass = TablesFactory.getDriverClass();
+            String connectionURL = connector.getConnectionURL();
+            String userName = connector.getUserName();
+            String password = connector.getPassword();
+            String driverClass = connector.getDriverClass();
             
             //step1 load the driver class
             Class.forName(driverClass);

@@ -106,6 +106,19 @@ public class TableInfo {
         return (int) (100 - 100 * (sumNbNull / sumNbLines));
     }
     
+    public int getOverallUniqueness(){
+        double sumNbDistinct = 0;
+        double sumNbLines = 0;
+        
+        
+        for (ColumnInfo col: this.columns){
+            sumNbDistinct += col.getStats().getNbDistinct();
+            sumNbLines += col.getStats().getNbLines();
+            System.out.println(sumNbLines + " | "+ sumNbDistinct);
+        }
+        
+        return (int) (100 - 100 * (sumNbDistinct / sumNbLines));
+    }
     
     public TableInfo(){
         

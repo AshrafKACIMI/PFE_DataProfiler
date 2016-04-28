@@ -6,6 +6,7 @@
 
 package fxmltest.computing;
 
+import fxmltest.FXMLDocumentController;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -29,40 +30,16 @@ public class BasicStatisticsProfiler {
     }
     
        
-    public static String profileColumnQuery(TableInfo table, ColumnInfo column){
-        String query = "";
-        String tableName = table.getName();
-        String col = column.getName();
-        query += "SELECT " + "'" + col + "'" +",";
-        query += "count(*),";
-        query += "SUM(CASE WHEN "+ col + " is null or TO_CHAR("+col+")="+ alternativeNull+" then 1 else 0 end) count_null, ";
-        query += "TO_CHAR(max(length( " + col + " )) ),";
-        query += "TO_CHAR(min(length( " + col + " )) ),";
-        query += "count(DISTINCT(" + col + ")) nb_distinct ";
-        query += "FROM " + TablesFactory.getUserName() + "." + tableName;
-        return query;
-    }
-    
-    public  String profileTableQuery(){
-        String query = "";
-        String col;
-        for (ColumnInfo c: this.table.getColumns()){
-            col = c.getName();
-            if (query.length() > 0) //Si c'est pas la première colonne
-                query+= " UNION ALL ";
-            query+= profileColumnQuery(table, c);
-            }
-        return query;        
-    }
+     
 
     public ArrayList<ColumnProfilingStatsRow> profilingResult(){
-        
+        IConnector connector = FXMLDocumentController.getConnector();
         ArrayList<ColumnProfilingStatsRow> results = new ArrayList<ColumnProfilingStatsRow>();
-        String query = profileTableQuery();
-        String connectionURL = TablesFactory.getConnectionURL();
-        String userName = TablesFactory.getUserName();
-        String password = TablesFactory.getPassword();
-        String driverClass = TablesFactory.getDriverClass();
+        String query = connector.profileTableQuery(table);
+        String connectionURL = connector.getConnectionURL();
+        String userName = connector.getUserName();
+        String password = connector.getPassword();
+        String driverClass = connector.getDriverClass();
 
         try{  
             //step1 load the driver class  

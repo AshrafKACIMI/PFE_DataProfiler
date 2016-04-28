@@ -8,9 +8,12 @@ package fxmltest;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXTextField;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
+import fxmltest.computing.IConnector;
+import fxmltest.computing.OracleConnector;
 import fxmltest.computing.TableInfo;
 import fxmltest.computing.TablesFactory;
 import java.io.IOException;
@@ -53,6 +56,11 @@ public class LoginController implements Initializable {
     private JFXButton cancelButton;
     @FXML
     private JFXPasswordField passwordInput;
+    @FXML
+    JFXRadioButton oracleRadio;
+    @FXML
+    JFXRadioButton greenplumRadio;
+    
 
     /**
      * Initializes the controller class.
@@ -70,6 +78,16 @@ public class LoginController implements Initializable {
 
     @FXML
     private void loginOnAction(ActionEvent event) {
+        // check here if oracle or the other one is selected
+        IConnector connector = null;
+        if (oracleRadio.isSelected()){
+            String url = "jdbc:oracle:thin:@" + serverInput.getText()
+                + ":" + portInput.getText()
+                + ":" + SIDInput.getText();
+            connector = new OracleConnector(userInput.getText(), passwordInput.getText(), url);
+        } else if (greenplumRadio.isSelected()){
+            // TODO
+        }
         
         try {
             Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
@@ -78,16 +96,12 @@ public class LoginController implements Initializable {
         }
             FXMLDocumentController controller = FXMLDocumentController.getController();
             System.out.println(controller);
-            Platform.runLater(() -> {
             //updating TablesFactory fields to ensure connection
-                TablesFactory.setConnectionURL("jdbc:oracle:thin:@" + serverInput.getText()
-                + ":" + portInput.getText()
-                + ":" + SIDInput.getText());//jdbc:oracle:thin:@localhost:1522:orcl
-                TablesFactory.setUserName(userInput.getText());
-                TablesFactory.setPassword(passwordInput.getText());
+;
+                FXMLDocumentController.setConnector(connector);
                 controller.initializeTableTreeView();
-                FXMLDocumentController.closeLoginPopup();
-        });
+                controller.initializeRefTab();
+                //FXMLDocumentController.closeLoginPopup();
               
     }
 

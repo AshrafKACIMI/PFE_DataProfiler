@@ -8,7 +8,9 @@ package fxmltest;
 
 import Mail.ReportingEMail;
 import com.jfoenix.controls.JFXDecorator;
+import com.sendgrid.*;
 import fxmltest.computing.BasicStatisticsProfiler;
+import java.security.CodeSource;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -41,13 +43,22 @@ public class FXMLTest extends Application {
         scene = new Scene(new JFXDecorator(stage, getRoot(), true, true, true));
 	stage.setWidth(1200);
         stage.setHeight(720);
-        
+//        Class klass = SendGrid.class;
+//
+//        CodeSource codeSource = klass.getProtectionDomain().getCodeSource();
+//
+//        if ( codeSource != null) {
+//
+//            System.out.println(codeSource.getLocation());
+//
+//        }
+
         scene.getStylesheets().add(getClass().getResource("/resources/css/jfoenix-fonts.css").toExternalForm());
 	scene.getStylesheets().add(getClass().getResource("/resources/css/jfoenix-design.css").toExternalForm());
 	scene.getStylesheets().add(getClass().getResource("/resources/css/jfoenix-main-demo.css").toExternalForm());
         
         stage.setScene(scene);
-        stage.setTitle("Cool Profiler");
+        stage.setTitle("Data Profiler");
 
         stage.show();
         

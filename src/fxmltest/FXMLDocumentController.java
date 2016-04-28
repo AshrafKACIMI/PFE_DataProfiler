@@ -11,6 +11,7 @@ import Mail.MailListView;
 import Reporting.TableReport;
 import com.jfoenix.controls.JFXBadge;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
@@ -28,6 +29,8 @@ import fxmltest.computing.BasicStatisticsService;
 import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
+import fxmltest.computing.IConnector;
+import fxmltest.computing.OracleConnector;
 import fxmltest.computing.ProfilingScheduler;
 import fxmltest.computing.ReferentialIntegrityEngine;
 import fxmltest.computing.TableInfo;
@@ -77,8 +80,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebEngine;
-import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -121,7 +122,9 @@ public class FXMLDocumentController implements Initializable {
     public static ColumnComboBox getChildColumns() {
         return childColumns;
     }
+    
     private Label label;
+    private static IConnector connector;
     private static ArrayList<TableInfo> tables;
     private int tableNumber;
     private static final ObservableList<ColumnProfilingStatsRow> data
@@ -177,8 +180,6 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<?, ?> violMax;
     @FXML
     private VBox dashboardVbox;
-    @FXML 
-    private WebView webView;
     @FXML
     private HBox notificationsBox;
     @FXML
@@ -282,10 +283,9 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+        
+        //connector = new OracleConnector("hr", "hrpassword", "jdbc:oracle:thin:@localhost:1522:orcl");
         initializeMailTab();
-        WebEngine webEngine = webView.getEngine();
-        webEngine.load("http://localhost:4848/sense/app/C%3A%5CUsers%5CAshraf%5CDocuments%5CQlik%5CSense%5CApps%5CExecutive%20Dashboard/sheet/PfKsJK/state/analysis");    
         stopSpinner();
         
         completenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
@@ -330,14 +330,16 @@ public class FXMLDocumentController implements Initializable {
             }
             
         });
+        JFXDatePicker timePicker = new JFXDatePicker();
+        
         controlBox.getChildren().addAll(newConnection, schedulerStart);
         controller = this;
-        initializeTableTreeView();
+        //initializeTableTreeView();
         initializeTable();
         sqlArea.setWrapText(true);
         dashboardCompletenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(dashboardCompletenessProgress);
-        initializeRefTab();
+        //initializeRefTab();
         
 
 
@@ -383,7 +385,6 @@ public class FXMLDocumentController implements Initializable {
         mailListView = new MailListView(new ArrayList<String>());
         getMailListView().addMail("kacimi.achraf@gmail.com");
         getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
-        getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");getMailListView().addMail("ba_kacimi_el_hassani@esi.dz");
 //        mailListContainer.setPrefSize(220, 400);
 //        mailListContainer.setMinSize(220, 400);
 //        mailListContainer.setMaxSize(220, 400);
@@ -413,8 +414,6 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(getTables().get(0).getName());
         System.out.println(getTables().get(1).getName());
         
-        
-        
     }
     
     public void initializeTableTreeView (){
@@ -423,7 +422,7 @@ public class FXMLDocumentController implements Initializable {
         ArrayList<TableInfo> tables = new ArrayList<TableInfo>();
 
         //tables = new TablesFactory("SYSTEM", "OracleAdmin1", "jdbc:oracle:thin:@localhost:1522:orcl").getTables();
-        tables = new TablesFactory("hr", "hrpassword", "jdbc:oracle:thin:@localhost:1522:orcl").getTables();
+        tables = new TablesFactory(connector).getTables();
         //tables = new TablesFactory().getTables();
         for (TableInfo tab: tables){
             TreeItem<String> treeTab = new TreeItem<String>(tab.getName());
@@ -813,7 +812,7 @@ public class FXMLDocumentController implements Initializable {
         String parentColumn = parentColumns.getSelectedColumn();
         String childColumn = childColumns.getSelectedColumn();
         ReferentialIntegrityEngine engine = 
-                new ReferentialIntegrityEngine(parentTable, parentColumn, childTable, childColumn);
+                new ReferentialIntegrityEngine(connector, parentTable, parentColumn, childTable, childColumn);
         String value = engine.referentialIntegritySampleQuery();
         int result = engine.checkReferentialIntegrity();
         refArea.setText(value);
@@ -860,12 +859,20 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    public static void closeLoginPopup(){
-        loginPopup.close();
-    }
+//    public static void closeLoginPopup(){
+//        loginPopup.close();
+//    }
     
     private void resetCursor(){
         FXMLTest.getRoot().getScene().setCursor(Cursor.DEFAULT);
+    }
+    
+    public static void setConnector(IConnector conn){
+        connector = conn;
+    }
+    
+    public static IConnector getConnector(){
+        return connector;
     }
     
 }

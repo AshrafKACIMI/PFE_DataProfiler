@@ -2,6 +2,46 @@
  *	Apply google Roboto font to all UI components 
  */
 
+/* CUSTOM CSS
+
+*/
+
+
+#thresholdheader .label{
+    -fx-text-fill: #032E46;
+    -fx-font-size: 14.0;
+    -fx-font-weight: BOLD; 	
+    -fx-alignment: CENTER;
+}
+
+#thresholdtitle{
+    -fx-text-fill: #032E46;
+    -fx-font-size: 18.0;
+    -fx-font-weight: BOLD;
+    -fx-alignment: CENTER;
+}
+
+#mailTab .label{
+        -fx-font-size: 14.0;
+        -fx-text-fill: #032E46;
+        -fx-font-weight: BOLD;
+}
+
+.mailLabel{
+        -fx-font-size: 14.0;
+        -fx-text-fill: #032E46;
+        -fx-font-weight: BOLD;    
+}
+
+/* CUSTOM CSS
+===================================================================================
+*/
+
+
+
+
+
+
 .root {
 	-fx-font-family: "Roboto";	
 }
