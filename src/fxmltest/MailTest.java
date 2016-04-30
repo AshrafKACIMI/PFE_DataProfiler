@@ -5,6 +5,7 @@
  */
 
 package fxmltest;
+import DQRepository.MetaDataConnector;
 import Mail.ReportingEMail;
 import com.sendgrid.SendGrid;
 import com.sendgrid.SendGridException;
@@ -27,8 +28,11 @@ public class MailTest {
     public static void main(String[] args) {
         // TODO code application logic here
         
-                Mail.ReportingEMail mail = new ReportingEMail(args[0]);
-                mail.send();
+//                Mail.ReportingEMail mail = new ReportingEMail(args[0]);
+//                mail.send();
+        
+                MetaDataConnector.updateDb();
+
         
 //        
 //        SendGrid sendgrid = new SendGrid(apiKey);

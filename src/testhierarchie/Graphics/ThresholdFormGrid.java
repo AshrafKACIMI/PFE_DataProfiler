@@ -6,11 +6,13 @@
 
 package testhierarchie.Graphics;
 
+import DQRepository.MetaDataConnector;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXCheckBox;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXTextField;
 import fxmltest.computing.ColumnInfo;
+import fxmltest.computing.IConnector;
 import fxmltest.computing.TableInfo;
 import java.util.ArrayList;
 import javafx.event.ActionEvent;
@@ -102,6 +104,20 @@ public class ThresholdFormGrid extends StackPane {
             column.getColumnInfo().setIsUnique(column.getIsDistinct());
             column.getColumnInfo().setIsNotNull(column.getIsNotNull());
             column.getColumnInfo().updateStatsRules();
+            
+            int distinctInt = (column.getIsDistinct()? 1: 0 );
+            int notNullInt = (column.getIsNotNull()? 1: 0 );
+            String min = column.getMinValue();
+            String max = column.getMaxValue();
+            if (min == null)
+                min = "";
+            if (max == null)
+                max = "";            
+            
+            //writing the rules in the MD DB
+            MetaDataConnector.insertRule(table.getSchema(), table.getName(), 
+                    column.getColumnInfo().getName(),
+                    min, max, distinctInt, notNullInt);
         }
                 
     }

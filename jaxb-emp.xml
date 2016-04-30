@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Table>
-    <name>COUNTRIES</name>
+    <schema>hr</schema>
+    <name>DEPARTMENTS</name>
     <columns>
-        <name>REGION_ID</name>
+        <name>MANAGER_ID</name>
         <type>NUMBER</type>
         <stats>
-            <columnName>REGION_ID</columnName>
-            <max>4</max>
-            <min>1</min>
-            <nbDistinct>1</nbDistinct>
-            <nbLines>25</nbLines>
-            <nbNull>0</nbNull>
+            <columnName>MANAGER_ID</columnName>
+            <max>11</max>
+            <min>3</min>
+            <nbDistinct>3</nbDistinct>
+            <nbLines>27</nbLines>
+            <nbNull>16</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
             <violDistinctFlag>0</violDistinctFlag>
@@ -20,14 +21,14 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>COUNTRY_NAME</name>
+        <name>DEPARTMENT_NAME</name>
         <type>VARCHAR2</type>
         <stats>
-            <columnName>COUNTRY_NAME</columnName>
-            <max>25</max>
-            <min>5</min>
-            <nbDistinct>24</nbDistinct>
-            <nbLines>25</nbLines>
+            <columnName>DEPARTMENT_NAME</columnName>
+            <max>27</max>
+            <min>2</min>
+            <nbDistinct>20</nbDistinct>
+            <nbLines>27</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>
@@ -38,14 +39,32 @@
         <isNotNull>false</isNotNull>
     </columns>
     <columns>
-        <name>COUNTRY_ID</name>
-        <type>CHAR</type>
+        <name>LOCATION_ID</name>
+        <type>NUMBER</type>
         <stats>
-            <columnName>COUNTRY_ID</columnName>
-            <max>25</max>
+            <columnName>LOCATION_ID</columnName>
+            <max>7</max>
+            <min>4</min>
+            <nbDistinct>4</nbDistinct>
+            <nbLines>27</nbLines>
+            <nbNull>0</nbNull>
+            <violMaxFlag>0</violMaxFlag>
+            <violMinFlag>0</violMinFlag>
+            <violDistinctFlag>0</violDistinctFlag>
+            <violNotNullFlag>0</violNotNullFlag>
+        </stats>
+        <isUnique>false</isUnique>
+        <isNotNull>false</isNotNull>
+    </columns>
+    <columns>
+        <name>DEPARTMENT_ID</name>
+        <type>NUMBER</type>
+        <stats>
+            <columnName>DEPARTMENT_ID</columnName>
+            <max>27</max>
             <min>2</min>
-            <nbDistinct>2</nbDistinct>
-            <nbLines>25</nbLines>
+            <nbDistinct>3</nbDistinct>
+            <nbLines>27</nbLines>
             <nbNull>0</nbNull>
             <violMaxFlag>0</violMaxFlag>
             <violMinFlag>0</violMinFlag>

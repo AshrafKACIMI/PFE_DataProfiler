@@ -29,4 +29,6 @@ public interface IConnector {
     String getUserName();
     
     String getPassword();
+    
+    String getDbName();
 }

@@ -115,6 +115,11 @@ public class OracleConnector implements IConnector {
                 + "ORDER BY table_name";
 
     }
+
+    @Override
+    public String getDbName() {
+        return userName;
+    }
     
     
     

@@ -6,6 +6,7 @@
 
 package fxmltest;
 
+import DQRepository.MetaDataConnector;
 import Mail.ReportingEMail;
 import com.jfoenix.controls.JFXDecorator;
 import com.sendgrid.*;
@@ -35,7 +36,7 @@ public class FXMLTest extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
-        
+//        MetaDataConnector.updateDb();
         root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         //Scene scene = new Scene(root);
         mainStage = stage;

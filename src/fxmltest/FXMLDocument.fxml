@@ -317,7 +317,15 @@
                                        <HBox>
                                           <children>
                                           <JFXTextArea fx:id="refArea" editable="false" maxWidth="631.0" prefWidth="631.0" wrapText="true" />
-                                             <Label fx:id="refResultLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="221.0" prefWidth="504.0" style="-fx-font-size: 40;" text="" />
+                                             <VBox>
+                                                <children>
+                                                   <Label fx:id="refResultLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="221.0" prefWidth="504.0" style="-fx-font-size: 40;" text="">
+                                                      <graphic>
+                                                         <JFXListView fx:id="refViolationList" />
+                                                      </graphic>
+                                                   </Label>
+                                                </children>
+                                             </VBox>
                                           </children>
                                        </HBox>
                                     </children>

@@ -6,13 +6,16 @@
 
 package fxmltest.computing;
 
+import DQRepository.MetaDataConnector;
 import fxmltest.FXMLDocumentController;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 /**
  *
@@ -40,6 +43,9 @@ public class BasicStatisticsProfiler {
         String userName = connector.getUserName();
         String password = connector.getPassword();
         String driverClass = connector.getDriverClass();
+        
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss")
+                .format(Calendar.getInstance().getTime());
 
         try{  
             //step1 load the driver class  
@@ -50,6 +56,8 @@ public class BasicStatisticsProfiler {
             connectionURL,
             userName,
             password);
+            // make connection for Sqlite writing
+            Connection Sqliteconn = MetaDataConnector.getSqliteConnection();
             
             //step3 create the statement object  
             Statement stmt=con.createStatement();  
@@ -64,12 +72,15 @@ public class BasicStatisticsProfiler {
                 int nbDistinct = rs.getInt(4);
                 String min = rs.getString(5);
                 String max = rs.getString(6);
-                System.out.println("rs get DONE!");
-                System.out.println(columnName);
-                System.out.println(nbLines);
-                System.out.println(nbDistinct);
-                System.out.println(min);
-                System.out.println(max);
+                MetaDataConnector.insertMesure(Sqliteconn, connector.getDbName(),
+                        table.getName(), columnName, timeStamp, min, max,
+                        nbNull, nbLines, nbDistinct);
+                table.getName();
+                connector.getUserName();
+                
+                
+                
+                
                 
                 ColumnProfilingStatsRow stat = new ColumnProfilingStatsRow(columnName, nbNull, nbDistinct, nbLines, min, max);
                 ColumnInfo col = table.getColumnByName(columnName);
@@ -89,6 +100,7 @@ public class BasicStatisticsProfiler {
 
             }
             //step5 close the connection object  
+            Sqliteconn.close();
             con.close();  
 
         }catch(Exception e){ System.out.println(e);}  

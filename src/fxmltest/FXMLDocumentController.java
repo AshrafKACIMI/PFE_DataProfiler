@@ -13,11 +13,10 @@ import com.jfoenix.controls.JFXBadge;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXPopup;
 import com.jfoenix.controls.JFXPopup.PopupHPosition;
 import com.jfoenix.controls.JFXPopup.PopupVPosition;
-import com.jfoenix.controls.JFXProgressBar;
-import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
@@ -30,7 +29,6 @@ import fxmltest.computing.ColumnInfo;
 import fxmltest.computing.ColumnProfilingStats;
 import fxmltest.computing.ColumnProfilingStatsRow;
 import fxmltest.computing.IConnector;
-import fxmltest.computing.OracleConnector;
 import fxmltest.computing.ProfilingScheduler;
 import fxmltest.computing.ReferentialIntegrityEngine;
 import fxmltest.computing.TableInfo;
@@ -238,6 +236,8 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private Label refResultLabel;
+    @FXML
+    private JFXListView refViolationList;
     
     
     
@@ -395,7 +395,12 @@ public class FXMLDocumentController implements Initializable {
 
     public void initializeRefTab(){
         
-        
+        refViolationList.getItems().addAll(
+          new Label("aze"),
+          new Label("aze"),
+          new Label("aze")          
+        );
+
         parentTables = new TableComboBox(getTables(), 0);
         childTables = new TableComboBox(getTables(), 1);
         
@@ -418,7 +423,7 @@ public class FXMLDocumentController implements Initializable {
     
     public void initializeTableTreeView (){
         
-        final TreeItem<String> treeRoot = new TreeItem<String>("Mes tables");
+        final TreeItem<String> treeRoot = new TreeItem<String>("Tables");
         ArrayList<TableInfo> tables = new ArrayList<TableInfo>();
 
         //tables = new TablesFactory("SYSTEM", "OracleAdmin1", "jdbc:oracle:thin:@localhost:1522:orcl").getTables();
@@ -624,7 +629,6 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     loadTable();
-                    jaxbObjectToXML(table);
                     if (EmailOptions.isReport())
                         new TableReport(table);
                     dashboardCompletenessProgress.setProgress(getOverallCompleteness());

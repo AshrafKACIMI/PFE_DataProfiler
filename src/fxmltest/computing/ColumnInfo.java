@@ -61,16 +61,18 @@ public class ColumnInfo {
     }
     
     public int violMaxFlag(){
-        if (maxConstraint != null){
-            if (Integer.parseInt(this.stats.getMax()) > Integer.parseInt(this.maxConstraint)) 
+        if (maxConstraint != null && !maxConstraint.isEmpty() && !this.stats.getMax().isEmpty()){
+            if (Integer.parseInt(this.stats.getMax()) >
+                    Integer.parseInt(this.maxConstraint)) 
                     return 1;
         }
         return 0;
     }
     
     public int violMinFlag(){
-        if (minConstraint != null){
-            if (Integer.parseInt(this.stats.getMin()) < Integer.parseInt(this.minConstraint))
+        if (minConstraint != null && !minConstraint.isEmpty() && !this.stats.getMin().isEmpty()){
+            if (Integer.parseInt(this.stats.getMin()) < 
+                    Integer.parseInt(this.minConstraint))
                 return 1;
         }
         return 0;

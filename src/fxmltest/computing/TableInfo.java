@@ -34,6 +34,12 @@ public class TableInfo {
         this.columns = new ArrayList<ColumnInfo>();
     }
 
+    TableInfo(String dbName, String tableName) {
+        this.name = tableName;
+        this.schema = dbName;
+        this.columns = new ArrayList<ColumnInfo>();
+    }
+
     @Override
     public String toString() {
         return "TableInfo{" + "name=" + name + ", columns=" + columns + '}';
