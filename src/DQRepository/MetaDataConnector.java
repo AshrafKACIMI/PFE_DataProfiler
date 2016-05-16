@@ -6,10 +6,10 @@
 
 package DQRepository;
 
-import Mail.EmailOptions;
-import fxmltest.computing.ColumnInfo;
+import Entities.DqRule;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -24,7 +24,7 @@ public class MetaDataConnector {
 
     static String jdbc = "org.sqlite.JDBC"; // org.h2.Driver
     static String path = System.getProperty("user.home")+"\\Profiling Results\\DQMD Repository";
-    static String connection = "jdbc:sqlite:" + path + "\\sqlite.db";
+    static String connectionURL = "jdbc:sqlite:" + path + "\\sqlite.db";
     
     static String columnQuery = 
             "CREATE TABLE IF NOT EXISTS `Columns` (\n" +
@@ -68,7 +68,7 @@ public class MetaDataConnector {
             Class.forName(jdbc);
             Connection con;
             try {
-                con = DriverManager.getConnection(connection); //"jdbc:h2:~/test2", "test2", "" 
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
                 Statement stmt = con.createStatement();
                 stmt.executeUpdate(columnQuery);
                 stmt.executeUpdate(recommandationQuery);
@@ -96,7 +96,7 @@ public class MetaDataConnector {
         try {
             Class.forName(jdbc);
             try {
-                con = DriverManager.getConnection(connection);
+                con = DriverManager.getConnection(connectionURL);
             } catch (SQLException ex) {
                 Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -112,7 +112,7 @@ public class MetaDataConnector {
         try {
             Class.forName(jdbc);
             Connection con;
-            con = DriverManager.getConnection(connection); //"jdbc:h2:~/test2", "test2", "" 
+            con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
             Statement stmt = con.createStatement();
             String idQuery = getIdQuery(dbName, tableName, columnName); 
             System.out.println(idQuery);
@@ -126,7 +126,6 @@ public class MetaDataConnector {
             } else {// la colonne existe
                 query = updateColumnQuery(columnType, id);
             }
-            System.out.println(query);
             stmt.executeUpdate(query);
             stmt.close();
             con.close();
@@ -140,7 +139,6 @@ public class MetaDataConnector {
             
             Statement stmt = con.createStatement();
             String idQuery = getIdQuery(dbName, tableName, columnName); 
-            System.out.println(idQuery);
 //            ResultSet rs=stmt.executeQuery(idQuery);
 //            boolean bool = rs.next();
             String query;
@@ -151,7 +149,6 @@ public class MetaDataConnector {
             } else {// la colonne existe
                 query = updateColumnQuery(columnType, id);
             }
-            System.out.println(query);
             stmt.executeUpdate(query);
             stmt.close();
     }
@@ -226,7 +223,7 @@ public class MetaDataConnector {
             Class.forName(jdbc);
             Connection con;
             try {
-                con = DriverManager.getConnection(connection); //"jdbc:h2:~/test2", "test2", ""
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", ""
                 Statement stmt = con.createStatement();
                 int id = getColumnId(stmt, dbName, tableName, columnName);
                 String query = "INSERT OR REPLACE INTO dqrules VALUES("
@@ -247,6 +244,113 @@ public class MetaDataConnector {
             Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    
+
+    public static DqRule getColumnRule(Connection con, String columnName, String tableName, String dbName) {
+        
+        DqRule rule = null;
+        try {
+            Statement stmt = con.createStatement();
+            int id = getColumnId(stmt, dbName, tableName, columnName);
+            if (id == -1)
+                return null;
+            
+            String query = "SELECT min, max, uniqueness, not_null "
+                    + "FROM dqrules "
+                    + "WHERE idColumn = ?";
+            PreparedStatement ruleStmt = con.prepareStatement(query);
+            ruleStmt.setInt(1, id);
+            ResultSet rs=ruleStmt.executeQuery();
+            if (rs.next()){
+                String minConstraint = rs.getString("min");
+                String maxConstraint = rs.getString("max");
+                boolean isUnique = rs.getInt("uniqueness") > 0 ;
+                boolean isNotNull = rs.getInt("not_null") > 0;
+                rule = new DqRule(minConstraint, maxConstraint, isUnique, isNotNull);
+            }
+                
+            
+                    } catch (SQLException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return rule;
+    }
+    
+    public static PreparedStatement lastResultsQuery(Connection con, String dbName, String tableName){
+        try {
+            String query =
+                    "SELECT * FROM \n" +
+                    "(\n" +
+                    "SELECT a.idColumn, a.timestamp, a.min, a.max, a.nbnull, a.count, a.nb_distinct\n" +
+                    "FROM mesures a\n" +
+                    "\n" +
+                    "INNER JOIN (\n" +
+                    "    SELECT idColumn, MAX(timestamp) timestamp\n" +
+                    "    FROM mesures\n" +
+                    "    GROUP BY idColumn\n" +
+                    ") b ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+                    ") AS C \n" +
+                    "\n" +
+                    "INNER JOIN (\n" +
+                    "SELECT * from Columns \n" +
+                    "WHERE db_name = ? and table_name = ? \n" +
+                    ") D\n" +
+                    "ON D.id = C.idColumn;";
+            PreparedStatement stmt =  con.prepareStatement(query);
+            stmt.setString(1, dbName);
+            stmt.setString(2, tableName);
+            return stmt;
+        } catch (SQLException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+    
+    public static PreparedStatement lastResultsQuery(String dbName, String tableName){
+        try {
+            Class.forName(jdbc);
+            Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", ""
+                String query =
+                    "SELECT * FROM \n" +
+                    "(\n" +
+                    "SELECT a.idColumn, a.timestamp, a.min, a.max, a.nbnull, a.count, a.nb_distinct\n" +
+                    "FROM mesures a\n" +
+                    "\n" +
+                    "INNER JOIN (\n" +
+                    "    SELECT idColumn, MAX(timestamp) timestamp\n" +
+                    "    FROM mesures\n" +
+                    "    GROUP BY idColumn\n" +
+                    ") b ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+                    ") AS C \n" +
+                    "\n" +
+                    "INNER JOIN (\n" +
+                    "SELECT * from Columns \n" +
+                    "WHERE db_name = ? and table_name = ? \n" +
+                    ") D\n" +
+                    "ON D.id = C.idColumn;";
+                    PreparedStatement stmt =  con.prepareStatement(query);
+                    stmt.setString(1, dbName);
+                    stmt.setString(2, tableName);
+                    return stmt;
+                
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+
+    }
+    
+    public String getConnectionURL(){
+        return connectionURL;
+    }
+
     
     
 }

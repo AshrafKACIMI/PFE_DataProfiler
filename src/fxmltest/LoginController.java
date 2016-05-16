@@ -6,16 +6,17 @@
 
 package fxmltest;
 
+import DQRepository.IConnector;
+import DQRepository.OracleConnector;
+import Entities.TableInfo;
+import Entities.TablesFactory;
+import GraphicWidgets.RegexFieldValidator;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXRadioButton;
 import com.jfoenix.controls.JFXTextField;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
-import fxmltest.computing.IConnector;
-import fxmltest.computing.OracleConnector;
-import fxmltest.computing.TableInfo;
-import fxmltest.computing.TablesFactory;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -30,7 +32,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.stage.Stage;
-import testhierarchie.Graphics.RegexFieldValidator;
 
 /**
  * FXML Controller class
@@ -79,36 +80,47 @@ public class LoginController implements Initializable {
     @FXML
     private void loginOnAction(ActionEvent event) {
         // check here if oracle or the other one is selected
-        IConnector connector = null;
-        if (oracleRadio.isSelected()){
-            String url = "jdbc:oracle:thin:@" + serverInput.getText()
-                + ":" + portInput.getText()
-                + ":" + SIDInput.getText();
-            connector = new OracleConnector(userInput.getText(), passwordInput.getText(), url);
-        } else if (greenplumRadio.isSelected()){
-            // TODO
-        }
+        Task<Void> task = new Task<Void>() {
+            @Override
+            public Void call() throws Exception {
+                IConnector connector = null;
+                if (oracleRadio.isSelected()){
+                    String url = "jdbc:oracle:thin:@" + serverInput.getText()
+                        + ":" + portInput.getText()
+                        + ":" + SIDInput.getText();
+                    connector = new OracleConnector(userInput.getText(), passwordInput.getText(), url);
+                } else if (greenplumRadio.isSelected()){
+                    // TODO
+                }
+
+                try {
+                    Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
+                } catch (IOException ex) {
+                    Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                    FXMLDocumentController controller = FXMLDocumentController.getController();
+                    System.out.println(controller);
+                    //updating TablesFactory fields to ensure connection
+                        FXMLDocumentController.setConnector(connector);
+                        controller.initializeTableTreeView();
+                        controller.initializeRefTab();
+                        FXMLDocumentController.closeLoginDialog();
+                        return null;
+                        //FXMLDocumentController.closeLoginPopup();
+
+            }
+        };
+
+
+        new Thread(task).run();
         
-        try {
-            Parent root = FXMLLoader.load(getClass().getResource("login.fxml"));
-        } catch (IOException ex) {
-            Logger.getLogger(LoginController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-            FXMLDocumentController controller = FXMLDocumentController.getController();
-            System.out.println(controller);
-            //updating TablesFactory fields to ensure connection
-;
-                FXMLDocumentController.setConnector(connector);
-                controller.initializeTableTreeView();
-                controller.initializeRefTab();
-                //FXMLDocumentController.closeLoginPopup();
-              
+
     }
 
     @FXML
     private void cancelOnAction(ActionEvent event) {
-        Stage stage = (Stage) cancelButton.getScene().getWindow();
-        stage.close();
+      FXMLDocumentController.closeLoginDialog();
+        
     }
     
 }

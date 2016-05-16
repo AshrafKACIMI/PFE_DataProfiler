@@ -5,14 +5,8 @@
  */
 
 package fxmltest;
-import DQRepository.MetaDataConnector;
-import Mail.ReportingEMail;
-import com.sendgrid.SendGrid;
-import com.sendgrid.SendGridException;
-import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import Reporting.ConcatenatedReports;
+import Reporting.TableReport;
 
 /**
  *
@@ -26,29 +20,10 @@ public class MailTest {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
-        
-//                Mail.ReportingEMail mail = new ReportingEMail(args[0]);
-//                mail.send();
-        
-                MetaDataConnector.updateDb();
 
-        
-//        
-//        SendGrid sendgrid = new SendGrid(apiKey);
-//
-//            SendGrid.Email email = new SendGrid.Email();
-//            email.addTo("kacimi.achraf@gmail.com");
-//            email.setFrom("no-reply-profiler@BBI.com");
-//            email.setSubject("Profiling results");
-//            email.setText("My first email with SendGrid Java!");
-//        try {
-//            email.addAttachment("test.pdf", new File(System.getProperty("user.home")+"\\"+"intro.pdf"));
-//            
-//        } catch (IOException ex) {
-//            Logger.getLogger(MailTest.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-        
+                TableReport report = new TableReport("hr", "COUNTRIES", false);
+                ConcatenatedReports concat = new ConcatenatedReports();
+                
             
     }
     

@@ -6,12 +6,29 @@
 
 package fxmltest;
 
+import Computing.BasicStatisticsProfiler;
+import Computing.BasicStatisticsService;
+import Computing.ProfilingScheduler;
+import Computing.ReferentialIntegrityEngine;
+import DQRepository.IConnector;
+import Entities.ColumnInfo;
+import Entities.ColumnProfilingStats;
+import Entities.ColumnProfilingStatsRow;
+import Entities.TableInfo;
+import Entities.TablesFactory;
+import GraphicWidgets.ColumnComboBox;
+import GraphicWidgets.ProgressIndicatorGraph;
+import GraphicWidgets.RegexFieldValidator;
+import GraphicWidgets.ScheduleTasksDisplay;
+import GraphicWidgets.TableComboBox;
+import GraphicWidgets.ThresholdFormGrid;
+import GraphicWidgets.ToolbarIcon;
 import Mail.EmailOptions;
 import Mail.MailListView;
+import Reporting.ConcatenatedReports;
 import Reporting.TableReport;
 import com.jfoenix.controls.JFXBadge;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXDatePicker;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXPopup;
@@ -23,16 +40,6 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
-import fxmltest.computing.BasicStatisticsProfiler;
-import fxmltest.computing.BasicStatisticsService;
-import fxmltest.computing.ColumnInfo;
-import fxmltest.computing.ColumnProfilingStats;
-import fxmltest.computing.ColumnProfilingStatsRow;
-import fxmltest.computing.IConnector;
-import fxmltest.computing.ProfilingScheduler;
-import fxmltest.computing.ReferentialIntegrityEngine;
-import fxmltest.computing.TableInfo;
-import fxmltest.computing.TablesFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -40,11 +47,13 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import static javafx.concurrent.Worker.State.CANCELLED;
 import static javafx.concurrent.Worker.State.FAILED;
@@ -78,18 +87,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import testhierarchie.Graphics.ColumnComboBox;
-import testhierarchie.Graphics.ProgressIndicatorGraph;
-import testhierarchie.Graphics.RegexFieldValidator;
-import testhierarchie.Graphics.ScheduleTasksDisplay;
-import testhierarchie.Graphics.TableComboBox;
-import testhierarchie.Graphics.ThresholdFormGrid;
-import testhierarchie.Graphics.ToolbarIcon;
 
 /**
  *
@@ -129,7 +132,15 @@ public class FXMLDocumentController implements Initializable {
             = FXCollections.observableArrayList();
     private int selectedCol = 1;
     private static ProfilingScheduler scheduler = new ProfilingScheduler();
+    private static JFXDialog loginDialog;
+    private static JFXDialog thresholdDialog;
+    private static JFXDialog launchDialog;
+    private static JFXDialog laterDialog;
+    
 
+    
+    @FXML
+    private WebView webView;
     @FXML
     private TreeView tableTreeView;
     @FXML
@@ -285,8 +296,20 @@ public class FXMLDocumentController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
         
         //connector = new OracleConnector("hr", "hrpassword", "jdbc:oracle:thin:@localhost:1522:orcl");
+        
         initializeMailTab();
         stopSpinner();
+        
+        String webUrl = getClass().getResource("/dashboard/charts.html").toExternalForm();
+
+        webView.getEngine().load(webUrl);
+        
+//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
+//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
+//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
+        
+
+        webView.getEngine().setJavaScriptEnabled(true);
         
         completenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
         uniquenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
@@ -303,7 +326,7 @@ public class FXMLDocumentController implements Initializable {
         sqlArea.setText(badge.getStyle());
         badge.setPrefSize(50, 50);
         badge.setOnMouseClicked((e) -> {
-            StackPane root = (StackPane) FXMLTest.getRoot();
+            StackPane root = (StackPane) DataProfilerPFE.getRoot();
             this.schedulerTaskDisplay = new ScheduleTasksDisplay(scheduler);
             loginPopup = new JFXPopup(root, schedulerTaskDisplay);
             loginPopup.setSource(badge);
@@ -314,6 +337,8 @@ public class FXMLDocumentController implements Initializable {
         
         ToolbarIcon schedulerStart = new ToolbarIcon(AwesomeIcon.PLAY);
         ToolbarIcon newConnection = new ToolbarIcon((AwesomeIcon.PLUG));
+        ToolbarIcon scheduleLater = new ToolbarIcon((AwesomeIcon.ARCHIVE));
+        
         newConnection.setOnMouseClicked(new EventHandler<MouseEvent>(){
 
             @Override
@@ -326,13 +351,22 @@ public class FXMLDocumentController implements Initializable {
 
             @Override
             public void handle(MouseEvent event) {
-                scheduler.start();
+                createLaunchPopUp();
+                //scheduler.start();
             }
             
         });
-        JFXDatePicker timePicker = new JFXDatePicker();
         
-        controlBox.getChildren().addAll(newConnection, schedulerStart);
+        scheduleLater.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+                createLaterPopUp();
+            }
+        });
+        
+        
+        controlBox.getChildren().addAll(newConnection, schedulerStart, scheduleLater);
         controller = this;
         //initializeTableTreeView();
         initializeTable();
@@ -590,12 +624,50 @@ public class FXMLDocumentController implements Initializable {
     private void createLoginPopUp(){
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("login.fxml"));
-            StackPane root = (StackPane) FXMLTest.getRoot();
+            StackPane root = (StackPane) DataProfilerPFE.getRoot();
             StackPane content;
             content = (StackPane) FXMLLoader.load(getClass().getResource("login.fxml"));
             content.setId("jfx-dialog-layout");
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
+            loginDialog = dialog;
+            
+            
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void createLaunchPopUp(){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("launchScheduler.fxml"));
+            StackPane root = (StackPane) DataProfilerPFE.getRoot();
+            StackPane content;
+            content = (StackPane) FXMLLoader.load(getClass().getResource("launchScheduler.fxml"));
+            content.setId("jfx-dialog-layout");
+            JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
+            dialog.show();
+            launchDialog = dialog;
+            
+            
+            
+            
+        } catch (IOException ex) {
+            Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    private void createLaterPopUp(){
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("launchLater.fxml"));
+            StackPane root = (StackPane) DataProfilerPFE.getRoot();
+            StackPane content;
+            content = (StackPane) FXMLLoader.load(getClass().getResource("launchLater.fxml"));
+            content.setId("jfx-dialog-layout");
+            JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
+            dialog.show();
+            laterDialog = dialog;
+            
             
         } catch (IOException ex) {
             Logger.getLogger(FXMLDocumentController.class.getName()).log(Level.SEVERE, null, ex);
@@ -604,10 +676,10 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private void onContextMenuRequested(ContextMenuEvent event){
-        TreeItem<String> ti;
-        System.out.println(event.getSource());
-        System.out.println(event.getSource().getClass());
-        System.out.println(event.getSource().toString());
+//        TreeItem<String> ti;
+//        System.out.println(event.getSource());
+//        System.out.println(event.getSource().getClass());
+//        System.out.println(event.getSource().toString());
     }
     
     
@@ -628,22 +700,26 @@ public class FXMLDocumentController implements Initializable {
                 case FAILED:
                 case CANCELLED:
                 case SUCCEEDED:
-                    loadTable();
-                    if (EmailOptions.isReport())
-                        new TableReport(table);
-                    dashboardCompletenessProgress.setProgress(getOverallCompleteness());
-                    resetCursor();
+                    postProfilingResult(table);
                 break;
             }
         });
 
-        calculateService.start();
-        startSpinner();
+            startSpinner();
+            calculateService.start();
 
         
         } else{
             System.out.println(tableNumber);
         }
+    }
+
+    public void postProfilingResult(TableInfo table) {
+        loadTable();
+        if (EmailOptions.isReport())
+            new TableReport(table, EmailOptions.isReport());
+        dashboardCompletenessProgress.setProgress(getOverallCompleteness());
+        resetCursor();
     }
     
 
@@ -660,16 +736,18 @@ public class FXMLDocumentController implements Initializable {
     private void setThreshold(ActionEvent event){
         // When the context menu "set threshold" is pressed
         if (tableNumber >= 0){
-            StackPane root = (StackPane) FXMLTest.getRoot();
+            StackPane root = (StackPane) DataProfilerPFE.getRoot();
             StackPane content = new ThresholdFormGrid(getTables().get(tableNumber));
             JFXDialog dialog = new JFXDialog(root, content, JFXDialog.DialogTransition.CENTER);
             dialog.show();
+            thresholdDialog = dialog;
         }
     }
     
     @FXML
     private void scheduleMenuAction(ActionEvent event){
         // When the context menu add to schedule is pressed
+        ConcatenatedReports concatRep = new ConcatenatedReports();
         if (tableNumber>= 0){
             TableInfo table = getTables().get(tableNumber);
 
@@ -684,9 +762,12 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     //loadTable();
-                    JasperReportBuilder report = new TableReport(calculateService.getTable()).getReport();
+                    JasperReportBuilder report = new TableReport(table, false).getReport();
                     scheduler.addReport(report);
                     dashboardCompletenessProgress.setProgress(getOverallCompleteness());
+                    scheduler.decCount();
+                    if (scheduler.getCount() == 0)
+                        scheduler.getReport().makePdf();
                     badge.setText(String.valueOf( 
                             Integer.parseInt(badge.getText()) - 1));
                 break;
@@ -754,7 +835,7 @@ public class FXMLDocumentController implements Initializable {
     
     public void startSpinner(){
         this.spinner.setVisible(true);
-        FXMLTest.getRoot().getScene().setCursor(Cursor.WAIT);
+        DataProfilerPFE.getRoot().getScene().setCursor(Cursor.WAIT);
     }
     
     public void stopSpinner(){
@@ -829,7 +910,7 @@ public class FXMLDocumentController implements Initializable {
         chooser.setTitle("JavaFX Projects");
         File defaultDirectory = new File(EmailOptions.getFileDirectory());
         chooser.setInitialDirectory(defaultDirectory);
-        File selectedDirectory = chooser.showDialog(FXMLTest.getMainStage());
+        File selectedDirectory = chooser.showDialog(DataProfilerPFE.getMainStage());
         if (selectedDirectory!=null){
             String path = selectedDirectory.getAbsolutePath();
             EmailOptions.setFileDirectory(path);
@@ -845,30 +926,10 @@ public class FXMLDocumentController implements Initializable {
         return mailListView;
     }
     
-    private static void jaxbObjectToXML(TableInfo table) {
- 
-        try {
-            JAXBContext context = JAXBContext.newInstance(TableInfo.class);
-            Marshaller m = context.createMarshaller();
-            //for pretty-print XML in JAXB
-            m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
- 
-            // Write to System.out for debugging
-            // m.marshal(emp, System.out);
- 
-            // Write to File
-            m.marshal(table, new File(FILE_NAME));
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        }
-    }
     
-//    public static void closeLoginPopup(){
-//        loginPopup.close();
-//    }
     
     private void resetCursor(){
-        FXMLTest.getRoot().getScene().setCursor(Cursor.DEFAULT);
+        DataProfilerPFE.getRoot().getScene().setCursor(Cursor.DEFAULT);
     }
     
     public static void setConnector(IConnector conn){
@@ -878,5 +939,47 @@ public class FXMLDocumentController implements Initializable {
     public static IConnector getConnector(){
         return connector;
     }
+    
+    public static void closeLoginDialog(){
+        loginDialog.close();
+    }
+    
+    public static void closeThresholdDialog(){
+        thresholdDialog.close();
+    }
+    
+    public static void closeLaunchDialog(){
+        launchDialog.close();
+    }
+    
+    public static void closeLaterDialog(){
+        laterDialog.close();
+    }
+    
+    public static void startScheduler(){
+        Service<Void> schedule = new Service<Void>() {
+
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+
+                    @Override
+                    protected Void call() throws Exception {
+                        scheduler.start();
+                        return null;
+                    }
+                };
+            }
+        };
+        schedule.start();
+
+        
+        
+    }
+
+    public void setSchedulerLabel(String string) {
+        
+    }
+    
     
 }

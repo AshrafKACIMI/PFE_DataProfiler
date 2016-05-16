@@ -35,6 +35,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxmltest.FXMLDocumentController">
     <BorderPane>
@@ -392,6 +393,11 @@
                   </AnchorPane>
               </content>
             </Tab>
+               <Tab text="WebDash">
+                  <content>
+                     <WebView fx:id="webView" prefHeight="800.0" prefWidth="600.0" />
+                  </content>
+               </Tab>
          </tabs>
       </JFXTabPane>
     </center>
