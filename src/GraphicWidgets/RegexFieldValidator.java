@@ -26,6 +26,8 @@ public class RegexFieldValidator extends RequiredFieldValidator{
 		"^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 		+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
     
+    public static final String TIME_PATTERN = 
+            "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$";
     
     public RegexFieldValidator(String regex){
         super();

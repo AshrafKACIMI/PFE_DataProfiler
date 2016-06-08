@@ -115,7 +115,6 @@ public class MetaDataConnector {
             con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
             Statement stmt = con.createStatement();
             String idQuery = getIdQuery(dbName, tableName, columnName); 
-            System.out.println(idQuery);
 //            ResultSet rs=stmt.executeQuery(idQuery);
 //            boolean bool = rs.next();
             String query;
@@ -182,7 +181,6 @@ public class MetaDataConnector {
     private static int getColumnId(Statement stmt, String dbName, String tableName, String columnName){
         int id = -1;
         String idQuery = getIdQuery(dbName, tableName, columnName);
-        System.out.println(idQuery);
         try {
             ResultSet rs=stmt.executeQuery(idQuery);
             if (rs.next())
@@ -231,7 +229,6 @@ public class MetaDataConnector {
                         + "'" + maxValue + "'" + ", "
                         + distinctInt + ", "
                         + notNullInt + ")";
-                System.out.println(query);
                 stmt.executeUpdate(query);
                 stmt.close();
                 con.close();

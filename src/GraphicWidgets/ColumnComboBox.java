@@ -41,7 +41,6 @@ public class ColumnComboBox extends JFXComboBox<String>{
         getItems().clear();
         for (ColumnInfo column: table.getColumns())
             getItems().add(column.getName());
-        FXMLDocumentController.setSqlAreaText(getSelectedColumn());
     }
     
     public String getSelectedColumn(){

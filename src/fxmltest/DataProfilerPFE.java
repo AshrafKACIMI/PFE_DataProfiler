@@ -6,12 +6,8 @@
 
 package fxmltest;
 
-import DQRepository.MetaDataConnector;
-import Mail.ReportingEMail;
 import com.jfoenix.controls.JFXDecorator;
-import com.sendgrid.*;
-import Computing.BasicStatisticsProfiler;
-import java.security.CodeSource;
+import java.util.concurrent.Executors;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -37,6 +33,7 @@ public class DataProfilerPFE extends Application {
     public void start(Stage stage) throws Exception {
 
 //        MetaDataConnector.updateDb();
+        
         root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         //Scene scene = new Scene(root);
         mainStage = stage;

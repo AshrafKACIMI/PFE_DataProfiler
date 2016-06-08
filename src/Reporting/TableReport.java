@@ -192,6 +192,7 @@ public class TableReport {
                 .format(currentDate);
         String titleTimeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
                 .format(currentDate);
+        
         String fileName = tableName + " "
                 + fileTimeStamp + ".pdf";
         String saveTo = saveFolder + fileName;

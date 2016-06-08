@@ -24,7 +24,15 @@ import net.sf.dynamicreports.report.exception.DRException;
  * @author Ashraf
  */
 public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
+
+    /**
+     * @return the currentReportName
+     */
+    public static String getCurrentReportName() {
+        return currentReportName;
+    }
     private ArrayList<JasperReportBuilder> reports;
+    private static String currentReportName;
     
     public ConcatenatedReports(){
         super();
@@ -54,6 +62,7 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
                     .format(Calendar.getInstance().getTime());
         String fileName = "Concat results" + " " 
                     + fileTimeStamp + ".pdf";
+        currentReportName = fileName;
         String saveFolder = System.getProperty("user.home")+"\\Profiling Results\\";
         String saveTo = saveFolder + fileName;
         
@@ -74,6 +83,8 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
                 Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
             }
     }
+    
+    
     
    
     

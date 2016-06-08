@@ -43,7 +43,9 @@ import de.jensd.fx.fontawesome.Icon;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +55,6 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
-import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import static javafx.concurrent.Worker.State.CANCELLED;
 import static javafx.concurrent.Worker.State.FAILED;
@@ -65,6 +66,9 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Label;
@@ -89,9 +93,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 
 /**
@@ -146,7 +147,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private AnchorPane anchor;
     @FXML
-    private static TextArea sqlArea;
+    private static TextArea logArea;
     @FXML
     private Color x2;
     @FXML
@@ -155,8 +156,8 @@ public class FXMLDocumentController implements Initializable {
     private Label resultTableLabel;
     @FXML
     private PieChart resultsChart;
-    @FXML
-    private StackedBarChart<?, ?> resultsHisto;
+
+
     @FXML
     private Color x4;
     @FXML
@@ -198,7 +199,6 @@ public class FXMLDocumentController implements Initializable {
     
     private ProgressIndicatorGraph dashboardCompletenessProgress;
     private ScheduleTasksDisplay schedulerTaskDisplay;
-    private ObservableList<StackedBarChart.Series> barChartData;
     
     @FXML
     private TableView tableView;
@@ -251,13 +251,37 @@ public class FXMLDocumentController implements Initializable {
     private JFXListView refViolationList;
     
     
+    //Dates Tab
+    @FXML
+    private HBox dateTableBox;
+    @FXML
+    private HBox dateFromBox;
+    @FXML
+    private HBox dateToBox;
+    @FXML
+    HBox chartBox;
+    
+    
+    
     
     private static MailListView mailListView;
     private static TableComboBox parentTables;
     private static TableComboBox childTables;
     private static ColumnComboBox parentColumns;
     private static ColumnComboBox childColumns;
+    
+    //dates tab
+    private static TableComboBox dateTables;
+    private static ColumnComboBox dateFromColumns;
+    private static ColumnComboBox dateToColumns;    
+    
+    
     private static JFXPopup loginPopup;
+    private CategoryAxis xAxis;
+    private NumberAxis yAxis;
+    private BarChart barChart;
+    @FXML
+    private BarChart logBars;
     
     
     
@@ -294,22 +318,32 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        logBars.setAnimated(true);
+                
         //connector = new OracleConnector("hr", "hrpassword", "jdbc:oracle:thin:@localhost:1522:orcl");
         
         initializeMailTab();
-        stopSpinner();
+        stopSpinner();  
+//        
+//        String webUrl = getClass().getResource("/dashboard/charts.html").toExternalForm();
+//
+//        webView.getEngine().load(webUrl);
+//        
+////        webView.getEngine().setUserStyleSresultBarsheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
+////        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
+////        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
+//        
+//
+//        webView.getEngine().setJavaScriptEnabled(true);
         
-        String webUrl = getClass().getResource("/dashboard/charts.html").toExternalForm();
+        
+        
+        
+        initBarChart();
+        
+ 
 
-        webView.getEngine().load(webUrl);
-        
-//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
-//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
-//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
-        
 
-        webView.getEngine().setJavaScriptEnabled(true);
         
         completenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
         uniquenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
@@ -317,13 +351,11 @@ public class FXMLDocumentController implements Initializable {
         uniquenessVBox.getChildren().add(0, uniquenessIndicator);
         
         Icon value = new Icon(AwesomeIcon.PIE_CHART, "30px", "-fx-text-fill: #E0E4CC;", "icon");
-        sqlArea = new TextArea();
         value.setId("icon");
         badge = new JFXBadge(value);
         badge.setPosition(Pos.TOP_RIGHT);
         badge.setText("0");
         badge.setId("icons-badge");
-        sqlArea.setText(badge.getStyle());
         badge.setPrefSize(50, 50);
         badge.setOnMouseClicked((e) -> {
             StackPane root = (StackPane) DataProfilerPFE.getRoot();
@@ -370,7 +402,6 @@ public class FXMLDocumentController implements Initializable {
         controller = this;
         //initializeTableTreeView();
         initializeTable();
-        sqlArea.setWrapText(true);
         dashboardCompletenessProgress = new ProgressIndicatorGraph(0, 100, 100);
         dashboardVbox.getChildren().add(dashboardCompletenessProgress);
         //initializeRefTab();
@@ -379,6 +410,20 @@ public class FXMLDocumentController implements Initializable {
 
         //BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(tables.get(1));
         //System.out.println(profiler.profileTableQuery());
+    }
+
+    private void initBarChart() {
+        
+        xAxis = new CategoryAxis();
+        yAxis = new NumberAxis();
+        
+        barChart = new BarChart(xAxis, yAxis);
+        barChart.setAnimated(false);
+        //chartBox.getChildren().add(barChart);
+        
+        barChart.setBarGap(3);
+        barChart.setCategoryGap(20);
+
     }
     
     private void initializeMailTab(){
@@ -430,9 +475,7 @@ public class FXMLDocumentController implements Initializable {
     public void initializeRefTab(){
         
         refViolationList.getItems().addAll(
-          new Label("aze"),
-          new Label("aze"),
-          new Label("aze")          
+          new Label("aze")
         );
 
         parentTables = new TableComboBox(getTables(), 0);
@@ -560,7 +603,7 @@ public class FXMLDocumentController implements Initializable {
     
 //
     
-    private void loadTable(){
+    public void loadTable(){
         getData().clear();
         //data.addAll(this.profiler.profilingResult());
         
@@ -576,22 +619,25 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 selectedCol = tableView.getSelectionModel().getSelectedIndex();
-                System.out.println(getData().get(selectedCol));
+                //System.out.println(getData().get(selectedCol));
                 loadChart();
             }
         });
+        this.tableView.getSelectionModel().clearAndSelect(0);
         loadChart();
-        
     }
     
-    private void loadChart(){
+    public void loadChart(){
         int selected = this.tableView.getSelectionModel().getSelectedIndex();
-
+        if (selected < 0)
+            return;
         ObservableList<PieChart.Data> pieChartData;
         String columnName;
         float nullCount = getData().get(this.selectedCol).getNbNull();
         float count = getData().get(this.selectedCol).getNbLines();
         float distinct = getData().get(this.selectedCol).getNbDistinct();
+        //float min = getData().get(this.selectedCol).getMin();
+        //float max = getData().get(this.selectedCol).getNbDistinct();
 
         pieChartData =
                FXCollections.observableArrayList(
@@ -599,14 +645,42 @@ public class FXMLDocumentController implements Initializable {
                new PieChart.Data("Not null", (float) (count-nullCount)/count ));
         completenessIndicator.setProgress((count - nullCount) / count);
         uniquenessIndicator.setProgress(distinct / count);
+
         
+        yAxis = new NumberAxis();
+        yAxis.setLabel("Results");//"Results", 0.0d, 3000.0d, 10.0d);
+
+        String[] categories = {"Counts", "Values"};
+        xAxis.setCategories(FXCollections.<String>observableArrayList(categories));
+        
+        ObservableList<BarChart.Series> barChartData;
+        barChartData = FXCollections.observableArrayList(
+            new BarChart.Series(categories[0], FXCollections.observableArrayList(
+               new BarChart.Data("Null", nullCount),
+               new BarChart.Data("Not null", count - nullCount),
+               new BarChart.Data("Distinct", distinct)
+            ))
+                ,
+            new BarChart.Series(categories[1], FXCollections.observableArrayList(
+               new BarChart.Data("Min", Integer.parseInt(getData().get(this.selectedCol).getMin())),
+               new BarChart.Data("Max", Integer.parseInt(getData().get(this.selectedCol).getMax()))
+            ))
+        );
+        
+        ObservableList<BarChart.Data>logChartData = FXCollections.observableArrayList(
+               new BarChart.Data("Null", nullCount),
+               new BarChart.Data("Not null", count - nullCount),
+               new BarChart.Data("Distinct", distinct)
+        );
+        
+        //this.barChart.setData(logChartData);
+        logBars.setData(barChartData);
         System.out.print("Null: ");
         System.out.println(((float) nullCount)/count);
         System.out.print("Not Null: ");
         System.out.println((float) (count - nullCount)/count);
         
         //System.out.println("Not Null = "+ (count - nullCount)/count);
-         
         
         this.resultsChart.setData(pieChartData);
         this.resultsChart.setTitle(getData().get(this.selectedCol).getColumnName());
@@ -716,8 +790,15 @@ public class FXMLDocumentController implements Initializable {
 
     public void postProfilingResult(TableInfo table) {
         loadTable();
-        if (EmailOptions.isReport())
-            new TableReport(table, EmailOptions.isReport());
+        if (EmailOptions.isReport()) {
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    new TableReport(table, EmailOptions.isReport());
+                }
+            });
+
+        }
         dashboardCompletenessProgress.setProgress(getOverallCompleteness());
         resetCursor();
     }
@@ -802,7 +883,6 @@ public class FXMLDocumentController implements Initializable {
             System.out.println("mail 2: " + s);
             cct+= s;
         }
-        sqlArea.setText(cct);
         }
     }
     
@@ -876,9 +956,7 @@ public class FXMLDocumentController implements Initializable {
             FXMLDocumentController.profiler = profiler;
         }
     
-    public static void setSqlAreaText(String text){
-        sqlArea.setText(text);
-    }
+
     
     public static ProfilingScheduler getScheduler(){
         return scheduler;
@@ -956,30 +1034,52 @@ public class FXMLDocumentController implements Initializable {
         laterDialog.close();
     }
     
-    public static void startScheduler(){
-        Service<Void> schedule = new Service<Void>() {
+    public static void startScheduler() {
+        launchSchedulerController.getController().startSpinner();
 
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
+        // asynchronously loads the list view items
+//        Platform.runLater(new Runnable() {
+//            @Override
+//            public void run() {
+                scheduler.start();
+//                launchSchedulerController.getController().stopSpinner();
+//
+//            }
+//        });
 
-                    @Override
-                    protected Void call() throws Exception {
-                        scheduler.start();
-                        return null;
-                    }
-                };
-            }
-        };
-        schedule.start();
-
-        
-        
     }
 
-    public void setSchedulerLabel(String string) {
+    public static void setSchedulerLabel(String string) {
         
+        if (launchSchedulerController.getController()!=null){
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    launchSchedulerController.getController().updateLabel(string);
+                }
+            });
+        }
     }
     
+    public static void addToLog(String taskName){
+        String timeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+                .format(Calendar.getInstance().getTime());
+        final String content = timeStamp + taskName + "\n";
+        logArea.appendText(content);
+        System.out.println(content);
+        
+        //sqlArea.setText(timeStamp + taskName + "\n");
+        
+    }    
+    
+    public void initializeDateCheck(){
+        dateTables = new TableComboBox(getTables(), 0);
+        dateFromColumns = new ColumnComboBox();
+        dateToColumns = new ColumnComboBox();
+        dateTableBox.getChildren().add(dateTables);
+        dateFromBox.getChildren().add(dateFromColumns);
+        dateToBox.getChildren().add(dateToColumns);
+
+    }
     
 }

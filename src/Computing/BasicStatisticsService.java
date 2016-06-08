@@ -34,14 +34,18 @@ public class BasicStatisticsService extends ProfilingService{
                 BasicStatisticsProfiler profiler = new BasicStatisticsProfiler(getTable());
                 FXMLDocumentController.getController().setSchedulerLabel("Profiling: " + table.getName());
                 FXMLDocumentController.setProfiler(profiler);
-                
+
                 FXMLDocumentController controller = FXMLDocumentController.getController();
+                FXMLDocumentController.addToLog(this.toString());
+
                 stateProperty().addListener((ObservableValue<? extends Worker.State> observableValue, Worker.State oldValue, Worker.State newValue) -> {
                 switch (newValue) {
                     case FAILED:
                     case CANCELLED:
                     case SUCCEEDED:
-                        controller.postProfilingResult(table);
+//                        controller.postProfilingResult(table);
+                    FXMLDocumentController.addToLog(this.toString());
+                    default: FXMLDocumentController.getScheduler().decCount();
                     break;
             }
         });

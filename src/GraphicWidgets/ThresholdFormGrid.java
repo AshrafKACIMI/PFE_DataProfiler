@@ -121,6 +121,7 @@ public class ThresholdFormGrid extends StackPane {
             MetaDataConnector.insertRule(table.getSchema(), table.getName(), 
                     column.getColumnInfo().getName(),
                     min, max, distinctInt, notNullInt);
+            FXMLDocumentController.closeThresholdDialog();
         }
                 
     }

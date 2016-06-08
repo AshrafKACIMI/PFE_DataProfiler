@@ -148,12 +148,12 @@
                               <Font size="13.0" />
                            </font>
                         </JFXPasswordField>
-                        <JFXButton fx:id="cancelButton" onAction="#cancelOnAction" prefHeight="35.0" prefWidth="128.0" style="-fx-background-color: #043D5D;" text="Cancel" textFill="#fcf9f9" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.rowSpan="2147483647">
+                        <JFXButton fx:id="cancelButton" onAction="#cancelOnAction" prefHeight="35.0" prefWidth="128.0" style="-fx-background-color: #009688ff;" text="Cancel" textFill="#fcf9f9" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.rowSpan="2147483647">
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>
                         </JFXButton>
-                        <JFXButton onAction="#loginOnAction" prefHeight="35.0" prefWidth="128.0" style="-fx-background-color: #043D5D;" text="Connect" textFill="#fcf9f9" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.rowSpan="2147483647">
+                        <JFXButton onAction="#loginOnAction" prefHeight="35.0" prefWidth="128.0" style="-fx-background-color: #009688ff;" text="Connect" textFill="#fcf9f9" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.rowSpan="2147483647">
                            <font>
                               <Font name="System Bold" size="14.0" />
                            </font>

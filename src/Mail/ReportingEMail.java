@@ -72,15 +72,18 @@ public class ReportingEMail extends SendGrid.Email{
     
     public ReportingEMail(String attachementName) {
         super();
-
+        
         this.addTo("kacimi.achraf@gmail.com");
         this.setFrom("no-reply-profiler@BBI.com");
-        this.setSubject("Profiling results");
-        this.setText("Kindly find attached the results :D");
+        this.setSubject("Profiling results 2016/05/30");
+        String text = "Hello, \n"
+                + "Kindly find attached the profiling results performed the 2016/05/30. \n";
+        this.setText(text);
         
         try {
             this.addAttachment(attachementName,
-                    new File(getAttachementFolder() + attachementName));
+                   // new File(getAttachementFolder() + attachementName));
+                    new File(getAttachementFolder() + "\\" + attachementName));
         } catch (IOException ex) {
             Logger.getLogger(ReportingEMail.class.getName()).log(Level.SEVERE, null, ex);
         }
