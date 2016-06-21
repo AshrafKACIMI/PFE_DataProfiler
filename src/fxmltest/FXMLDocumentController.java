@@ -17,6 +17,7 @@ import Entities.ColumnProfilingStatsRow;
 import Entities.TableInfo;
 import Entities.TablesFactory;
 import GraphicWidgets.ColumnComboBox;
+import GraphicWidgets.ColumnsList;
 import GraphicWidgets.ProgressIndicatorGraph;
 import GraphicWidgets.RegexFieldValidator;
 import GraphicWidgets.ScheduleTasksDisplay;
@@ -249,7 +250,11 @@ public class FXMLDocumentController implements Initializable {
     private Label refResultLabel;
     @FXML
     private JFXListView refViolationList;
+    @FXML
+    private JFXListView duplicateKeysList;
     
+    @FXML
+    private VBox refVBox;
     
     //Dates Tab
     @FXML
@@ -260,6 +265,10 @@ public class FXMLDocumentController implements Initializable {
     private HBox dateToBox;
     @FXML
     HBox chartBox;
+    
+    //duplicate tab
+    @FXML
+    private HBox duplicatesTableBox;
     
     
     
@@ -273,7 +282,10 @@ public class FXMLDocumentController implements Initializable {
     //dates tab
     private static TableComboBox dateTables;
     private static ColumnComboBox dateFromColumns;
-    private static ColumnComboBox dateToColumns;    
+    private static ColumnComboBox dateToColumns;
+    
+    //duplicate tab
+    private static TableComboBox duplicateTables;
     
     
     private static JFXPopup loginPopup;
@@ -282,6 +294,11 @@ public class FXMLDocumentController implements Initializable {
     private BarChart barChart;
     @FXML
     private BarChart logBars;
+    @FXML
+    private JFXButton dateCheckButton;
+    @FXML
+    private JFXButton dateScheduleButton;
+    
     
     
     
@@ -325,16 +342,16 @@ public class FXMLDocumentController implements Initializable {
         initializeMailTab();
         stopSpinner();  
 //        
-//        String webUrl = getClass().getResource("/dashboard/charts.html").toExternalForm();
-//
-//        webView.getEngine().load(webUrl);
-//        
-////        webView.getEngine().setUserStyleSresultBarsheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
-////        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
-////        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
-//        
-//
-//        webView.getEngine().setJavaScriptEnabled(true);
+        String webUrl = getClass().getResource("/dashboard/dashboard.html").toExternalForm();
+
+        webView.getEngine().load(webUrl);
+        
+//        webView.getEngine().setUserStyleSresultBarsheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
+//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
+//        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
+        
+
+        webView.getEngine().setJavaScriptEnabled(true);
         
         
         
@@ -473,11 +490,11 @@ public class FXMLDocumentController implements Initializable {
     }
 
     public void initializeRefTab(){
-        
-        refViolationList.getItems().addAll(
-          new Label("aze")
-        );
+                    
 
+        //parentTableBox.getChildren().remove(1);
+//        childTableBox.getChildren().remove(1);
+        
         parentTables = new TableComboBox(getTables(), 0);
         childTables = new TableComboBox(getTables(), 1);
         
@@ -489,12 +506,20 @@ public class FXMLDocumentController implements Initializable {
         
         parentColumns = new ColumnComboBox();
         childColumns = new ColumnComboBox();
+//        parentColumnBox.getChildren().remove(1);
+//        childColumnBox.getChildren().remove(1);        
+                
         parentColumnBox.getChildren().add(parentColumns);
         childColumnBox.getChildren().add(childColumns);
-    
+        
+        
         System.out.println(getTables().size());
         System.out.println(getTables().get(0).getName());
         System.out.println(getTables().get(1).getName());
+        
+        int selected = parentTables.getSelectionModel().getSelectedIndex();
+        
+        //refVBox.getChildren().add(new ColumnsList(getTables().get(0)));
         
     }
     
@@ -897,6 +922,17 @@ public class FXMLDocumentController implements Initializable {
     }
     
     
+    @FXML
+    private void scheduleDatesAction(ActionEvent event){
+        return;
+    }
+    
+        @FXML
+    private void checkDatesAction(ActionEvent event){
+        return;
+    }
+    
+    
     
 
     /**
@@ -979,7 +1015,10 @@ public class FXMLDocumentController implements Initializable {
         String value = engine.referentialIntegritySampleQuery();
         int result = engine.checkReferentialIntegrity();
         refArea.setText(value);
-        refResultLabel.setText(Integer.toString(result));
+        if(result >= 0)
+            refResultLabel.setText(Integer.toString(result));
+        else
+            refResultLabel.setText("Incompatible columns");
     }
     
     @FXML
@@ -1073,13 +1112,84 @@ public class FXMLDocumentController implements Initializable {
     }    
     
     public void initializeDateCheck(){
+        refViolationList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        updateColumnsList(getTables().get(1));
+
         dateTables = new TableComboBox(getTables(), 0);
+        dateTables.getSelectionModel().select(1);
         dateFromColumns = new ColumnComboBox();
         dateToColumns = new ColumnComboBox();
         dateTableBox.getChildren().add(dateTables);
         dateFromBox.getChildren().add(dateFromColumns);
         dateToBox.getChildren().add(dateToColumns);
+        
+        dateTables.valueProperty().addListener(new ChangeListener<Label>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Label> observable, Label oldValue, Label newValue) {
+                FXMLDocumentController.getController().resetRefLabel();
+                int selected = dateTables.getSelectionModel().getSelectedIndex();
+                updateColumnsList(getTables().get(selected));
+                dateFromColumns.update(selected);
+                dateToColumns.update(selected);
+                
+            }
+        });
+        
+        
+        
 
     }
     
+
+    public void initializeDuplicateCheck(){
+        duplicateKeysList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        updateColumnsList(getTables().get(1));
+
+        duplicateTables = new TableComboBox(getTables(), 0);
+        duplicateTables.getSelectionModel().select(1);
+                
+        duplicatesTableBox.getChildren().add(duplicateTables);
+        
+        duplicateTables.valueProperty().addListener(new ChangeListener<Label>() {
+
+            @Override
+            public void changed(ObservableValue<? extends Label> observable, Label oldValue, Label newValue) {
+                FXMLDocumentController.getController().resetRefLabel();
+                int selected = duplicateTables.getSelectionModel().getSelectedIndex();
+                updateDuplicateList(getTables().get(selected));
+            }
+        });
+        
+        
+        
+
+    }
+
+    
+    
+    public void updateColumnsList(TableInfo table){
+        
+        ObservableList<String> names = FXCollections.observableArrayList();
+        for (ColumnInfo col: table.getColumns()){
+            names.add(col.getName());
+        }
+        refViolationList.setItems(names);
+    }
+    
+    public void updateDuplicateList(TableInfo table){
+        
+        ObservableList<String> names = FXCollections.observableArrayList();
+        for (ColumnInfo col: table.getColumns()){
+            names.add(col.getName());
+        }
+        duplicateKeysList.setItems(names);
+    }
+    
+    
+    
+    
+    public void resetRefLabel(){
+        refResultLabel.setText("");
+    }
 }

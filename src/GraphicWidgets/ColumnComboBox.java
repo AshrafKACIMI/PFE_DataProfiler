@@ -24,6 +24,14 @@ public class ColumnComboBox extends JFXComboBox<String>{
     public ColumnComboBox(){
         super();
         setPrefWidth(300);
+//            valueProperty().addListener(new ChangeListener<Label>() {
+//
+//            @Override
+//            public void changed(ObservableValue<? extends Label> observable, Label oldValue, Label newValue) {
+//                FXMLDocumentController.getController().resetRefLabel();
+//
+//            }
+//        });
         
     }
     
@@ -46,5 +54,9 @@ public class ColumnComboBox extends JFXComboBox<String>{
     public String getSelectedColumn(){
         return getValue();
     }
+    
+
+    
+    
     
 }

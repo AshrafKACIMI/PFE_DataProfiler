@@ -116,7 +116,7 @@
                               <Font size="13.0" />
                            </font>
                         </JFXTextField>
-                        <JFXTextField fx:id="userInput" text="hr" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <JFXTextField fx:id="userInput" text="sh" GridPane.columnIndex="1" GridPane.rowIndex="1">
                            <GridPane.margin>
                               <Insets left="10.0" right="30.0" />
                            </GridPane.margin>
@@ -140,7 +140,7 @@
                               <Font size="13.0" />
                            </font>
                         </JFXTextField>
-                        <JFXPasswordField fx:id="passwordInput" text="hrpassword" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <JFXPasswordField fx:id="passwordInput" text="shpassword" GridPane.columnIndex="1" GridPane.rowIndex="2">
                            <GridPane.margin>
                               <Insets left="10.0" right="30.0" />
                            </GridPane.margin>

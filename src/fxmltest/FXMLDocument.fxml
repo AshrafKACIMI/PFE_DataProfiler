@@ -38,6 +38,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.web.WebView?>
 
 <StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxmltest.FXMLDocumentController">
     <BorderPane>
@@ -328,13 +329,9 @@
                                        <HBox>
                                           <children>
                                           <JFXTextArea fx:id="refArea" editable="false" maxWidth="631.0" prefWidth="631.0" wrapText="true" />
-                                             <VBox>
+                                             <VBox fx:id="refVBox">
                                                 <children>
-                                                   <Label fx:id="refResultLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="221.0" prefWidth="504.0" style="-fx-font-size: 40;" text="">
-                                                      <graphic>
-                                                         <JFXListView fx:id="refViolationList" />
-                                                      </graphic>
-                                                   </Label>
+                                                   <Label fx:id="refResultLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="221.0" prefWidth="504.0" style="-fx-font-size: 40;" text="" />
                                                 </children>
                                              </VBox>
                                           </children>
@@ -351,7 +348,7 @@
                  <content>
                    <AnchorPane minHeight="0.0" minWidth="0.0">
                         <children>
-                           <VBox AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="110.0">
+                           <VBox alignment="BOTTOM_CENTER" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="50.0">
                               <children>
                                  <HBox fx:id="dateTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                     <children>
@@ -368,9 +365,24 @@
                                        <Label prefWidth="150.0" styleClass="mailLabel" text="Valid To Column :" />
                                     </children>
                                  </HBox>
+                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff;" text="Primary key columns" />
+                                 <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
+                                    <children>
+                                       <JFXListView fx:id="refViolationList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                    </children>
+                                 </AnchorPane>
+                                 <HBox alignment="CENTER" spacing="50.0">
+                                    <children>
+                                       <JFXButton fx:id="dateCheckButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Check Dates" textFill="#fcf9f9" />
+                                       <JFXButton fx:id="dateScheduleButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#scheduleDatesAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Schedule Dates" textFill="#fcf9f9" />
+                                    </children>
+                                 </HBox>
                               </children>
                            </VBox>
                         </children>
+                        <padding>
+                           <Insets top="30.0" />
+                        </padding>
                      </AnchorPane>
                  </content>
                </Tab>
@@ -378,23 +390,19 @@
                   <content>
                      <AnchorPane minHeight="0.0" minWidth="0.0">
                         <children>
-                           <VBox AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="110.0">
+                           <VBox alignment="CENTER" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="110.0">
                               <children>
-                                 <HBox fx:id="dateTableBox1" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <HBox fx:id="duplicatesTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                                     <children>
                                        <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
                                     </children>
                                  </HBox>
-                                 <HBox fx:id="dateFromBox1" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff;" text="Primary key columns" />
+                                 <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
                                     <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Valid From Column :" />
+                                       <JFXListView fx:id="duplicateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                                     </children>
-                                 </HBox>
-                                 <HBox fx:id="dateToBox1" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                                    <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Valid To Column :" />
-                                    </children>
-                                 </HBox>
+                                 </AnchorPane>
                               </children>
                            </VBox>
                         </children>
@@ -468,6 +476,15 @@
                   </AnchorPane>
               </content>
             </Tab>
+               <Tab text="Web">
+                 <content>
+                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                        <children>
+                           <WebView fx:id="webView" prefHeight="655.0" prefWidth="1200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                        </children>
+                     </AnchorPane>
+                 </content>
+               </Tab>
          </tabs>
       </JFXTabPane>
     </center>

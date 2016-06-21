@@ -105,6 +105,7 @@ public class LoginController implements Initializable {
                         controller.initializeTableTreeView();
                         controller.initializeRefTab();
                         controller.initializeDateCheck();
+                        controller.initializeDuplicateCheck();
                         FXMLDocumentController.closeLoginDialog();
                         return null;
                         //FXMLDocumentController.closeLoginPopup();

@@ -36,6 +36,7 @@ public class TableComboBox extends JFXComboBox<Label> {
 
             @Override
             public void changed(ObservableValue<? extends Label> observable, Label oldValue, Label newValue) {
+                FXMLDocumentController.getController().resetRefLabel();
                 int selected = getSelectionModel().getSelectedIndex();
                 if (side == 0)
                     FXMLDocumentController.getParentColumns().update(selected);
