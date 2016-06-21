@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Table>
+    <schema>hr</schema>
     <name>DEPARTMENTS</name>
     <columns>
         <name>MANAGER_ID</name>
