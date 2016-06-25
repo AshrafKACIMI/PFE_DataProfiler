@@ -8,16 +8,17 @@ package fxmltest;
 
 import Computing.BasicStatisticsProfiler;
 import Computing.BasicStatisticsService;
+import Computing.DuplicatesEngine;
 import Computing.ProfilingScheduler;
 import Computing.ReferentialIntegrityEngine;
 import DQRepository.IConnector;
+import DQRepository.MetaDataConnector;
 import Entities.ColumnInfo;
 import Entities.ColumnProfilingStats;
 import Entities.ColumnProfilingStatsRow;
 import Entities.TableInfo;
 import Entities.TablesFactory;
 import GraphicWidgets.ColumnComboBox;
-import GraphicWidgets.ColumnsList;
 import GraphicWidgets.ProgressIndicatorGraph;
 import GraphicWidgets.RegexFieldValidator;
 import GraphicWidgets.ScheduleTasksDisplay;
@@ -71,7 +72,6 @@ import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.PieChart;
-import javafx.scene.chart.StackedBarChart;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SelectionMode;
@@ -92,7 +92,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 
@@ -141,8 +140,7 @@ public class FXMLDocumentController implements Initializable {
     
 
     
-    @FXML
-    private WebView webView;
+
     @FXML
     private TreeView tableTreeView;
     @FXML
@@ -191,6 +189,8 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<?, ?> violMax;
     @FXML
     private VBox dashboardVbox;
+    @FXML
+    private HBox dashboardHBox;
     @FXML
     private HBox notificationsBox;
     @FXML
@@ -298,6 +298,35 @@ public class FXMLDocumentController implements Initializable {
     private JFXButton dateCheckButton;
     @FXML
     private JFXButton dateScheduleButton;
+    @FXML
+    private JFXButton duplicateButton;
+    
+    
+    
+    //dashboard
+    @FXML
+    private PieChart validityChart;
+    @FXML
+    private PieChart consistencyChart;
+    @FXML
+    private PieChart completenessChart;
+    @FXML
+    private PieChart unicityChart;
+    @FXML
+    private PieChart integrityChart;
+    
+    private ObservableList<PieChart.Data> validityChartData;
+    private ObservableList<PieChart.Data> consistencyChartData;
+    private ObservableList<PieChart.Data> completenessChartData;
+    private ObservableList<PieChart.Data> unicityChartData;
+    private ObservableList<PieChart.Data> integrityChartData;
+    
+    @FXML
+    private Label totalRows;
+    @FXML
+    private Label totalDuplicates;
+    @FXML
+    private Label totalRef;
     
     
     
@@ -313,6 +342,11 @@ public class FXMLDocumentController implements Initializable {
         createLoginPopUp();
         label.setText("Hello World!");
     }
+    
+    
+
+    
+    
     
     @FXML
     private void handleNewMenuItem(ActionEvent event) {
@@ -342,16 +376,10 @@ public class FXMLDocumentController implements Initializable {
         initializeMailTab();
         stopSpinner();  
 //        
-        String webUrl = getClass().getResource("/dashboard/dashboard.html").toExternalForm();
-
-        webView.getEngine().load(webUrl);
         
 //        webView.getEngine().setUserStyleSresultBarsheetLocation(getClass().getResource("/dashweb/css/bootstrap.min.css").toString());
 //        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashweb/css/bootstrap.css").toString());
 //        webView.getEngine().setUserStyleSheetLocation(getClass().getResource("/dashboard/styles.css").toString());
-        
-
-        webView.getEngine().setJavaScriptEnabled(true);
         
         
         
@@ -362,8 +390,8 @@ public class FXMLDocumentController implements Initializable {
 
 
         
-        completenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
-        uniquenessIndicator = new ProgressIndicatorGraph(0, 80, 80);
+        completenessIndicator = new ProgressIndicatorGraph(0, 120, 120);
+        uniquenessIndicator = new ProgressIndicatorGraph(0, 120, 120);
         completenessVBox.getChildren().add(0, completenessIndicator);
         uniquenessVBox.getChildren().add(0, uniquenessIndicator);
         
@@ -419,8 +447,27 @@ public class FXMLDocumentController implements Initializable {
         controller = this;
         //initializeTableTreeView();
         initializeTable();
-        dashboardCompletenessProgress = new ProgressIndicatorGraph(0, 100, 100);
-        dashboardVbox.getChildren().add(dashboardCompletenessProgress);
+        dashboardCompletenessProgress = new ProgressIndicatorGraph(0, 150, 150);
+        VBox completenessVBox = new VBox(20);
+        completenessVBox.getChildren().addAll(
+                new Label("Completeness"),
+                dashboardCompletenessProgress
+        );
+        //dashboardVbox.getChildren().add(dashboardCompletenessProgress);
+        ProgressIndicatorGraph dashboardUnicityProgress = new ProgressIndicatorGraph(0, 150, 150);
+        VBox unicityVBox = new VBox(20);
+        unicityVBox.getChildren().addAll(
+                new Label("Unicity"),
+                dashboardUnicityProgress
+        );
+        ProgressIndicatorGraph dashboardIntegrityProgress = new ProgressIndicatorGraph(0, 150, 150);
+        VBox integrityVBox = new VBox(20);
+        integrityVBox.getChildren().addAll(
+                new Label("Integrity"),
+                dashboardIntegrityProgress
+        );
+        //dashboardHBox.getChildren().addAll(completenessVBox, unicityVBox, integrityVBox);
+        
         //initializeRefTab();
         
 
@@ -452,6 +499,7 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
                 EmailOptions.setOn(newValue);
+                System.out.println("EMAIL OPTIONS: " + EmailOptions.isOn());
             }
         });
         
@@ -644,6 +692,7 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void changed(ObservableValue observable, Object oldValue, Object newValue) {
                 selectedCol = tableView.getSelectionModel().getSelectedIndex();
+                barChart.setTitle(getData().get(selectedCol).getColumnName() + " values");
                 //System.out.println(getData().get(selectedCol));
                 loadChart();
             }
@@ -1003,6 +1052,27 @@ public class FXMLDocumentController implements Initializable {
         this.schedulerTaskDisplay.removeSelectedTask();
     }
     
+    
+    
+    
+    
+    @FXML
+    private void duplicateAction(){
+        System.out.println("SELECTION MODEL: " + 
+                duplicateKeysList.getSelectionModel().getSelectedIndices()
+        );
+        System.out.println(duplicationColumns());
+        int selected = duplicateTables.getSelectionModel().getSelectedIndex();
+        
+
+        
+        String table = getTables().get(selected).getName();
+        DuplicatesEngine engine = 
+                new DuplicatesEngine(connector, table, duplicationColumns());
+        int result = engine.checkDuplicates();
+        System.out.println("RESULT : " +  result);
+    }
+    
     @FXML
     private void integrityAction(){
         //refArea.
@@ -1135,10 +1205,6 @@ public class FXMLDocumentController implements Initializable {
                 
             }
         });
-        
-        
-        
-
     }
     
 
@@ -1186,10 +1252,113 @@ public class FXMLDocumentController implements Initializable {
         duplicateKeysList.setItems(names);
     }
     
+    public void initializeDashboard(){
+        refreshTotalRows();
+        
+
+        
+        
+        validityChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Valid", 10000),
+               new PieChart.Data("> Max", 1200),
+               new PieChart.Data("> Max", 2000));
+        validityChart.setData(validityChartData);
+        
+        consistencyChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Valid", 8000),
+               new PieChart.Data("Hole", 1200),
+               new PieChart.Data("Overlap", 1000));
+        consistencyChart.setData(consistencyChartData);
+        
+        completenessChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Present", 8000),
+               new PieChart.Data("Missing", 200));
+        completenessChart.setData(completenessChartData);
+        
+        unicityChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Distinct", 5000),
+               new PieChart.Data("Duplicate", 1200));
+        unicityChart.setData(unicityChartData);
+        
+        integrityChartData =
+               FXCollections.observableArrayList(
+               new PieChart.Data("Valid", 4000),
+               new PieChart.Data("Broken", 300));
+        integrityChart.setData(integrityChartData);
+        
+        refreshCompleteness();
+
     
+
+    }
+
+    private void refreshCompleteness() {
+        ArrayList<Integer> results = MetaDataConnector.getCompleteness(connector.getDbName());
+        completenessChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Present", results.get(0)),
+                        new PieChart.Data("Missing", results.get(1)));
+        completenessChart.setData(completenessChartData);
+    }
+
+        private void refreshUniqueness() {
+        ArrayList<Integer> results = MetaDataConnector.getUniqueness(connector.getDbName());
+         unicityChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Distinct", results.get(0)),
+                        new PieChart.Data("Duplicate", results.get(1)));
+        unicityChart.setData(unicityChartData);
+    }
+    private void refreshTotalRows() {
+        int total = MetaDataConnector.getTotalRows(connector.getDbName());
+        System.out.println("connector:" + connector.getDbName());
+        System.out.println("total:" + total);
+        totalRows.setText(Integer.toString(total));
+    }
+    
+    private void refreshIntegrity() {
+        ArrayList<Integer> results = MetaDataConnector.getRefs();
+        integrityChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Valid", results.get(1) - results.get(0)),
+                        new PieChart.Data("Broken", results.get(0)));
+        integrityChart.setData(integrityChartData);
+        totalRef.setText(Integer.toString(results.get(0)));
+    }
+
+    @FXML
+    private void refreshAction(ActionEvent event){
+        refreshCompleteness();
+        refreshTotalRows();
+        refreshUniqueness();
+        refreshIntegrity();
+        int count = MetaDataConnector.getCount("sh", "CUSTOMERS", "CUST_EFF_FROM");
+        int total = MetaDataConnector.getDuplicates(connector.getDbName());
+        totalDuplicates.setText(Integer.toString(total));
+        
+
+        System.out.println("RESULTS: " + MetaDataConnector.getRefs());
+        System.out.println("COUNT : " + count);
+    }
     
     
     public void resetRefLabel(){
         refResultLabel.setText("");
+    
+    }    
+    private ArrayList<String> duplicationColumns(){
+        duplicateKeysList.getSelectionModel().getSelectedItems();
+        ArrayList<String> keys = new ArrayList<String>();
+        for (Object o: duplicateKeysList.getSelectionModel().getSelectedItems()){
+            keys.add((String) o);
+        }
+        System.out.println(String.join(",", keys));
+        return keys;
+        
     }
+         
 }

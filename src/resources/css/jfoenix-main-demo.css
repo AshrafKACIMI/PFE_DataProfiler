@@ -5,6 +5,12 @@
 /* CUSTOM CSS
 
 */
+.default-color0.chart-pie { -fx-pie-color: #3D8EB9; }
+.default-color1.chart-pie { -fx-pie-color: #F04903; }
+.default-color2.chart-pie { -fx-pie-color: #3C3741; }
+.default-color3.chart-pie { -fx-pie-color: #3D8EB9; }
+.default-color4.chart-pie { -fx-pie-color: #F04903; }
+.default-color5.chart-pie { -fx-pie-color: #3C3741; }
 
 
 #thresholdheader .label{

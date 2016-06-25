@@ -63,6 +63,8 @@ public class ProgressIndicatorGraph extends ProgressIndicator{
         public ProgressIndicatorGraph(float progressValue, int width, int height){
             this(progressValue);
             this.setPrefSize(width, height);
+            this.setMinSize(width, height);
+            this.setMaxSize(width, height);
         }
 
     

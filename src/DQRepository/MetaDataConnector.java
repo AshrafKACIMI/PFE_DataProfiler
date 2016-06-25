@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -214,6 +215,77 @@ public class MetaDataConnector {
         
     }
     
+    public static int getCount(String dbName, String tableName, String columnName){
+        int count = 0;
+        String query = "SELECT a.count\n" +
+        "	FROM mesures a\n" +
+        "\n" +
+        "	JOIN \n" +
+        "	(\n" +
+        "	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+        "	    FROM mesures\n" +
+        "	    GROUP BY idColumn\n" +
+        "	) b \n" +
+        "	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        "where a.idColumn = ?";
+        
+        
+        try {
+            Class.forName(jdbc);
+            Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", ""
+                Statement idStmt = con.createStatement();
+
+                int id = getColumnId(idStmt, dbName, tableName, columnName);
+                idStmt.close();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setInt(1, id);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next())
+                    count = rs.getInt("count");
+                stmt.close();
+                con.close();
+                
+                
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        return count;
+
+        
+    }
+    
+    
+    
+    
+    public static void insertRef(Connection con, String dbName, String parentTable, 
+            String childTable, String parentColumn, String childColumn,
+            String timeStamp, int nbBroken, int nbTotal) {
+        try {
+            Statement stmt = con.createStatement();
+            int idParent = getColumnId(stmt, dbName, parentTable, parentColumn);
+            int idChild = getColumnId(stmt, dbName, childTable, childColumn);
+            
+            String query = 
+                    "insert into brokenRefs values("
+                    + idParent + ", "
+                    + "'" + idChild + "'" + ", "
+                    + nbBroken + ", "
+                    + nbTotal + ", "
+                    +  "'" + timeStamp + "'" + ")";
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+    
    
 
     public static void insertRule(String dbName, String tableName, String columnName, String minValue, String maxValue, int distinctInt, int notNullInt) {
@@ -343,11 +415,341 @@ public class MetaDataConnector {
         return null;
 
     }
-    
+
+
     public String getConnectionURL(){
         return connectionURL;
     }
+    
+    
+    public static int getTotalRows(String dbName){
+        int count = 1;
+        String query =
+           "select sum(count) total\n" +
+            "from \n" +
+            "(\n" +
+            "SELECT distinct table_name, count FROM\n" +
+            "	(\n" +
+            "	SELECT a.idColumn, a.timestamp, a.count\n" +
+            "	FROM mesures a\n" +
+            "\n" +
+            "	INNER JOIN \n" +
+            "	(\n" +
+            "	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+            "	    FROM mesures\n" +
+            "	    GROUP BY idColumn\n" +
+            "	) b \n" +
+            "	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+            "	) AS C\n" +
+            "INNER JOIN columns D\n" +
+            "ON C.idColumn = D.id"
+                + " WHERE db_name = ?)" ;
+        System.out.println(query);
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, dbName);
+                
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    System.out.println("lol");
+                    count = rs.getInt("total");
+                }
 
+                System.out.println("count NOW: " + count);
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+            return count;     
+    }
+    
+    
+    public static ArrayList<Integer> getCompleteness(String dbName){
+        String query =
+        "select Z.idColumn, Z.count, Z.nbnull, sum(Z.count) sum_count, sum(Z.nbnull) sum_null\n" +
+        " from\n" +
+        "(\n" +
+        "(\n" +
+        "	select idColumn, db_name, table_name from \n" +
+        "	dqrules d inner join columns c\n" +
+        "	on d.idColumn = c.id\n" +
+        "	where not_null = 1\n" +
+        "	and db_name = ? \n" +
+        ") X JOIN\n" +
+        "(\n" +
+        "	\n" +
+        "	SELECT a.idColumn, a.timestamp, a.count, a.nbnull\n" +
+        "	FROM mesures a\n" +
+        "\n" +
+        "	JOIN \n" +
+        "	(\n" +
+        "	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+        "	    FROM mesures\n" +
+        "	    GROUP BY idColumn\n" +
+        "	) b \n" +
+        "	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        "	\n" +
+        "\n" +
+        ") Y\n" +
+        "\n" +
+        "ON X.idColumn = Y.idColumn\n" +
+        ") Z";
+        
+        ArrayList<Integer> results = new ArrayList<Integer>();
+                
+                
+        System.out.println(query);
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, dbName);
+                
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    System.out.println("lol");
+                    int nbnull = rs.getInt("sum_null");
+                    int nb_notnull = rs.getInt("sum_count") - nbnull;
+                    results.add(Integer.valueOf(nb_notnull));
+                    results.add(Integer.valueOf(nbnull));
+                    
+                }
+
+                System.out.println("count NOW: " + results);
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+            return results;     
+    }
+    
+    
+    public static ArrayList<Integer> getUniqueness(String dbName){
+        String query =
+        "select Z.idColumn, Z.count, Z.nb_distinct, sum(Z.count) sum_count, sum(Z.nb_distinct) sum_distinct\n" +
+        " from\n" +
+        "(\n" +
+        "(\n" +
+        "	select idColumn, db_name, table_name from \n" +
+        "	dqrules d inner join columns c\n" +
+        "	on d.idColumn = c.id\n" +
+        "	where uniqueness = 1\n" +
+        "	and db_name = ? \n" +
+        ") X JOIN\n" +
+        "(\n" +
+        "	\n" +
+        "	SELECT a.idColumn, a.timestamp, a.count, a.nb_distinct\n" +
+        "	FROM mesures a\n" +
+        "\n" +
+        "	JOIN \n" +
+        "	(\n" +
+        "	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+        "	    FROM mesures\n" +
+        "	    GROUP BY idColumn\n" +
+        "	) b \n" +
+        "	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        "	\n" +
+        "\n" +
+        ") Y\n" +
+        "\n" +
+        "ON X.idColumn = Y.idColumn\n" +
+        ") Z";        
+                
+                
+        ArrayList<Integer> results = new ArrayList<Integer>();
+                
+                
+        System.out.println(query);
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, dbName);
+                
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    System.out.println("lol");
+                    int nb_distinct = rs.getInt("sum_distinct");
+                    int nb_notdistinct = rs.getInt("sum_count") - nb_distinct;
+                    results.add(Integer.valueOf(nb_distinct));
+                    results.add(Integer.valueOf(nb_notdistinct));
+                    
+                }
+
+                System.out.println("count NOW: " + results);
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+            return results;     
+    }
+    
+    public static ArrayList<Integer> getRefs(){
+        String query = 
+                "select sum(nbBroken) broken , sum(nbTotal) total\n" +
+                "FROM\n" +
+                "(\n" +
+                "\n" +
+                "SELECT a.idParent, a.idChild, a.nbBroken, a.nbTotal\n" +
+                "	FROM brokenRefs a\n" +
+                "\n" +
+                "	JOIN \n" +
+                "	(\n" +
+                "	    SELECT idParent, idChild, MAX(timestamp) timestamp\n" +
+                "	    FROM brokenRefs\n" +
+                "	    GROUP BY idParent, idChild\n" +
+                "	) b \n" +
+                "ON a.idParent = b.idParent AND a.idChild = b.idChild AND a.timestamp = b.timestamp \n" +
+                ")";
+        ArrayList<Integer> results = new ArrayList<Integer>();
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    System.out.println("lol");
+                    int nb_broken = rs.getInt("broken");
+                    int nb_total = rs.getInt("total");
+                    results.add(Integer.valueOf(nb_broken));
+                    results.add(Integer.valueOf(nb_total));
+                }
+
+                System.out.println("count NOW: " + results);
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+        
+        
+        return results;
+    }
+    
+    
+    public static int getDuplicates(String dbName){
+        int count = 0;
+        String query = 
+                "select sum(nbDuplicates)\n" +
+                "FROM\n" +
+                "(\n" +
+                "\n" +
+                "SELECT a.dbName, a.tableName, a.columns, nbduplicates\n" +
+                "	FROM duplicates a\n" +
+                "\n" +
+                "	JOIN \n" +
+                "	(\n" +
+                "	    SELECT dbName, tableName, columns, MAX(timestamp) timestamp\n" +
+                "	    FROM duplicates\n" +
+                "	    GROUP BY dbName, tableName, columns\n" +
+                "	) b \n" +
+                "ON a.dbName = b.dbName AND a.tableName = b.tableName AND a.columns = b.columns AND a.timestamp = b.timestamp "
+                + "WHERE a.dbName = ?"
+                + ")";
+                
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, dbName);
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    count = rs.getInt(1);
+                }
+
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+        
+        return count;
+        
+        
+    }
+    
+    public static void insertDuplicate(Connection con, String dbName, String table, ArrayList<String> keys, int nbDuplicates, String timeStamp) {
+        try {
+            Statement stmt = con.createStatement();
+            System.out.println(dbName);
+            System.out.println(table);
+            System.out.println(keys);
+            System.out.println(nbDuplicates);
+            System.out.println(timeStamp);
+            
+            String query = 
+                    "insert into Duplicates values("
+                    + "'" + dbName + "'" + ", "
+                    + "'" + table + "'" + ", "
+                    + "'" + String.join(",", keys) + "'" + ", "
+                    + nbDuplicates + ", "
+                    +  "'" + timeStamp + "'" + ")";
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
     
     
 }
