@@ -89,8 +89,15 @@ public class OracleConnector implements IConnector {
         query += "SELECT " + "'" + col + "'" + ",";
         query += "count(*),";
         query += "SUM(CASE WHEN " + col + " is null or TO_CHAR(" + col + ")=" + getAlternativeNull() + " then 1 else 0 end) count_null, ";
-        query += "TO_CHAR(max(length( " + col + " )) ),";
-        query += "TO_CHAR(min(length( " + col + " )) ),";
+        if (!column.getType().equals("VARCHAR2")){
+            query += "TO_CHAR(max( " + col + " ) ),";
+            query += "TO_CHAR(min( " + col + " ) ),";
+        }
+            
+        else{
+            query += "TO_CHAR(max(length( " + col + " )) ),";
+            query += "TO_CHAR(min(length( " + col + " )) ),";
+        }
         query += "count(DISTINCT(" + col + ")) nb_distinct ";
         query += "FROM " + userName + "." + tableName;
         return query;
@@ -123,6 +130,9 @@ public class OracleConnector implements IConnector {
     public String getDbName() {
         return userName;
     }
+    
+    
+    
     
     
     

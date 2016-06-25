@@ -7,6 +7,8 @@
 package Reporting;
 
 import Entities.TableInfo;
+import Mail.EmailOptions;
+import Mail.ReportingEMail;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,6 +73,12 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
                 fos = new FileOutputStream(saveTo);
                 try {
                     toPdf(fos);
+                    String attached = EmailOptions.getFileDirectory() + ConcatenatedReports.getCurrentReportName();
+                    if (EmailOptions.isOn()){
+                        ReportingEMail mail = new ReportingEMail(attached);
+                        mail.send();
+                    }
+                        
                     try {
                         fos.close();
                     } catch (IOException ex) {

@@ -7,12 +7,15 @@
 package Computing;
 
 import DQRepository.IConnector;
+import DQRepository.MetaDataConnector;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -98,8 +101,22 @@ public class ReferentialIntegrityEngine {
         } catch (SQLException ex) {
             Logger.getLogger(ReferentialIntegrityEngine.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+        updateMeta(nbViol);
         return nbViol;
+    }
+    
+    private void updateMeta(int nbViol){
+        String timeStamp = new SimpleDateFormat("yyyyMMddHHmmss")
+            .format(Calendar.getInstance().getTime());
+        Connection Sqliteconn = MetaDataConnector.getSqliteConnection();
+        int nbTotal = MetaDataConnector.getCount(connector.getDbName(), childTable, childColumn);
+        MetaDataConnector.insertRef(Sqliteconn, connector.getDbName(), parentTable, childTable, parentColumn, childColumn, timeStamp, nbViol, nbTotal);
+
+                
+        
+
+        
+
     }
     
     

@@ -74,8 +74,8 @@ public class BasicStatisticsProfiler {
                 int nbLines = rs.getInt(2);
                 int nbNull = rs.getInt(3);
                 int nbDistinct = rs.getInt(6);
-                String min = rs.getString(4);
-                String max = rs.getString(5);
+                String min = rs.getString(5);
+                String max = rs.getString(4);
                 MetaDataConnector.insertMesure(Sqliteconn, connector.getDbName(),
                         table.getName(), columnName, timeStamp, min, max,
                         nbNull, nbLines, nbDistinct);

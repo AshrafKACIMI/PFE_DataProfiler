@@ -213,13 +213,13 @@ public class TableReport {
                 .setVerticalAlignment(VerticalAlignment.MIDDLE)
                 .setFontSize(15);
         //"column", "nbNull", "nbNotNull", "nbRows", "min", "max"
-        TextColumnBuilder<String> itemColumn = col.column("Column", "column", type.stringType()).setStyle(boldStyle);
-        TextColumnBuilder<Integer> nbNullColumn = col.column("Nb Null", "nbNull", type.integerType());
-        TextColumnBuilder<Integer> nbDistinctColumn = col.column("Nb Distinct", "nbDistinct", type.integerType());
-        TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType());
-        TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType());
+        TextColumnBuilder<String> itemColumn = col.column("Column", "column", type.stringType()).setStyle(boldStyle).setWidth(40);
+        TextColumnBuilder<Integer> nbNullColumn = col.column("Nb Null", "nbNull", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbDistinctColumn = col.column("Nb Distinct", "nbDistinct", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType()).setWidth(12);
+        TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType()).setWidth(12);
         minColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
-        TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType());
+        TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType()).setWidth(12);
         maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
 
         MeterChartBuilder cht1 = MeterChartIndicatorBuilder.meterChart(70, 30, "Completeness");
@@ -307,13 +307,13 @@ public class TableReport {
                 .setVerticalAlignment(VerticalAlignment.MIDDLE)
                 .setFontSize(15);
         //"column", "nbNull", "nbNotNull", "nbRows", "min", "max"
-        TextColumnBuilder<String> itemColumn = col.column("Column", "column", type.stringType()).setStyle(boldStyle);
-        TextColumnBuilder<Integer> nbNullColumn = col.column("Nb Null", "nbNull", type.integerType());
-        TextColumnBuilder<Integer> nbDistinctColumn = col.column("Nb Distinct", "nbDistinct", type.integerType());
-        TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType());
-        TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType());
+        TextColumnBuilder<String> itemColumn = col.column("Column", "column", type.stringType()).setStyle(boldStyle).setWidth(40);
+        TextColumnBuilder<Integer> nbNullColumn = col.column("Nb Null", "nbNull", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbDistinctColumn = col.column("Nb Distinct", "nbDistinct", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType()).setWidth(12);
+        TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType()).setWidth(12);
         minColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
-        TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType());
+        TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType()).setWidth(12);
         maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
 
         MeterChartBuilder cht1 = MeterChartIndicatorBuilder.meterChart(table.getOverallCompleteness(), 30, "Completeness");

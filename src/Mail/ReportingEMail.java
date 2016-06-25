@@ -83,7 +83,7 @@ public class ReportingEMail extends SendGrid.Email{
         try {
             this.addAttachment(attachementName,
                    // new File(getAttachementFolder() + attachementName));
-                    new File(getAttachementFolder() + "\\" + attachementName));
+                    new File(attachementName));
         } catch (IOException ex) {
             Logger.getLogger(ReportingEMail.class.getName()).log(Level.SEVERE, null, ex);
         }
