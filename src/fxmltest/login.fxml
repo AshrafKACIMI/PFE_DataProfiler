@@ -36,7 +36,7 @@
                <children>
                   <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="35.0" prefWidth="451.0" text="New connection" textFill="#263238">
                      <font>
-                        <Font size="26.0" />
+                        <Font name="Palatino Linotype Bold" size="32.0" />
                      </font>
                      <VBox.margin>
                         <Insets bottom="40.0" />

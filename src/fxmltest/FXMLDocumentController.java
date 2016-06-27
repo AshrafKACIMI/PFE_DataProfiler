@@ -8,6 +8,7 @@ package fxmltest;
 
 import Computing.BasicStatisticsProfiler;
 import Computing.BasicStatisticsService;
+import Computing.DatesEngine;
 import Computing.DuplicatesEngine;
 import Computing.ProfilingScheduler;
 import Computing.ReferentialIntegrityEngine;
@@ -249,7 +250,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Label refResultLabel;
     @FXML
-    private JFXListView refViolationList;
+    private JFXListView dateKeysList;
     @FXML
     private JFXListView duplicateKeysList;
     
@@ -978,7 +979,19 @@ public class FXMLDocumentController implements Initializable {
     
         @FXML
     private void checkDatesAction(ActionEvent event){
-        return;
+        
+        int selected = dateTables.getSelectionModel().getSelectedIndex();
+        
+
+        
+        String table = getTables().get(selected).getName();
+        DatesEngine engine = 
+            new DatesEngine(connector, table, "valid_from", "valid_to", dateColumns());
+        engine.checkDates();
+        String query = engine.overlapQuery();
+        System.out.println("overlap : \n" +  query);
+        System.out.println("holes : \n" +  engine.holesQuery());
+        System.out.println(MetaDataConnector.getCount(connector.getDbName(), table, "valid_from"));
     }
     
     
@@ -1182,7 +1195,7 @@ public class FXMLDocumentController implements Initializable {
     }    
     
     public void initializeDateCheck(){
-        refViolationList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        dateKeysList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         updateColumnsList(getTables().get(1));
 
         dateTables = new TableComboBox(getTables(), 0);
@@ -1226,9 +1239,6 @@ public class FXMLDocumentController implements Initializable {
                 updateDuplicateList(getTables().get(selected));
             }
         });
-        
-        
-        
 
     }
 
@@ -1240,7 +1250,7 @@ public class FXMLDocumentController implements Initializable {
         for (ColumnInfo col: table.getColumns()){
             names.add(col.getName());
         }
-        refViolationList.setItems(names);
+        dateKeysList.setItems(names);
     }
     
     public void updateDuplicateList(TableInfo table){
@@ -1255,13 +1265,10 @@ public class FXMLDocumentController implements Initializable {
     public void initializeDashboard(){
         refreshTotalRows();
         
-
-        
-        
         validityChartData =
                FXCollections.observableArrayList(
                new PieChart.Data("Valid", 10000),
-               new PieChart.Data("> Max", 1200),
+               new PieChart.Data("< Min", 1200),
                new PieChart.Data("> Max", 2000));
         validityChart.setData(validityChartData);
         
@@ -1291,7 +1298,6 @@ public class FXMLDocumentController implements Initializable {
         integrityChart.setData(integrityChartData);
         
         refreshCompleteness();
-
     
 
     }
@@ -1329,6 +1335,32 @@ public class FXMLDocumentController implements Initializable {
         integrityChart.setData(integrityChartData);
         totalRef.setText(Integer.toString(results.get(0)));
     }
+    
+    private void refreshDates() {
+        ArrayList<Integer> results = MetaDataConnector.getDates(connector.getDbName());
+        
+        consistencyChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Valid", results.get(2) - results.get(0) - results.get(1)),
+                        new PieChart.Data("Holes", results.get(0)),
+                        new PieChart.Data("Overlaps", results.get(1))
+                );
+        consistencyChart.setData(consistencyChartData);
+    }
+    
+    private void refreshValidity() {
+        ArrayList<Integer> results = MetaDataConnector.minMaxViolations(connector.getDbName());
+        System.out.println(results.get(0));
+        System.out.println(results.get(1));
+        System.out.println(results.get(2));
+        validityChartData =
+                FXCollections.observableArrayList(
+                        new PieChart.Data("Valid", results.get(2) - results.get(0) - results.get(1)),
+                        new PieChart.Data("< Min", results.get(0)),
+                        new PieChart.Data("> Max", results.get(1))
+                );
+        validityChart.setData(validityChartData);
+    }
 
     @FXML
     private void refreshAction(ActionEvent event){
@@ -1336,9 +1368,12 @@ public class FXMLDocumentController implements Initializable {
         refreshTotalRows();
         refreshUniqueness();
         refreshIntegrity();
+        refreshDates();
+        refreshValidity();
+        int total = MetaDataConnector.getTotalRows(connector.getDbName());
         int count = MetaDataConnector.getCount("sh", "CUSTOMERS", "CUST_EFF_FROM");
-        int total = MetaDataConnector.getDuplicates(connector.getDbName());
-        totalDuplicates.setText(Integer.toString(total));
+        int duplicates = MetaDataConnector.getDuplicates(connector.getDbName());
+        totalDuplicates.setText(Integer.toString(duplicates));
         
 
         System.out.println("RESULTS: " + MetaDataConnector.getRefs());
@@ -1349,7 +1384,9 @@ public class FXMLDocumentController implements Initializable {
     public void resetRefLabel(){
         refResultLabel.setText("");
     
-    }    
+    }
+    
+    
     private ArrayList<String> duplicationColumns(){
         duplicateKeysList.getSelectionModel().getSelectedItems();
         ArrayList<String> keys = new ArrayList<String>();
@@ -1358,7 +1395,16 @@ public class FXMLDocumentController implements Initializable {
         }
         System.out.println(String.join(",", keys));
         return keys;
-        
+    }
+    
+    private ArrayList<String> dateColumns(){
+        dateKeysList.getSelectionModel().getSelectedItems();
+        ArrayList<String> keys = new ArrayList<String>();
+        for (Object o: dateKeysList.getSelectionModel().getSelectedItems()){
+            keys.add((String) o);
+        }
+        System.out.println(String.join(",", keys));
+        return keys;
     }
          
 }

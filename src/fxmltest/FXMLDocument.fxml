@@ -328,7 +328,7 @@
                               </HBox>
                                  <VBox>
                                     <children>
-                                       <JFXButton fx:id="integrityButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#integrityAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Check Referential Integrity" textFill="#fcf9f9">
+                                       <JFXButton fx:id="integrityButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#integrityAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Referential Integrity" textFill="#fcf9f9">
                                           <VBox.margin>
                                              <Insets left="330.0" />
                                           </VBox.margin>
@@ -372,17 +372,23 @@
                                        <Label prefWidth="150.0" styleClass="mailLabel" text="Valid To Column :" />
                                     </children>
                                  </HBox>
-                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff;" text="Primary key columns" />
+                                 <Label style="-fx-font-size: 20; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
+                                    <padding>
+                                       <Insets bottom="5.0" />
+                                    </padding></Label>
                                  <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
                                     <children>
-                                       <JFXListView fx:id="refViolationList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                       <JFXListView fx:id="dateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                                     </children>
                                  </AnchorPane>
                                  <HBox alignment="CENTER" spacing="50.0">
                                     <children>
-                                       <JFXButton fx:id="dateCheckButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Check Dates" textFill="#fcf9f9" />
-                                       <JFXButton fx:id="dateScheduleButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#scheduleDatesAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Schedule Dates" textFill="#fcf9f9" />
+                                       <JFXButton fx:id="dateCheckButton" alignment="CENTER" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Dates" textFill="#fcf9f9" />
+                                       <JFXButton fx:id="dateScheduleButton" alignment="CENTER" contentDisplay="CENTER" onAction="#scheduleDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Schedule Dates" textFill="#fcf9f9" />
                                     </children>
+                                    <VBox.margin>
+                                       <Insets top="10.0" />
+                                    </VBox.margin>
                                  </HBox>
                               </children>
                            </VBox>
@@ -404,13 +410,22 @@
                                        <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
                                     </children>
                                  </HBox>
-                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff;" text="Primary key columns" />
+                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
+                                    <opaqueInsets>
+                                       <Insets bottom="5.0" />
+                                    </opaqueInsets></Label>
                                  <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
                                     <children>
                                        <JFXListView fx:id="duplicateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                                     </children>
                                  </AnchorPane>
-                                 <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #25373D;" text="Check Duplicates" textFill="#fcf9f9" />
+                                 <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Duplicates" textFill="#fcf9f9">
+                                    <opaqueInsets>
+                                       <Insets />
+                                    </opaqueInsets>
+                                    <VBox.margin>
+                                       <Insets top="10.0" />
+                                    </VBox.margin></JFXButton>
                               </children>
                            </VBox>
                         </children>
@@ -475,7 +490,7 @@
                                  </VBox>
                                  <HBox alignment="CENTER" prefHeight="54.0" prefWidth="1180.0" GridPane.columnSpan="2147483647">
                                     <children>
-                                       <JFXButton fx:id="refreshButton" buttonType="RAISED" onAction="#refreshAction" style="-fx-background-color: #637bff;" text="refresh" textFill="#fff9f9">
+                                       <JFXButton fx:id="refreshButton" buttonType="RAISED" onAction="#refreshAction" style="-fx-background-color: #637bff;" text="Refresh" textFill="#fff9f9">
                                           <HBox.margin>
                                              <Insets top="20.0" />
                                           </HBox.margin>
@@ -517,20 +532,20 @@
                                           <padding>
                                              <Insets right="10.0" />
                                           </padding></JFXTextField>
-                                    <JFXButton fx:id="addMailButton" buttonType="RAISED" onAction="#addMailAction" prefHeight="40.0" prefWidth="105.0" style="-fx-background-color: #009688ff;" text="Add Email" textFill="#fcf8f8" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                                    <JFXButton fx:id="addMailButton" buttonType="RAISED" onAction="#addMailAction" prefHeight="40.0" prefWidth="105.0" style="-fx-background-color: #3D8EB9;" text="Add Email" textFill="#fcf8f8" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                                     <Label contentDisplay="CENTER" prefHeight="20.0" prefWidth="221.0" styleClass="mailLabel" text="Generate PDF reports" GridPane.halignment="CENTER" GridPane.rowIndex="1" />
-                                    <JFXToggleButton fx:id="reportToggle" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                    <JFXToggleButton fx:id="reportToggle" toggleLineColor="#3d8eb9" GridPane.columnIndex="1" GridPane.rowIndex="1">
                                           <GridPane.margin>
                                              <Insets left="20.0" />
                                           </GridPane.margin></JFXToggleButton>
                                        <JFXButton GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                       <Label alignment="CENTER" prefHeight="39.0" prefWidth="613.0" style="-fx-font-size: 18; -fx-text-fill: #009688ff;" styleClass="mailLabel" text="PDF reports saving folder" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                                       <Label alignment="CENTER" prefHeight="39.0" prefWidth="613.0" style="-fx-font-size: 18; -fx-text-fill: #3D8EB9; -fx-font-weight: bold;" styleClass="mailLabel" text="PDF reports saving folder" GridPane.columnSpan="2" GridPane.rowIndex="3">
                                           <GridPane.margin>
                                              <Insets top="20.0" />
                                           </GridPane.margin></Label>
                                        <Label fx:id="folderLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="484.0" styleClass="mailLabel" text="Path" GridPane.rowIndex="4" />
-                                       <JFXButton onAction="#selectFolder" prefHeight="40.0" prefWidth="105.0" ripplerFill="BLACK" style="-fx-background-color: #009688ff;" text="Select folder" textFill="#fffafa" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                                       <Label alignment="CENTER" prefHeight="63.0" prefWidth="650.0" style="-fx-font-size: 18; -fx-text-fill: #009688ff;" styleClass="mailLabel" text="Email options" GridPane.columnSpan="2" />
+                                       <JFXButton onAction="#selectFolder" prefHeight="40.0" prefWidth="105.0" ripplerFill="BLACK" style="-fx-background-color: #3D8EB9;" text="Select folder" textFill="#fffafa" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                                       <Label alignment="CENTER" prefHeight="63.0" prefWidth="650.0" style="-fx-font-size: 18; -fx-text-fill: #3D8EB9; -fx-font-weight: bold;" styleClass="mailLabel" text="Email options" GridPane.columnSpan="2" />
                                  </children>
                               </GridPane>
                               <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="30.0" prefWidth="651.0" styleClass="mailLabel" text="Mail list">
@@ -540,8 +555,8 @@
                               </Label>
                               <HBox alignment="CENTER" prefHeight="100.0" prefWidth="591.0" spacing="100.0">
                                  <children>
-                                    <JFXButton fx:id="deleteMailButton" buttonType="RAISED" onAction="#deleteMailAction" prefHeight="40.0" prefWidth="87.0" style="-fx-background-color: #009688ff;" text="Delete" textFill="#fcf8f8" />
-                                    <JFXButton fx:id="clearMailButton" onAction="#clearMailAction" prefHeight="40.0" prefWidth="91.0" style="-fx-background-color: #009688ff;" text="Clear" textFill="#fcf8f8" />
+                                    <JFXButton fx:id="deleteMailButton" buttonType="RAISED" onAction="#deleteMailAction" prefHeight="40.0" prefWidth="87.0" style="-fx-background-color: #3D8EB9;" text="Delete" textFill="#fcf8f8" />
+                                    <JFXButton fx:id="clearMailButton" onAction="#clearMailAction" prefHeight="40.0" prefWidth="91.0" style="-fx-background-color: #3D8EB9;" text="Clear" textFill="#fcf8f8" />
                                  </children>
                               </HBox>
                            </children>
