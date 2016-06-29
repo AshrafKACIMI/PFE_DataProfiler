@@ -22,8 +22,8 @@ public class MailTest {
      */
     public static void main(String[] args) {
 
-        ReportingEMail mail = new ReportingEMail("Concat results 20160530_100133.pdf");
-        mail.send();
+//        ReportingEMail mail = new ReportingEMail("Concat results 20160530_100133.pdf");
+//        mail.send();
         
         
             

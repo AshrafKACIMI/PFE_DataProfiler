@@ -11,7 +11,6 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import com.jfoenix.controls.JFXToolbar?>
-<?import com.jfoenix.transitions.hamburger.HamburgerBackArrowBasicTransition?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -47,11 +46,7 @@
 				<JFXToolbar>
 					<leftItems>
 						<JFXRippler maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
-							<StackPane fx:id="titleBurgerContainer">
-								<JFXHamburger fx:id="titleBurger">
-									<HamburgerBackArrowBasicTransition />
-								</JFXHamburger>
-							</StackPane>
+							<StackPane fx:id="titleBurgerContainer" />
 						</JFXRippler>
 						<Label>Data Profiler</Label>
 					</leftItems>
@@ -220,7 +215,7 @@
                                                 </StackPane>
                                              </children>
                                           </AnchorPane>
-                                          <SplitPane dividerPositions="0.3" prefHeight="280.0" prefWidth="670.0">
+                                          <SplitPane dividerPositions="0.0" prefHeight="280.0" prefWidth="670.0">
                                             <items>
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="284.0">
                                                    <children>
@@ -229,11 +224,11 @@
                                                 </AnchorPane>
                                               <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                                                    <children>
-                                                      <HBox fx:id="chartBox" alignment="CENTER" layoutX="190.0" layoutY="86.0" prefHeight="251.0" prefWidth="579.0" spacing="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
+                                                      <HBox fx:id="chartBox" alignment="CENTER" layoutX="190.0" layoutY="86.0" prefHeight="251.0" prefWidth="579.0" spacing="50.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="0.0">
                                                             <children>
                                                                <AnchorPane>
                                                                   <children>
-                                                                     <VBox fx:id="completenessVBox" prefWidth="90.0" AnchorPane.topAnchor="50.0">
+                                                                     <VBox fx:id="completenessVBox" alignment="CENTER" prefWidth="90.0" AnchorPane.topAnchor="50.0">
                                                                         <children>
                                                                            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="90.0" text="Completeness" />
                                                                         </children>
@@ -242,7 +237,7 @@
                                                                </AnchorPane>
                                                                <AnchorPane>
                                                                   <children>
-                                                                     <VBox fx:id="uniquenessVBox" AnchorPane.topAnchor="50.0">
+                                                                     <VBox fx:id="uniquenessVBox" alignment="CENTER" AnchorPane.topAnchor="50.0">
                                                                         <children>
                                                                            <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="90.0" text="Uniqueness" />
                                                                         </children>
@@ -384,11 +379,20 @@
                                  <HBox alignment="CENTER" spacing="50.0">
                                     <children>
                                        <JFXButton fx:id="dateCheckButton" alignment="CENTER" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Dates" textFill="#fcf9f9" />
-                                       <JFXButton fx:id="dateScheduleButton" alignment="CENTER" contentDisplay="CENTER" onAction="#scheduleDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Schedule Dates" textFill="#fcf9f9" />
+                                       <JFXButton fx:id="copyQueryDates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
                                     </children>
                                     <VBox.margin>
                                        <Insets top="10.0" />
                                     </VBox.margin>
+                                 </HBox>
+                                 <HBox>
+                                    <children>
+                                       <Label fx:id="holesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Holes: " />
+                                       <Label fx:id="overlapsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Overlaps: " />
+                                    </children>
+                                    <padding>
+                                       <Insets left="150.0" right="150.0" />
+                                    </padding>
                                  </HBox>
                               </children>
                            </VBox>
@@ -419,13 +423,23 @@
                                        <JFXListView fx:id="duplicateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
                                     </children>
                                  </AnchorPane>
-                                 <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Duplicates" textFill="#fcf9f9">
-                                    <opaqueInsets>
-                                       <Insets />
-                                    </opaqueInsets>
+                                 <HBox alignment="CENTER" spacing="50.0">
                                     <VBox.margin>
                                        <Insets top="10.0" />
-                                    </VBox.margin></JFXButton>
+                                    </VBox.margin>
+                                    <children>
+                                       <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Duplicates" textFill="#fcf9f9">
+                                          <opaqueInsets>
+                                             <Insets />
+                                          </opaqueInsets>
+                                       </JFXButton>
+                                       <JFXButton fx:id="copyQueryDuplicates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDuplicatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
+                                    </children>
+                                    <padding>
+                                       <Insets left="150.0" right="150.0" />
+                                    </padding>
+                                 </HBox>
+                                 <Label fx:id="duplicatesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Duplicates:  " />
                               </children>
                            </VBox>
                         </children>

@@ -62,11 +62,13 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
         
         String fileTimeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
                     .format(Calendar.getInstance().getTime());
+        
         String fileName = "Concat results" + " " 
                     + fileTimeStamp + ".pdf";
         currentReportName = fileName;
         String saveFolder = System.getProperty("user.home")+"\\Profiling Results\\";
         String saveTo = saveFolder + fileName;
+        reports.clear();
         
         FileOutputStream fos = null;
             try {
@@ -75,7 +77,7 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
                     toPdf(fos);
                     String attached = EmailOptions.getFileDirectory() + ConcatenatedReports.getCurrentReportName();
                     if (EmailOptions.isOn()){
-                        ReportingEMail mail = new ReportingEMail(attached);
+                        ReportingEMail mail = new ReportingEMail(attached, ConcatenatedReports.getCurrentReportName());
                         mail.send();
                     }
                         

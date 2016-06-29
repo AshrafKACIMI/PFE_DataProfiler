@@ -48,7 +48,7 @@ public class DuplicatesEngine {
                 "    COUNT(*) > 1";
         
         
-                try {
+        try {
             String connectionURL = connector.getConnectionURL();
             String userName = connector.getUserName();
             String password = connector.getPassword();

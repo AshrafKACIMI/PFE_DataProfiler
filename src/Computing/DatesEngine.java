@@ -29,6 +29,7 @@ public class DatesEngine {
     private String validFrom;
     private String validTo;
     private ArrayList<String> keys;
+    private static String lastQuery;
 
     public DatesEngine(IConnector connector, String table, String validFrom, String validTo, ArrayList<String> keys) {
         this.connector = connector;

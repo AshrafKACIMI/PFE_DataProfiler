@@ -10,6 +10,8 @@ package Mail;
 import com.sendgrid.*;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -70,18 +72,20 @@ public class ReportingEMail extends SendGrid.Email{
         
     }
     
-    public ReportingEMail(String attachementName) {
+    public ReportingEMail(String attachementName, String name) {
         super();
         
         this.addTo("kacimi.achraf@gmail.com");
         this.setFrom("no-reply-profiler@BBI.com");
-        this.setSubject("Profiling results 2016/05/30");
+        String date = new SimpleDateFormat("yyyy-MM-dd")
+                    .format(Calendar.getInstance().getTime());
+        this.setSubject("Profiling results " + date);
         String text = "Hello, \n"
-                + "Kindly find attached the profiling results performed the 2016/05/30. \n";
+                + "Kindly find attached the profiling results performed the " + date + "\n";
         this.setText(text);
         
         try {
-            this.addAttachment(attachementName,
+            this.addAttachment(name,
                    // new File(getAttachementFolder() + attachementName));
                     new File(attachementName));
         } catch (IOException ex) {

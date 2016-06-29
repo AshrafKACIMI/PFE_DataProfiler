@@ -44,7 +44,7 @@ public class ProfilingScheduler {
     
     public void start(){
         ArrayList<Task<Void>> taskList = new ArrayList<Task<Void>>();
-                    ExecutorService es = Executors.newSingleThreadExecutor();
+        ExecutorService es = Executors.newSingleThreadExecutor();
                     
                     
         for (ProfilingService task: this.getTasks()){
@@ -153,8 +153,10 @@ public class ProfilingScheduler {
         count--;
         if (count == 0){
             // last job just finished
-           if (launchSchedulerController.getController() != null) 
+           if (launchSchedulerController.getController() != null){ 
                 launchSchedulerController.getController().updateButton();// TODO
+                tasks.clear();
+           }
         }
     }
     
@@ -162,5 +164,9 @@ public class ProfilingScheduler {
 //        TableReport.saveConcatenatedReports(reports);
 //    }
         
+    
+    public void clear(){
+        this.tasks.clear();
+    }
     
 }

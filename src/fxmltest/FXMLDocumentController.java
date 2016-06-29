@@ -328,6 +328,12 @@ public class FXMLDocumentController implements Initializable {
     private Label totalDuplicates;
     @FXML
     private Label totalRef;
+    @FXML
+    private Label holesLabel;
+    @FXML
+    private Label overlapsLabel;
+    @FXML
+    private Label duplicatesLabel;
     
     
     
@@ -339,6 +345,7 @@ public class FXMLDocumentController implements Initializable {
     public static FXMLDocumentController getController(){
         return controller;
     }
+
     private void handleButtonAction(ActionEvent event) {
         createLoginPopUp();
         label.setText("Hello World!");
@@ -543,7 +550,18 @@ public class FXMLDocumentController implements Initializable {
 
         //parentTableBox.getChildren().remove(1);
 //        childTableBox.getChildren().remove(1);
-        
+        while (parentTableBox.getChildren().size() > 1){
+            parentTableBox.getChildren().remove(1);
+        }
+        while (childTableBox.getChildren().size() > 1){
+            childTableBox.getChildren().remove(1);
+        }
+        while (parentColumnBox.getChildren().size() > 1){
+            parentColumnBox.getChildren().remove(1);
+        }
+        while (childColumnBox.getChildren().size() > 1){
+            childColumnBox.getChildren().remove(1);
+        }
         parentTables = new TableComboBox(getTables(), 0);
         childTables = new TableComboBox(getTables(), 1);
         
@@ -555,6 +573,8 @@ public class FXMLDocumentController implements Initializable {
         
         parentColumns = new ColumnComboBox();
         childColumns = new ColumnComboBox();
+        
+
 //        parentColumnBox.getChildren().remove(1);
 //        childColumnBox.getChildren().remove(1);        
                 
@@ -987,8 +1007,11 @@ public class FXMLDocumentController implements Initializable {
         String table = getTables().get(selected).getName();
         DatesEngine engine = 
             new DatesEngine(connector, table, "valid_from", "valid_to", dateColumns());
-        engine.checkDates();
+        ArrayList<Integer> results = engine.checkDates();
         String query = engine.overlapQuery();
+        holesLabel.setText("Number of Holes: " + results.get(0));
+        overlapsLabel.setText("Number of Overlaps: " + results.get(1));
+        
         System.out.println("overlap : \n" +  query);
         System.out.println("holes : \n" +  engine.holesQuery());
         System.out.println(MetaDataConnector.getCount(connector.getDbName(), table, "valid_from"));
@@ -1083,6 +1106,7 @@ public class FXMLDocumentController implements Initializable {
         DuplicatesEngine engine = 
                 new DuplicatesEngine(connector, table, duplicationColumns());
         int result = engine.checkDuplicates();
+        duplicatesLabel.setText("Number of Duplicates:  " + result);
         System.out.println("RESULT : " +  result);
     }
     
@@ -1197,11 +1221,20 @@ public class FXMLDocumentController implements Initializable {
     public void initializeDateCheck(){
         dateKeysList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         updateColumnsList(getTables().get(1));
-
+        
         dateTables = new TableComboBox(getTables(), 0);
         dateTables.getSelectionModel().select(1);
         dateFromColumns = new ColumnComboBox();
         dateToColumns = new ColumnComboBox();
+        while (dateTableBox.getChildren().size() > 1){
+            dateTableBox.getChildren().remove(1);
+        }
+        while (dateFromBox.getChildren().size() > 1){
+            dateFromBox.getChildren().remove(1);
+        }
+        while (dateToBox.getChildren().size() > 1){
+            dateToBox.getChildren().remove(1);
+        }
         dateTableBox.getChildren().add(dateTables);
         dateFromBox.getChildren().add(dateFromColumns);
         dateToBox.getChildren().add(dateToColumns);
@@ -1227,7 +1260,9 @@ public class FXMLDocumentController implements Initializable {
 
         duplicateTables = new TableComboBox(getTables(), 0);
         duplicateTables.getSelectionModel().select(1);
-                
+        
+        while (duplicatesTableBox.getChildren().size() > 1)
+            duplicatesTableBox.getChildren().remove(1);
         duplicatesTableBox.getChildren().add(duplicateTables);
         
         duplicateTables.valueProperty().addListener(new ChangeListener<Label>() {
@@ -1379,7 +1414,17 @@ public class FXMLDocumentController implements Initializable {
         System.out.println("RESULTS: " + MetaDataConnector.getRefs());
         System.out.println("COUNT : " + count);
     }
+
     
+        @FXML
+    private void copyQueryDatesAction(ActionEvent event){
+        //
+    }
+        @FXML
+    private void copyQueryDuplicatesAction(ActionEvent event){
+        //DatesEngine
+    }
+
     
     public void resetRefLabel(){
         refResultLabel.setText("");

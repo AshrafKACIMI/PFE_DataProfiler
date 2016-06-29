@@ -352,6 +352,11 @@ public class TableReport {
         if (toPdf) {
             try {
                 getReport().toPdf(fos);
+                String attached = EmailOptions.getFileDirectory() + fileName;
+                if (EmailOptions.isOn()){
+                    ReportingEMail mail = new ReportingEMail(attached, fileName);
+                    mail.send();
+                }
             } catch (DRException ex) {
                 Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
             }
