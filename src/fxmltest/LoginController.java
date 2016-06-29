@@ -107,6 +107,8 @@ public class LoginController implements Initializable {
                         controller.initializeDateCheck();
                         controller.initializeDuplicateCheck();
                         controller.initializeDashboard();
+                        controller.setTitleLabel(userInput.getText());
+                        controller.refreshDashboard();
                         
                         FXMLDocumentController.closeLoginDialog();
                         

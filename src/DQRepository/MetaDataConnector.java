@@ -217,6 +217,10 @@ public class MetaDataConnector {
     
     public static int getCount(String dbName, String tableName, String columnName){
         int count = 0;
+        System.out.println("DB NAME: "+ dbName);
+        System.out.println("table NAME: "+ tableName);
+        System.out.println("column NAME: "+ columnName);
+        
         String query = "SELECT a.count\n" +
         "	FROM mesures a\n" +
         "\n" +
@@ -415,6 +419,33 @@ public class MetaDataConnector {
         return null;
 
     }
+
+    public static void insertDate(Connection Sqliteconn, String dbName, String table, int nbHoles, int nbOverlaps, int nbTotal, String timeStamp) {
+       try {
+           
+            Statement stmt = Sqliteconn.createStatement();
+            System.out.println(dbName);
+            System.out.println(table);
+            System.out.println(nbHoles);
+            System.out.println(nbOverlaps);
+            System.out.println(timeStamp);
+            
+            String query = 
+                    "insert into Dates values("
+                    + "'" + dbName + "'" + ", "
+                    + "'" + table + "'" + ", "
+                    + nbHoles + ", "
+                    + nbOverlaps + ", "
+                    + nbTotal + ", "
+                    +  "'" + timeStamp + "'" + ")";
+            stmt.executeUpdate(query);
+            stmt.close();
+        } catch (SQLException ex) {
+            Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
 
 
     public String getConnectionURL(){
@@ -727,6 +758,66 @@ public class MetaDataConnector {
         
     }
     
+        public static ArrayList<Integer> getDates(String dbName){
+        String query =
+        "select sum(nbHoles) holes , sum(nbOverlaps) overlaps, sum(nbTotal) total\n" +
+        "FROM\n" +
+        "(\n" +
+        "		\n" +
+        "SELECT a.dbName, a.tableName, a.nbHoles, a.nbOverlaps, a.nbTotal\n" +
+        "	FROM Dates a\n" +
+        "\n" +
+        "	JOIN \n" +
+        "	(\n" +
+        "	    SELECT dbName, tableName, MAX(timestamp) timestamp\n" +
+        "	    FROM Dates\n" +
+        "	    GROUP BY dbName, tableName\n" +
+        "	) b \n" +
+        "ON a.dbName = b.dbName AND a.tableName = b.tableName AND a.timestamp = b.timestamp \n"
+                + " WHERE a.dbName = ?" +
+        ")";
+                
+                
+        ArrayList<Integer> results = new ArrayList<Integer>();
+                
+                
+        System.out.println(query);
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, dbName);
+                
+                ResultSet rs=stmt.executeQuery();
+                if (rs.next()){
+                    int nb_holes = rs.getInt("holes");
+                    int nb_overlaps = rs.getInt("overlaps");
+                    int total = rs.getInt("total");
+                    results.add(Integer.valueOf(nb_holes));
+                    results.add(Integer.valueOf(nb_overlaps));
+                    results.add(Integer.valueOf(total));
+                }
+
+                System.out.println("count NOW: " + results);
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        
+            return results;     
+    }
+    
     public static void insertDuplicate(Connection con, String dbName, String table, ArrayList<String> keys, int nbDuplicates, String timeStamp) {
         try {
             Statement stmt = con.createStatement();
@@ -751,5 +842,275 @@ public class MetaDataConnector {
         
     }
     
+    public  String violMaxQuery(String dbName){
+        String query = 
+                "select count(*) max \n" +
+"from \n" +
+"(	\n" +
+"	SELECT a.idColumn, a.timestamp, a.min, a.max\n" +
+"	FROM mesures a\n" +
+"\n" +
+"	JOIN \n" +
+"	(\n" +
+"	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+"	    FROM mesures\n" +
+"	    GROUP BY idColumn\n" +
+"	) b \n" +
+"	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        ") m\n" +
+        "\n" +
+        "join\n" +
+        "\n" +
+        "(select idColumn, min mind, max maxd\n" +
+        "from dqrules\n" +
+        "where max <> ''\n" +
+        ") d\n" +
+        "on m.idColumn = d.idColumn\n" +
+        "JOIN\n" +
+        "(\n" +
+        " select id\n" +
+        "from columns\n" +
+        "where db_Name="+ dbName+"\n" +
+        ") c\n" +
+        "on c.id = d.idColumn\n" +
+        "\n" +
+        "WHERE max > maxd";
+        
+        
+        return query;
+    }
+    
+    
+        public static String violMinQuery(String dbName){
+        String query = 
+                "select count(*) min \n" +
+"from \n" +
+"(	\n" +
+"	SELECT a.idColumn, a.timestamp, a.min, a.max\n" +
+"	FROM mesures a\n" +
+"\n" +
+"	JOIN \n" +
+"	(\n" +
+"	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+"	    FROM mesures\n" +
+"	    GROUP BY idColumn\n" +
+"	) b \n" +
+"	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        ") m\n" +
+        "\n" +
+        "join\n" +
+        "\n" +
+        "(select idColumn, min mind, max maxd\n" +
+        "from dqrules\n" +
+        "where min <> '' \n" +
+        ") d\n" +
+        "on m.idColumn = d.idColumn\n" +
+        "JOIN\n" +
+        "(\n" +
+        " select id\n" +
+        "from columns\n" +
+        "where db_Name="+ dbName+"\n" +
+        ") c\n" +
+        "on c.id = d.idColumn\n" +
+        "\n" +
+        "WHERE min < mind";
+        
+        
+        return query;
+    }
+        
+        private static String totalMinMaxQuery(String dbName){
+            String query = 
+                    "select count(*) total \n" +
+                    "from\n" +
+                    "(\n" +
+                    "select id from columns\n" +
+                    "where db_name = "+ dbName + " \n" +
+                    ") c\n" +
+                    "join\n" +
+                    "(select idColumn, min, max\n" +
+                    "from dqrules\n" +
+                    "where min <> '' or max <> ''\n" +
+                    ") d\n" +
+                    "on d.idColumn = c.id";
+            return query;
+        }
+        
+        
+        public static ArrayList<Integer> minMaxViolations(String dbName){
+            ArrayList<Integer> results = new ArrayList<Integer>();
+            int nbMin = 0;
+            int nbMax = 0;
+            int nbTotal = 0;
+            
+            String query3 = 
+                    "select count(*) total \n" +
+                    "from\n" +
+                    "(\n" +
+                    "select id from columns\n" +
+                    "where db_name = "+ "'" + dbName+ "'"  + " \n" +
+                    ") c\n" +
+                    "join\n" +
+                    "(select idColumn, min, max\n" +
+                    "from dqrules\n" +
+                    "where min <> '' or max <> ''\n" +
+                    ") d\n" +
+                    "on d.idColumn = c.id";
+            
+            String query2 = 
+                "select count(*) min \n" +
+"from \n" +
+"(	\n" +
+"	SELECT a.idColumn, a.timestamp, a.min, a.max\n" +
+"	FROM mesures a\n" +
+"\n" +
+"	JOIN \n" +
+"	(\n" +
+"	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+"	    FROM mesures\n" +
+"	    GROUP BY idColumn\n" +
+"	) b \n" +
+"	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        ") m\n" +
+        "\n" +
+        "join\n" +
+        "\n" +
+        "(select idColumn, min mind, max maxd\n" +
+        "from dqrules\n" +
+        "where min <> '' \n" +
+        ") d\n" +
+        "on m.idColumn = d.idColumn\n" +
+        "JOIN\n" +
+        "(\n" +
+        " select id\n" +
+        "from columns\n" +
+        "where db_Name="+ "'" + dbName+ "'" +"\n" +
+        ") c\n" +
+        "on c.id = d.idColumn\n" +
+        "\n" +
+        "WHERE min < mind";
+            
+            String query = 
+                "select count(*) max \n" +
+"from \n" +
+"(	\n" +
+"	SELECT a.idColumn, a.timestamp, a.min, a.max\n" +
+"	FROM mesures a\n" +
+"\n" +
+"	JOIN \n" +
+"	(\n" +
+"	    SELECT idColumn, MAX(timestamp) timestamp\n" +
+"	    FROM mesures\n" +
+"	    GROUP BY idColumn\n" +
+"	) b \n" +
+"	ON a.idColumn = b.idColumn AND a.timestamp = b.timestamp \n" +
+        ") m\n" +
+        "\n" +
+        "join\n" +
+        "\n" +
+        "(select idColumn, min mind, max maxd\n" +
+        "from dqrules\n" +
+        "where max <> ''\n" +
+        ") d\n" +
+        "on m.idColumn = d.idColumn\n" +
+        "JOIN\n" +
+        "(\n" +
+        " select id\n" +
+        "from columns\n" +
+        "where db_Name="+ "'" + dbName + "'" +"\n" +
+        ") c\n" +
+        "on c.id = d.idColumn\n" +
+        "\n" +
+        "WHERE max > maxd";
+            
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                
+                Statement stmt = con.createStatement();
+                
+                
+                ResultSet rs=stmt.executeQuery(query2);
+                if (rs.next())
+                    nbMin = rs.getInt("min");
+                
+                    
+                ResultSet rs2=stmt.executeQuery(query);
+                if (rs2.next())
+                    nbMax = rs2.getInt("max");
+                
+                ResultSet rs3=stmt.executeQuery(query3);
+                if (rs3.next())
+                    nbTotal = rs3.getInt("total");
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+            results.add(nbMin);
+            results.add(nbMax);
+            results.add(nbTotal);
+            return results;
+            
+        }
+        
+        public static String getLastTimestamp(){
+        	String timestamp = "";
+        	String query = 
+        			"select max(timestamp) from mesures";
+        	
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                
+                Statement stmt = con.createStatement();
+                
+                
+                ResultSet rs=stmt.executeQuery(query);
+                if (rs.next())
+                	timestamp = rs.getString(1);
+
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        	
+        	return timestamp;
+        }
+    
+            
+    
     
 }
+
+
+
+
+
+
+
+
+

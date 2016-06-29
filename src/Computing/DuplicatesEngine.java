@@ -13,6 +13,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,18 +38,21 @@ public class DuplicatesEngine {
     public int checkDuplicates(){
         int count = 0;
         String keysString = String.join(", ", this.keys);
+
+        
         String query = 
-                "SELECT\n" +
-                "   ?, COUNT(*) c\n" +
-                "FROM " + table +
-                " \n " +
-                "GROUP BY\n" +
-                "    ? \n" +
-                "HAVING \n" +
-                "    COUNT(*) > 1";
+        		"SELECT ( SELECT COUNT(*) FROM \n" + 
+			      "( \n "+
+			      "select " + keysString  + "\n"
+			      + "from sh." +table + " ) \n ) - \n "+ 
+			      "( SELECT COUNT(*) FROM \n" + 
+			      "( \n "+
+			      "select DISTINCT " + keysString  + "\n"
+			      + "from sh." +table + " ) \n " 
+			      + ") duplications FROM DUAL";
         
-        
-                try {
+        System.out.println("PPPP QUERY : " + query.replace("?", keysString));
+        try {
             String connectionURL = connector.getConnectionURL();
             String userName = connector.getUserName();
             String password = connector.getPassword();
@@ -64,19 +68,18 @@ public class DuplicatesEngine {
                     password);
             
             //step3 create the statement object
-            PreparedStatement stmt=con.prepareStatement(query);
-            stmt.setString(1, keysString);
-            System.out.println("keys STATEMENT: " + keysString);
+            //PreparedStatement stmt=con.prepareStatement(query);
+            Statement stmt = con.createStatement();
+//            stmt.setString(1, keysString);
+            System.out.println("DUPLICATION QUERY : " + query );
             
-            
-            stmt.setString(2, keysString);
-            System.out.println("keys STATEMENT: " + keysString);
+//            stmt.setString(2, keysString);
             
             try {
                 //step4 execute query
-                ResultSet rs=stmt.executeQuery();
+                ResultSet rs=stmt.executeQuery(query);
                 if (rs.next())
-                    count = rs.getInt("c");
+                    count = rs.getInt("duplications");
             } catch (SQLException ex) {
                 Logger.getLogger(DuplicatesEngine.class.getName()).log(Level.SEVERE, null, ex);
             }

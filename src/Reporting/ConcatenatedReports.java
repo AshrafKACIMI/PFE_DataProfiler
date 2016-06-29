@@ -9,6 +9,8 @@ package Reporting;
 import Entities.TableInfo;
 import Mail.EmailOptions;
 import Mail.ReportingEMail;
+import javafx.application.Platform;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +22,7 @@ import java.util.logging.Logger;
 import net.sf.dynamicreports.jasper.builder.JasperConcatenatedReportBuilder;
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.exception.DRException;
+
 
 /**
  *
@@ -45,7 +48,7 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
         super();
         this.reports = new ArrayList<JasperReportBuilder>();
         for (TableInfo table: tables)
-            this.reports.add(new TableReport(table, false).getReport());
+            this.reports.add(new TableReport(table, false, true).getReport());
     }
     
     
@@ -62,11 +65,13 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
         
         String fileTimeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
                     .format(Calendar.getInstance().getTime());
+        
         String fileName = "Concat results" + " " 
                     + fileTimeStamp + ".pdf";
         currentReportName = fileName;
         String saveFolder = System.getProperty("user.home")+"\\Profiling Results\\";
         String saveTo = saveFolder + fileName;
+        reports.clear();
         
         FileOutputStream fos = null;
             try {
@@ -75,8 +80,12 @@ public class ConcatenatedReports extends JasperConcatenatedReportBuilder{
                     toPdf(fos);
                     String attached = EmailOptions.getFileDirectory() + ConcatenatedReports.getCurrentReportName();
                     if (EmailOptions.isOn()){
-                        ReportingEMail mail = new ReportingEMail(attached);
-                        mail.send();
+                        
+                    	 Platform.runLater(() -> {
+                    		 ReportingEMail mail = new ReportingEMail(attached, ConcatenatedReports.getCurrentReportName());
+                             mail.send();
+                    	 });
+
                     }
                         
                     try {
