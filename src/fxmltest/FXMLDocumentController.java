@@ -43,15 +43,21 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.JFXToggleButton;
 import de.jensd.fx.fontawesome.AwesomeIcon;
 import de.jensd.fx.fontawesome.Icon;
+
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.hsqldb.Table;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -127,6 +133,7 @@ public class FXMLDocumentController implements Initializable {
     }
     
     private Label label;
+    
     private static IConnector connector;
     private static ArrayList<TableInfo> tables;
     private int tableNumber;
@@ -141,7 +148,10 @@ public class FXMLDocumentController implements Initializable {
     
 
     
-
+    @FXML
+    private Label titleLabel;
+    @FXML
+    private Label lastMesuredLabel;
     @FXML
     private TreeView tableTreeView;
     @FXML
@@ -335,6 +345,8 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private Label duplicatesLabel;
     
+    @FXML
+    private JFXButton refreshButton;
     
     
     
@@ -417,12 +429,13 @@ public class FXMLDocumentController implements Initializable {
             loginPopup.setSource(badge);
             loginPopup.show(PopupVPosition.TOP, PopupHPosition.RIGHT);
         });
-        notificationBox.getChildren().add(new ToolbarIcon(badge));
 
         
         ToolbarIcon schedulerStart = new ToolbarIcon(AwesomeIcon.PLAY);
         ToolbarIcon newConnection = new ToolbarIcon((AwesomeIcon.PLUG));
         ToolbarIcon scheduleLater = new ToolbarIcon((AwesomeIcon.ARCHIVE));
+        ToolbarIcon openFolder = new ToolbarIcon((AwesomeIcon.FOLDER));
+        notificationBox.getChildren().addAll(openFolder, new ToolbarIcon(badge));
         
         newConnection.setOnMouseClicked(new EventHandler<MouseEvent>(){
 
@@ -450,6 +463,18 @@ public class FXMLDocumentController implements Initializable {
             }
         });
         
+        openFolder.setOnMouseClicked(new EventHandler<MouseEvent>(){
+
+            @Override
+            public void handle(MouseEvent event) {
+            	try {
+					Desktop.getDesktop().open(new File(EmailOptions.getFileDirectory()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
+        });
         
         controlBox.getChildren().addAll(newConnection, schedulerStart, scheduleLater);
         controller = this;
@@ -604,7 +629,7 @@ public class FXMLDocumentController implements Initializable {
             TreeItem<String> treeTab = new TreeItem<String>(tab.getName());
             
             for (ColumnInfo col: tab.getColumns()){
-                treeTab.getChildren().add(new TreeItem<String>(col.getName()+":"+col.getType()));
+                treeTab.getChildren().add(new TreeItem<String>(col.getName()+" ["+col.getType()+" ]"));
             }
             
             treeRoot.getChildren().add(treeTab);
@@ -938,7 +963,7 @@ public class FXMLDocumentController implements Initializable {
                 case CANCELLED:
                 case SUCCEEDED:
                     //loadTable();
-                    JasperReportBuilder report = new TableReport(table, false).getReport();
+                    JasperReportBuilder report = new TableReport(table, false, true).getReport();
                     scheduler.addReport(report);
                     dashboardCompletenessProgress.setProgress(getOverallCompleteness());
                     scheduler.decCount();
@@ -1009,8 +1034,8 @@ public class FXMLDocumentController implements Initializable {
             new DatesEngine(connector, table, "valid_from", "valid_to", dateColumns());
         ArrayList<Integer> results = engine.checkDates();
         String query = engine.overlapQuery();
-        holesLabel.setText("Number of Holes: " + results.get(0));
-        overlapsLabel.setText("Number of Overlaps: " + results.get(1));
+        holesLabel.setText(Integer.toString(results.get(0)));
+        overlapsLabel.setText(Integer.toString(results.get(1)));
         
         System.out.println("overlap : \n" +  query);
         System.out.println("holes : \n" +  engine.holesQuery());
@@ -1106,7 +1131,7 @@ public class FXMLDocumentController implements Initializable {
         DuplicatesEngine engine = 
                 new DuplicatesEngine(connector, table, duplicationColumns());
         int result = engine.checkDuplicates();
-        duplicatesLabel.setText("Number of Duplicates:  " + result);
+        duplicatesLabel.setText(Integer.toString(result));
         System.out.println("RESULT : " +  result);
     }
     
@@ -1123,7 +1148,7 @@ public class FXMLDocumentController implements Initializable {
         int result = engine.checkReferentialIntegrity();
         refArea.setText(value);
         if(result >= 0)
-            refResultLabel.setText(Integer.toString(result));
+            refResultLabel.setText(Integer.toString(result) + " Brokens References");
         else
             refResultLabel.setText("Incompatible columns");
     }
@@ -1131,7 +1156,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void selectFolder(){
         DirectoryChooser chooser = new DirectoryChooser();
-        chooser.setTitle("JavaFX Projects");
+        chooser.setTitle("Browse");
         File defaultDirectory = new File(EmailOptions.getFileDirectory());
         chooser.setInitialDirectory(defaultDirectory);
         File selectedDirectory = chooser.showDialog(DataProfilerPFE.getMainStage());
@@ -1248,6 +1273,9 @@ public class FXMLDocumentController implements Initializable {
                 updateColumnsList(getTables().get(selected));
                 dateFromColumns.update(selected);
                 dateToColumns.update(selected);
+                holesLabel.setText("");
+                overlapsLabel.setText("");
+                
                 
             }
         });
@@ -1339,19 +1367,25 @@ public class FXMLDocumentController implements Initializable {
 
     private void refreshCompleteness() {
         ArrayList<Integer> results = MetaDataConnector.getCompleteness(connector.getDbName());
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);	
+        int total = results.get(0) + results.get(1);
         completenessChartData =
                 FXCollections.observableArrayList(
-                        new PieChart.Data("Present", results.get(0)),
-                        new PieChart.Data("Missing", results.get(1)));
+                        new PieChart.Data("Present [" + df.format((float)results.get(0) * 100 /total) + "%]", results.get(0)),
+                        new PieChart.Data("Missing[" + df.format((float)results.get(1)* 100 /total) + "%]", results.get(1)));
         completenessChart.setData(completenessChartData);
     }
 
         private void refreshUniqueness() {
         ArrayList<Integer> results = MetaDataConnector.getUniqueness(connector.getDbName());
+        int total = results.get(0) + results.get(1);
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);	
          unicityChartData =
                 FXCollections.observableArrayList(
-                        new PieChart.Data("Distinct", results.get(0)),
-                        new PieChart.Data("Duplicate", results.get(1)));
+                        new PieChart.Data("Distinct[ "+ df.format((float)results.get(0) * 100 /total)+ "%]", results.get(0)),
+                        new PieChart.Data("Duplicate[ "+ df.format((float)results.get(1) * 100 /total)+ "%]", results.get(1)));
         unicityChart.setData(unicityChartData);
     }
     private void refreshTotalRows() {
@@ -1362,37 +1396,51 @@ public class FXMLDocumentController implements Initializable {
     }
     
     private void refreshIntegrity() {
+        
         ArrayList<Integer> results = MetaDataConnector.getRefs();
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);	
+        int total = results.get(1);
+        int valid = total - results.get(0);
         integrityChartData =
                 FXCollections.observableArrayList(
-                        new PieChart.Data("Valid", results.get(1) - results.get(0)),
-                        new PieChart.Data("Broken", results.get(0)));
+                        new PieChart.Data("Valid[ " + df.format((float) valid * 100 /total)+ "%]", valid),
+                        new PieChart.Data("Broken[ " + df.format((float) results.get(0) * 100 /total)+ "%]", results.get(0)));
         integrityChart.setData(integrityChartData);
         totalRef.setText(Integer.toString(results.get(0)));
     }
     
     private void refreshDates() {
         ArrayList<Integer> results = MetaDataConnector.getDates(connector.getDbName());
-        
+        int valid = results.get(2) - results.get(0) - results.get(1);
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);	
         consistencyChartData =
                 FXCollections.observableArrayList(
-                        new PieChart.Data("Valid", results.get(2) - results.get(0) - results.get(1)),
-                        new PieChart.Data("Holes", results.get(0)),
-                        new PieChart.Data("Overlaps", results.get(1))
+                        new PieChart.Data("Valid[ " + df.format((float) valid * 100 /results.get(2))+ "%]", valid),
+                        new PieChart.Data("Holes[ "+ df.format((float) results.get(0) * 100 /results.get(2))+ "%]", results.get(0)),
+                        new PieChart.Data("Overlaps[ "+ df.format((float) results.get(1) * 100 /results.get(2))+ "%]", results.get(1))
                 );
         consistencyChart.setData(consistencyChartData);
     }
     
     private void refreshValidity() {
         ArrayList<Integer> results = MetaDataConnector.minMaxViolations(connector.getDbName());
-        System.out.println(results.get(0));
-        System.out.println(results.get(1));
-        System.out.println(results.get(2));
+        System.out.println("MIN: " + results.get(0));
+        System.out.println("MAX: " + results.get(1));
+        System.out.println("TOTAL: " + results.get(2));
+        DecimalFormat df = new DecimalFormat();
+        df.setMaximumFractionDigits(2);	
+        int valid = results.get(2) - results.get(0) - results.get(1);
+        int min = results.get(0);
+        int max = results.get(1);
+        int total = min + max + valid;
+        
         validityChartData =
                 FXCollections.observableArrayList(
-                        new PieChart.Data("Valid", results.get(2) - results.get(0) - results.get(1)),
-                        new PieChart.Data("< Min", results.get(0)),
-                        new PieChart.Data("> Max", results.get(1))
+                        new PieChart.Data("Valid [" + df.format((float) valid * 100 /total)+ "%]", valid),
+                        new PieChart.Data("< Min [" + df.format((float) min * 100 /total)+ "%]", min),
+                        new PieChart.Data("> Max [" + df.format((float) max * 100 /total)+ "%]", max)
                 );
         validityChart.setData(validityChartData);
     }
@@ -1405,6 +1453,11 @@ public class FXMLDocumentController implements Initializable {
         refreshIntegrity();
         refreshDates();
         refreshValidity();
+        String timestamp = MetaDataConnector.getLastTimestamp();
+        String last = timestamp.substring(0, 4) + "/" + timestamp.substring(4, 6) + "/" + timestamp.substring(6, 8);
+        last += " " + timestamp.substring(8, 10) + ":" + timestamp.substring(10, 12) + ":" + timestamp.substring(12, 14);
+        
+        lastMesuredLabel.setText("Last mesured: " + last);
         int total = MetaDataConnector.getTotalRows(connector.getDbName());
         int count = MetaDataConnector.getCount("sh", "CUSTOMERS", "CUST_EFF_FROM");
         int duplicates = MetaDataConnector.getDuplicates(connector.getDbName());
@@ -1418,7 +1471,7 @@ public class FXMLDocumentController implements Initializable {
     
         @FXML
     private void copyQueryDatesAction(ActionEvent event){
-        //
+        //DatesEngine
     }
         @FXML
     private void copyQueryDuplicatesAction(ActionEvent event){
@@ -1451,5 +1504,20 @@ public class FXMLDocumentController implements Initializable {
         System.out.println(String.join(",", keys));
         return keys;
     }
+    
+    public void setTitleLabel(String dbName){
+    	titleLabel.setText("Data Profiler      " + dbName);
+    }
+    
+    public void refreshDashboard(){
+    	refreshButton.fire();
+    }
          
+    public static TableInfo getTableByName(String tableName){
+    	for (TableInfo t: getTables()){
+    		if (t.getName().equals(tableName))
+    			return t;
+    	}
+    	return null;
+    }
 }

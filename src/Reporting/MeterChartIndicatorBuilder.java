@@ -10,6 +10,9 @@ import Entities.TableInfo;
 import java.awt.Color;
 import static net.sf.dynamicreports.report.builder.DynamicReports.cht;
 import net.sf.dynamicreports.report.builder.chart.MeterChartBuilder;
+import net.sf.dynamicreports.*;
+
+
 
 /**
  *

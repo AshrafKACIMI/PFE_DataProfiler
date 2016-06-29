@@ -11,6 +11,7 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXToggleButton?>
 <?import com.jfoenix.controls.JFXToolbar?>
+<?import com.jfoenix.transitions.hamburger.HamburgerBackArrowBasicTransition?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.BarChart?>
 <?import javafx.scene.chart.CategoryAxis?>
@@ -46,9 +47,13 @@
 				<JFXToolbar>
 					<leftItems>
 						<JFXRippler maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
-							<StackPane fx:id="titleBurgerContainer" />
+							<StackPane fx:id="titleBurgerContainer">
+								<JFXHamburger fx:id="titleBurger">
+									<HamburgerBackArrowBasicTransition />
+								</JFXHamburger>
+							</StackPane>
 						</JFXRippler>
-						<Label>Data Profiler</Label>
+						<Label fx:id="titleLabel">Data Profiler</Label>
 					</leftItems>
 					<rightItems>
 						<JFXRippler fx:id="optionsRippler" maskType="CIRCLE" style="-fx-ripple-color:WHITE;">
@@ -350,52 +355,75 @@
                  <content>
                    <AnchorPane minHeight="0.0" minWidth="0.0">
                         <children>
-                           <VBox alignment="BOTTOM_CENTER" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="50.0">
+                           <GridPane layoutX="120.0" layoutY="80.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="120.0" AnchorPane.rightAnchor="120.0" AnchorPane.topAnchor="50.0">
+                              <columnConstraints>
+                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="924.66650390625" minWidth="10.0" prefWidth="726.0" />
+                                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="234.0" minWidth="10.0" prefWidth="234.0" />
+                              </columnConstraints>
+                              <rowConstraints>
+                                 <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              </rowConstraints>
                               <children>
-                                 <HBox fx:id="dateTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <VBox alignment="BOTTOM_CENTER">
                                     <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
+                                       <HBox fx:id="dateTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                          <children>
+                                             <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
+                                          </children>
+                                       </HBox>
+                                       <HBox fx:id="dateFromBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                          <children>
+                                             <Label prefWidth="150.0" styleClass="mailLabel" text="Valid From Column :" />
+                                          </children>
+                                       </HBox>
+                                       <HBox fx:id="dateToBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                          <children>
+                                             <Label prefWidth="150.0" styleClass="mailLabel" text="Valid To Column :" />
+                                          </children>
+                                       </HBox>
+                                       <Label style="-fx-font-size: 20; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
+                                          <padding>
+                                             <Insets bottom="5.0" />
+                                          </padding>
+                                       </Label>
+                                       <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
+                                          <children>
+                                             <JFXListView fx:id="dateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                          </children>
+                                       </AnchorPane>
+                                       <HBox alignment="CENTER" spacing="50.0">
+                                          <children>
+                                             <JFXButton fx:id="dateCheckButton" alignment="CENTER" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Dates" textFill="#fcf9f9" />
+                                             <JFXButton fx:id="copyQueryDates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
+                                          </children>
+                                          <VBox.margin>
+                                             <Insets top="10.0" />
+                                          </VBox.margin>
+                                       </HBox>
+                                       <HBox>
+                                          <padding>
+                                             <Insets left="150.0" right="150.0" />
+                                          </padding>
+                                       </HBox>
                                     </children>
-                                 </HBox>
-                                 <HBox fx:id="dateFromBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 </VBox>
+                                 <VBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="1">
                                     <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Valid From Column :" />
+                                       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Holes: " />
+                                       <Label fx:id="holesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" />
+                                       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Overlaps: ">
+                                          <padding>
+                                             <Insets top="50.0" />
+                                          </padding>
+                                       </Label>
+                                       <Label fx:id="overlapsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" />
                                     </children>
-                                 </HBox>
-                                 <HBox fx:id="dateToBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
-                                    <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Valid To Column :" />
-                                    </children>
-                                 </HBox>
-                                 <Label style="-fx-font-size: 20; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
-                                    <padding>
-                                       <Insets bottom="5.0" />
-                                    </padding></Label>
-                                 <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
-                                    <children>
-                                       <JFXListView fx:id="dateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                                    </children>
-                                 </AnchorPane>
-                                 <HBox alignment="CENTER" spacing="50.0">
-                                    <children>
-                                       <JFXButton fx:id="dateCheckButton" alignment="CENTER" contentDisplay="CENTER" onAction="#checkDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Dates" textFill="#fcf9f9" />
-                                       <JFXButton fx:id="copyQueryDates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
-                                    </children>
-                                    <VBox.margin>
-                                       <Insets top="10.0" />
-                                    </VBox.margin>
-                                 </HBox>
-                                 <HBox>
-                                    <children>
-                                       <Label fx:id="holesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Holes: " />
-                                       <Label fx:id="overlapsLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Overlaps: " />
-                                    </children>
-                                    <padding>
-                                       <Insets left="150.0" right="150.0" />
-                                    </padding>
-                                 </HBox>
+                                    <GridPane.margin>
+                                       <Insets top="150.0" />
+                                    </GridPane.margin>
+                                 </VBox>
                               </children>
-                           </VBox>
+                           </GridPane>
                         </children>
                         <padding>
                            <Insets top="30.0" />
@@ -407,41 +435,58 @@
                   <content>
                      <AnchorPane minHeight="0.0" minWidth="0.0">
                         <children>
-                           <VBox alignment="CENTER" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="220.0" AnchorPane.topAnchor="110.0">
+                           <GridPane layoutX="220.0" layoutY="76.0" prefHeight="365.0" prefWidth="836.0" AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="220.0" AnchorPane.rightAnchor="144.0" AnchorPane.topAnchor="110.0">
+                              <columnConstraints>
+                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+                                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              </columnConstraints>
+                              <rowConstraints>
+                                 <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+                              </rowConstraints>
                               <children>
-                                 <HBox fx:id="duplicatesTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <VBox alignment="CENTER" prefHeight="379.0" prefWidth="476.0">
                                     <children>
-                                       <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
-                                    </children>
-                                 </HBox>
-                                 <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
-                                    <opaqueInsets>
-                                       <Insets bottom="5.0" />
-                                    </opaqueInsets></Label>
-                                 <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
-                                    <children>
-                                       <JFXListView fx:id="duplicateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
-                                    </children>
-                                 </AnchorPane>
-                                 <HBox alignment="CENTER" spacing="50.0">
-                                    <VBox.margin>
-                                       <Insets top="10.0" />
-                                    </VBox.margin>
-                                    <children>
-                                       <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Duplicates" textFill="#fcf9f9">
+                                       <HBox fx:id="duplicatesTableBox" alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                          <children>
+                                             <Label prefWidth="150.0" styleClass="mailLabel" text="Table Name :" />
+                                          </children>
+                                       </HBox>
+                                       <Label style="-fx-font-size: 18; -fx-text-fill: #009688ff; -fx-font-weight: bold;" text="Primary key columns">
                                           <opaqueInsets>
-                                             <Insets />
+                                             <Insets bottom="5.0" />
                                           </opaqueInsets>
-                                       </JFXButton>
-                                       <JFXButton fx:id="copyQueryDuplicates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDuplicatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
+                                       </Label>
+                                       <AnchorPane maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" prefWidth="450.0">
+                                          <children>
+                                             <JFXListView fx:id="duplicateKeysList" maxHeight="300.0" maxWidth="450.0" minHeight="300.0" minWidth="450.0" prefHeight="300.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+                                          </children>
+                                       </AnchorPane>
+                                       <HBox alignment="CENTER" spacing="50.0">
+                                          <VBox.margin>
+                                             <Insets top="10.0" />
+                                          </VBox.margin>
+                                          <children>
+                                             <JFXButton fx:id="duplicateButton" alignment="CENTER" contentDisplay="CENTER" onAction="#duplicateAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Check Duplicates" textFill="#fcf9f9">
+                                                <opaqueInsets>
+                                                   <Insets />
+                                                </opaqueInsets>
+                                             </JFXButton>
+                                             <JFXButton fx:id="copyQueryDuplicates" alignment="CENTER" contentDisplay="CENTER" onAction="#copyQueryDuplicatesAction" ripplerFill="#792929" style="-fx-background-color: #3D8EB9;" text="Copy Query" textFill="#fcf9f9" />
+                                          </children>
+                                          <padding>
+                                             <Insets left="150.0" right="150.0" />
+                                          </padding>
+                                       </HBox>
                                     </children>
-                                    <padding>
-                                       <Insets left="150.0" right="150.0" />
-                                    </padding>
-                                 </HBox>
-                                 <Label fx:id="duplicatesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" text="Number of Duplicates:  " />
+                                 </VBox>
+                                 <VBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="1">
+                                    <children>
+                                       <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 16;" text="Number of Duplicates:  " />
+                                       <Label fx:id="duplicatesLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="39.0" prefWidth="504.0" style="-fx-font-size: 18;" />
+                                    </children>
+                                 </VBox>
                               </children>
-                           </VBox>
+                           </GridPane>
                         </children>
                      </AnchorPane>
                   </content>
@@ -464,8 +509,8 @@
                                     <children>
                                        <HBox alignment="CENTER" spacing="150.0">
                                           <children>
-                                             <PieChart fx:id="validityChart" legendVisible="false" maxHeight="300.0" maxWidth="350.0" minHeight="300.0" minWidth="350.0" prefHeight="300.0" prefWidth="350.0" startAngle="90.0" title="Validity" />
-                                             <PieChart fx:id="consistencyChart" legendVisible="false" maxHeight="300.0" maxWidth="350.0" minHeight="300.0" minWidth="350.0" prefHeight="300.0" prefWidth="350.0" startAngle="90.0" title="Date consistency" />
+                                             <PieChart fx:id="validityChart" labelsVisible="false" maxHeight="300.0" maxWidth="350.0" minHeight="300.0" minWidth="350.0" prefHeight="300.0" prefWidth="350.0" startAngle="90.0" title="Validity" />
+                                             <PieChart fx:id="consistencyChart" labelsVisible="false" maxHeight="300.0" maxWidth="350.0" minHeight="300.0" minWidth="350.0" prefHeight="300.0" prefWidth="350.0" startAngle="90.0" title="Date consistency" />
                                           </children>
                                        </HBox>
                                        <HBox alignment="CENTER" spacing="50.0" style="-fx-background-color: #E7E7E7;">
@@ -504,13 +549,21 @@
                                  </VBox>
                                  <HBox alignment="CENTER" prefHeight="54.0" prefWidth="1180.0" GridPane.columnSpan="2147483647">
                                     <children>
-                                       <JFXButton fx:id="refreshButton" buttonType="RAISED" onAction="#refreshAction" style="-fx-background-color: #637bff;" text="Refresh" textFill="#fff9f9">
+                                       <JFXButton fx:id="refreshButton" alignment="CENTER" buttonType="RAISED" contentDisplay="CENTER" onAction="#refreshAction" style="-fx-background-color: #637bff;" text="Refresh" textFill="#fff9f9">
                                           <HBox.margin>
-                                             <Insets top="20.0" />
+                                             <Insets right="200.0" top="50.0" />
                                           </HBox.margin>
                                        </JFXButton>
                                     </children>
                                  </HBox>
+                                 <Label fx:id="lastMesuredLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="966.0" text="Last mesured: ">
+                                    <padding>
+                                       <Insets right="20.0" />
+                                    </padding>
+                                    <font>
+                                       <Font size="16.0" />
+                                    </font>
+                                 </Label>
                               </children>
                            </GridPane>
                         </children>

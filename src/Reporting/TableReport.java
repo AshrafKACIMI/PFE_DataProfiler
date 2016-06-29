@@ -44,6 +44,8 @@ import net.sf.dynamicreports.report.constant.VerticalAlignment;
 import net.sf.dynamicreports.report.datasource.DRDataSource;
 import net.sf.dynamicreports.report.exception.DRException;
 import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.dynamicreports.*;
+import net.sf.jasperreports.*;
 
 /**
  * @author Ashraf
@@ -56,9 +58,16 @@ public class TableReport {
         JasperReportBuilder report = build(tab, toPdf);
     }
 
+    
+    public TableReport(TableInfo tab, boolean toPdf, boolean schedule) {
+        JasperReportBuilder report = build(tab, toPdf, true);
+    }
+
     public TableReport(String dbName, String tableName, boolean toPdf) {
         JasperReportBuilder report = build(dbName, tableName, toPdf);
     }
+    
+    
 
 //    private JasperReportBuilder build(TableInfo tab) {
 //        String saveFolder = EmailOptions.getFileDirectory();
@@ -222,8 +231,8 @@ public class TableReport {
         TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType()).setWidth(12);
         maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
 
-        MeterChartBuilder cht1 = MeterChartIndicatorBuilder.meterChart(70, 30, "Completeness");
-        MeterChartBuilder cht3 = MeterChartIndicatorBuilder.meterChart(80, 30, "Uniqueness");
+        MeterChartBuilder cht1 = MeterChartIndicatorBuilder.meterChart(FXMLDocumentController.getTableByName(tableName).getOverallCompleteness(), 30, "Completeness");
+        MeterChartBuilder cht3 = MeterChartIndicatorBuilder.meterChart(FXMLDocumentController.getTableByName(tableName).getOverallUniqueness(), 30, "Uniqueness");
 
         //        
         try {
@@ -354,8 +363,115 @@ public class TableReport {
                 getReport().toPdf(fos);
                 String attached = EmailOptions.getFileDirectory() + fileName;
                 if (EmailOptions.isOn()){
-                    ReportingEMail mail = new ReportingEMail(attached, fileName);
-                    mail.send();
+                	Platform.runLater(() -> {
+
+	                    ReportingEMail mail = new ReportingEMail(attached, fileName);
+	                    mail.send();
+                	});
+                }
+            } catch (DRException ex) {
+                Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        try {
+            fos.close();
+        } catch (IOException ex) {
+            Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+                return getReport();
+
+
+    //        if (EmailOptions.isOn()){
+        //            Platform.runLater(() -> {
+        //                Mail.ReportingEMail mail = new ReportingEMail(fileName);
+        //                mail.send();
+        //                String args[] = new String[3];
+        //                args[0] = fileName;
+        //                MailTest.main(args);
+        //            });
+        //        }
+        //            
+    }
+    
+    private JasperReportBuilder build(TableInfo table, boolean toPdf, boolean schedule) {
+        String saveFolder = //EmailOptions.getFileDirectory();
+                System.getProperty("user.home") + "\\Profiling Results\\";
+        Date currentDate = Calendar.getInstance().getTime();
+        String fileTimeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
+                .format(currentDate);
+        String titleTimeStamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+                .format(currentDate);
+        String fileName = table.getName() + " "
+                + fileTimeStamp + ".pdf";
+        String saveTo = saveFolder + fileName;
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(saveTo);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        StyleBuilder boldStyle = stl.style().bold();
+        StyleBuilder boldCenteredStyle = stl.style(boldStyle).setHorizontalAlignment(HorizontalAlignment.CENTER);
+        StyleBuilder columnTitleStyle = stl.style(boldCenteredStyle)
+                .setBorder(stl.pen1Point())
+                .setBackgroundColor(Color.LIGHT_GRAY);
+        StyleBuilder titleStyle = stl.style(boldCenteredStyle)
+                .setVerticalAlignment(VerticalAlignment.MIDDLE)
+                .setFontSize(15);
+        //"column", "nbNull", "nbNotNull", "nbRows", "min", "max"
+        TextColumnBuilder<String> itemColumn = col.column("Column", "column", type.stringType()).setStyle(boldStyle).setWidth(40);
+        TextColumnBuilder<Integer> nbNullColumn = col.column("Nb Null", "nbNull", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbDistinctColumn = col.column("Nb Distinct", "nbDistinct", type.integerType()).setWidth(12);
+        TextColumnBuilder<Integer> nbLinesColumn = col.column("Nb rows", "nbRows", type.integerType()).setWidth(12);
+        TextColumnBuilder<String> minColumn = col.column("Min", "min", type.stringType()).setWidth(12);
+        minColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
+        TextColumnBuilder<String> maxColumn = col.column("Max", "max", type.stringType()).setWidth(12);
+        maxColumn.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
+
+
+        report
+                = report()//create new report design
+                .setColumnTitleStyle(columnTitleStyle)
+                .setSubtotalStyle(boldStyle)
+                .highlightDetailEvenRows()
+                //                    .detailRowHighlighters(
+                //                            condition1)
+                .columns(//add columns
+                        itemColumn, nbNullColumn, nbDistinctColumn, nbLinesColumn, minColumn, maxColumn
+                //, problematicColumn
+                )
+                //.groupBy(itemGroup)
+                //                    .subtotalsAtSummary(
+                //                            sbt.sum(nbNullColumn), sbt.sum(nbLinesColumn))
+                //                    .subtotalsAtFirstGroupFooter(
+                //                            sbt.sum(nbDistinctColumn), sbt.sum(nbLinesColumn))
+
+                .title(//shows report title
+                        cmp.horizontalList()
+                        .add(
+                                cmp.image(getClass().getResource("bbi.png")).setFixedDimension(160, 120),
+                                cmp.text("BBI Profiling results" + titleTimeStamp).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.JUSTIFIED),
+                                cmp.text(table.getName()).setStyle(titleStyle).setHorizontalAlignment(HorizontalAlignment.RIGHT))
+                        .newRow()
+                        .add(cmp.filler().setStyle(stl.style().setTopBorder(stl.pen2Point())).setFixedHeight(10)))
+                .pageFooter(cmp.pageXofY().setStyle(boldCenteredStyle))//shows number of page at page footer
+                //.setDataSource(createDataSource(TablesFactory.getTables().get(0)))
+                .setDataSource(createDataSource(table.getSchema(), table.getName()));
+
+        if (toPdf) {
+            try {
+                getReport().toPdf(fos);
+                String attached = EmailOptions.getFileDirectory() + fileName;
+                if (EmailOptions.isOn()){
+                	Platform.runLater(() -> {
+
+	                    ReportingEMail mail = new ReportingEMail(attached, fileName);
+	                    mail.send();
+                	});
                 }
             } catch (DRException ex) {
                 Logger.getLogger(TableReport.class.getName()).log(Level.SEVERE, null, ex);

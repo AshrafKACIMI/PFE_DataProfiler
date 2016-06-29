@@ -1064,6 +1064,42 @@ public class MetaDataConnector {
             return results;
             
         }
+        
+        public static String getLastTimestamp(){
+        	String timestamp = "";
+        	String query = 
+        			"select max(timestamp) from mesures";
+        	
+            try {
+                Class.forName(jdbc);
+                Connection con;
+            try {
+                con = DriverManager.getConnection(connectionURL); //"jdbc:h2:~/test2", "test2", "" 
+                //Statement stmt = con.createStatement();
+                
+                Statement stmt = con.createStatement();
+                
+                
+                ResultSet rs=stmt.executeQuery(query);
+                if (rs.next())
+                	timestamp = rs.getString(1);
+
+                
+                stmt.close();
+                con.close();
+
+            } catch (SQLException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+                
+
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(MetaDataConnector.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+        	
+        	return timestamp;
+        }
     
             
     
